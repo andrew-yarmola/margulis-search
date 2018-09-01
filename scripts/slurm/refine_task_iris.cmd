@@ -1,11 +1,9 @@
 #!/bin/bash
-# serial job using 1 node and 8 processor,
-# and runs for 24 hours (max).
-#SBATCH -N 1 # node count
-#SBATCH --ntasks-per-node=16
-#SBATCH -t 23:59:00
-#SBATCH --mem=64GB
-#SBATCH --qos=qos-besteffort
+#SBATCH -N 5 # node count
+#SBATCH --ntasks-per-node=28
+#SBATCH -t 120:00:00
+#SBATCH --mem=10GB
+#SBATCH --qos=qos-batch
 # sends mail when process begins, and 
 # when it ends. Make sure you define your email 
 #SBATCH --mail-type=begin
@@ -20,8 +18,8 @@ search="$base_dir/scripts/dosearch.py"
 words="$words_dir/words"
 powers="$words_dir/powers_combined"
 
-data_dir=$base_dir
+data_dir="$base_dir"
 
 cd $bin_dir
 
-python "$search" -w "$words" -p "$powers" -c 16 "$data_dir/source" "$data_dir/output" > "$data_dir/refine.log" 2>&1
+python "$search" -w "$words" -p "$powers" -c 140 "$data_dir/source" "$data_dir/output" > "$data_dir/refine.log" 2>&1
