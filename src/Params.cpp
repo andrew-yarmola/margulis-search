@@ -1,52 +1,71 @@
-/*
- *  Params.cpp
- *  mom
- *
- *  Created by Nathaniel Thurston on 27/09/2007.
- *  Copyright 2007 THingith ehf.. All rights reserved.
- *
- */
-
 #include "SL2C.h"
 #include "SL2ACJ.h"
 #include "Params.h"
 
-// the crucial map taking B_0 to B_infinity (and taking
-// B_infinity to B_1') is of the form
-// g(z) = p + 1 / (s^2 z)
-//
+/*
+* Let x and y realize the margulis constant such that re(length(x)) =< re(length(y))
+* We will conjugate x to have axis(x) = {0,\infty}
+*/
 
-const SL2C constructG(const Params<XComplex>& params)
+const SL2C construct_x(const Params<XComplex>& params)
 {
-	XComplex I(0., 1.);
-	const XComplex& sl = params.loxodromic_sqrt;
-	return SL2C((I*(params.parabolic*sl).z).z, (I/sl).z, (I*sl).z, XComplex(0.));
+    // We want the matrix {{ exp(L/2), 0 }, { 0, exp(-L/2) }}
+    XComplex sl2 = params.sinhL2;
+    XComplex cl2 = sqrt(((sl2 * sl2).z + 1.).z).z;
+	return SL2C((cl2 + sl2).z, 0.,
+                 0., (cl2 - sl2).z);
 }
 
-const SL2C constructT(const Params<XComplex>& params, int M, int N)
+const SL2C construct_y(const Params<XComplex>& params)
 {
-	return SL2C(XComplex(1.), (params.lattice * double(N) + double(M)).z, XComplex(0.,0.), XComplex(1.,0.));
+    // We want the matrix {{ cosh(D/2) + cosh(P)sinh(D/2), -sinh(D/2)sinh(P) }, 
+    //                     { sinh(D/2)sinh(P), cosh(D/2) - cosh(P)sinh(D/2) }}
+    XComplex sd2 = params.sinhD2; 
+    XComplex sd2 = sqrt(((sd2 * sd2).z + 1.).z).z;
+    XComplex sp = params.sinhP;
+    XComplex cp = sqrt(((sp * sp).z + 1.).z).z;
+	return SL2C((cd2 + (cp * sd2).z).z, -(sd2 * sp).z,
+                (sd2 * sp).z, (cd2 - (cp * sd2).z).z);
 }
 
-const SL2ACJ constructG(const Params<ACJ>& params)
+const SL2ACJ construct_x(const Params<ACJ>& params)
 {
-	ACJ I(XComplex(0., 1.));
-	const ACJ& sl = params.loxodromic_sqrt;
-	return SL2ACJ(I*params.parabolic*sl, I/sl, I*sl, ACJ(0.));
+    ACJ zero = ACJ(0.);
+    ACJ sl2 = params.sinhL2;
+    ACJ cl2 = sqrt(sl2 * sl2 + 1.);
+	return SL2ACJ(cl2 + sl2, zero,
+                  zero, cl2 - sl2);
 }
 
-const SL2ACJ constructT(const Params<ACJ>& params, int M, int N)
+const SL2ACJ construct_y(const Params<ACJ>& params)
 {
-	return SL2ACJ(ACJ(XComplex(1.)), params.lattice * double(N) + double(M), ACJ(XComplex(0.)), ACJ(XComplex(1.)));
+    // We want the matrix {{ cosh(D/2) + cosh(P)sinh(D/2), -sinh(D/2)sinh(P) }, 
+    //                     { sinh(D/2)sinh(P), cosh(D/2) - cosh(P)sinh(D/2) }}
+    ACJ sd2 = params.sinhD2; 
+    ACJ cd2 = sqrt(sd2 * sd2 + 1.);
+    ACJ sp = params.sinhP;
+    ACJ cp = sqrt(sp * sp + 1.);
+	return SL2ACJ(cd2 + cp * sd2, -(sd2 * sp),
+                sd2 * sp, cd2 - cp * sd2);
 }
 
-int g_power(std::string w) {
+int x_power(std::string w) {
     int count = 0;
     for (std::string::size_type p = 0; p < w.size(); ++p) {
-        if (w[p] == 'g' || w[p] == 'G') ++count;
+        if (w[p] == 'x' || w[p] == 'X') ++count;
     }
     return count;
 } 
 
-bool g_power_sort(std::string a, std::string b) { return g_power(a) < g_power(b); }
+int y_power(std::string w) {
+    int count = 0;
+    for (std::string::size_type p = 0; p < w.size(); ++p) {
+        if (w[p] == 'y' || w[p] == 'Y') ++count;
+    }
+    return count;
+} 
+
+bool x_power_sort(std::string a, std::string b) { return x_power(a) < x_power(b); }
+
+bool y_power_sort(std::string a, std::string b) { return y_power(a) < y_power(b); }
 
