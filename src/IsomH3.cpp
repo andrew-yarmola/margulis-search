@@ -149,11 +149,26 @@ const double cosh_2_re_perp_LB(const SL2<T>& w1, SL2<T>& w2) {
 }
 
 template<typename T>
+const double sinh_2_re_perp_LB(const SL2<T>& w1, SL2<T>& w2) {
+  double ch_LB = cosh_2_re_perp_LB(w1,w2);
+  // Lemma 7.0 in GMT
+  return (1-EPS)*sqrt(max((1-EPS)*((1-EPS)*ch_LB^2-1),0));
+}
+
+template<typename T>
 const double cosh_2_re_perp_LB_normed(const SL2<T>& w1, SL2<T>& w2) {
   T cp_sq_normed = cosh_perp_sq_normed(w1,w2);
   T sp_sq_normed = sinh_perp_sq_normed(w1,w2);
   // Lemma 7.0 in GMT
   return (1-EPS)*(absLB(cp_sq_normed) + absLB(sp_sq_normed));
+}
+
+template<typename T>
+const double sinh_2_re_perp_LB_normed(const SL2<T>& w1, SL2<T>& w2) {
+  double ch_LB = cosh_2_re_perp_LB(w1,w2);
+  double norm_UB = absUB(((w1.a + w1.d)^2 - 4)((w2.a + w2.d)^2 - 4));
+  // Lemma 7.0 in GMT
+  return (1-EPS)*sqrt(max((1-EPS)*((1-EPS)*ch_LB^2 - norm_UB),0));
 }
 
 template<typename T>
@@ -164,11 +179,26 @@ const double cosh_2_re_perp_UB(const SL2<T>& w1, SL2<T>& w2) {
 }
 
 template<typename T>
+const double sinh_2_re_perp_UB(const SL2<T>& w1, SL2<T>& w2) {
+  double ch_UB = cosh_2_re_perp_UB(w1,w2);
+  // Lemma 7.0 in GMT
+  return (1+EPS)*sqrt(max((1+EPS)*((1+EPS)*ch_UB^2-1),0));
+}
+
+template<typename T>
 const double cosh_2_re_perp_UB_normed(const SL2<T>& w1, SL2<T>& w2) {
   T cp_sq_normed = cosh_perp_sq_normed(w1,w2);
   T sp_sq_normed = sinh_perp_sq_normed(w1,w2);
   // Lemma 7.0 in GMT
   return (1+EPS)*(absUB(cp_sq_normed) + absUB(sp_sq_normed));
+}
+
+template<typename T>
+const double sinh_2_re_perp_UB_normed(const SL2<T>& w1, SL2<T>& w2) {
+  double ch_UB = cosh_2_re_perp_UB(w1,w2);
+  double norm_LB = absLB(((w1.a + w1.d)^2 - 4)((w2.a + w2.d)^2 - 4));
+  // Lemma 7.0 in GMT
+  return (1+EPS)*sqrt(max((1+EPS)*((1+EPS)*ch_UB^2 - norm_LB),0));
 }
 
 template<typename T>
@@ -232,85 +262,62 @@ const double cosh_2_re_perp_y_UB_normed(const SL2<T>& w) {
 }
 
 template<typename T>
-const double cosh_2_re_tube_LB(const SL2<T>& w1, const SL2<T>& w2) {
-  // retuns cosh(2t) where t is the distance to magulis point of w1,w2 from axis(w1)
+const double two_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
+  // retuns 2 cosh( margulis ) for w1,w2
   // TODO : Check signs ERROR ROUNDING
-  T tr1 = w1.a + w1.d; 
+  T tr1 = w1.a + w1.d;
   T tr2 = w2.a + w2.d;
-  double c2rpLB = cosh_2_re_perp_LB(w1,w2);
-  double s2rpLB = sqrt(c2rpLB^2 - 1);
-  double c2rpUB = cosh_2_re_perp_UB(w1,w2);
-  double s2rpUB = sqrt(c2rpUB^2 - 1);
-  double uLB = c2rpLB * absLB(tr2^2 - 4) - absUB(tr1^2 -4);
-  double vLB = s2rpLB * absLB(tr2^2 - 4);
-  double wLB = absLB(tr2^2) - absUB(tr1^2);
-  double uUB = c2rpUB * absUB(tr2^2 - 4) - absLB(tr1^2 -4);
-  double vUB = s2rpUB * absUB(tr2^2 - 4);
-  double wUB = absUB(tr2^2) - absLB(tr1^2);
-  if (wLB < 0) return -1; // either the box is too big or we need to swtich geods
-  if (wLB^2 + vLB^2 - uUB^2 < 0) return -1; // sqrt in the final formula may not be positive - mox may contain critical pt
-  if (uLB^2 < vUB^2 || vLB^2 < uUB^2) return -1; // denominator may be zero in the box -> may contain criical point
-  double u,v,w; // pick for obtaining (estimating for now) LB
-  if ((uUb <= 0 && 0 < uLB + wLB) || ( 0 <= uLB && uUB <= vLB)) { // inc function of w
-    w = wLB;
-  } else 
-  if ((0 < uLB && uUB <= wLV && vUB < uLB) || (wUB^2 < uLB^2 && uUB^2 < vLB^2 + wLB^2) { // dec function of w
-    w = wUB;
-  } else {
-    return -1; // box might contain critical point of this function
+  T x1 = tr1^2;
+  T x2 = tr1^2-4;
+  T y1 = tr2^2;
+  T y2 = tr2^2-4;
+  // exp(2re(P)) x2 y2 
+  double e_2_re_perp_LB_normed = absLB((cosh_perp_normed(w1,w2) + sinh_perp_normed(w1,w2))^2);
+  double e_2_re_perp_UB_normed = absUB(cosh_perp_normed(w1,w2) + sinh_perp_normed(w1,w2))^2);
+  // cosh(2(re(P)) x2 y2
+  double ch_2_re_perp_LB_normed = cosh_2_re_perp_UB_normed(w1,w2); 
+  double ch_2_re_perp_UB_normed = cosh_2_re_perp_UB_normed(w1,w2); 
+  // sinh(2(re(P)) x2 y2
+  double sh_2_re_perp_LB_normed = sinh_2_re_perp_LB_normed(w1,w2); 
+  double sh_2_re_perp_UB_normed = sinh_2_re_perp_UB_normed(w1,w2);
+  // Variables used in formulas paper 
+  al_LB = (1-EPS)*(absLB(y1)-absUB(x1));
+  al_UB = (1+EPS)*(absUB(y1)-absLB(x1));
+  
+  beta_LB = (1-EPS)*((1-EPS)*(e_2_re_perp_LB_normed*absLB(y1)) - absUB(x1*y2^2));
+  beta_UB = (1+EPS)*((1+EPS)*(e_2_re_perp_UB_normed*absUB(y1)) - absLB(x1*y2^2));
+
+  kappa_LB = (1-EPS)*(e_2_re_perp_LB_normed - absUB(y2^2));
+  kappa_UB = (1+EPS)*(e_2_re_perp_UB_normed - absLB(y2^2));
+ 
+  eta_LB = (1-EPS)*((1-EPS)*(2*ch_2_re_perp_LB_normed - absUB(x2^2)) - absUB(y2^2));
+  eta_UB = (1+EPS)*((1+EPS)*(2*ch_2_re_perp_UB_normed - absLB(x2^2)) - absLB(y2^2));
+
+  if (beta_LB < 0) {
+    // box contains intersecting axes -- we don't know what to do here
+    return -1;
   }
-  if (0 < uLB + wLB && uUB^2 < vLB^2 + wLB^2) { // inc function of w
-    u = uLB;
-  } else 
-  if (uUB + wUB < 0 && uUB^2 < vLB^2 + wLB^2) { // dec function of w
-    u = uUB;
+
+  if (al_LB >= 0) {
+    // this is the nice case where |tr(w2)| >= |tr(w1)|
+    // our function of interest is increasing in beta, sh_normed and decreasing in kappa, eta, al
+    if (upper) {
+      // return upper bound
+      double denom = (1-EPS)*(al_LB + (1-EPS)*sqrt(max((1-EPS)*((1-EPS)*al_LB^2 + eta_LB),0)));
+      return (1+EPS)((1+EPS)*(beta_UB / kappa_LB) + (1+EPS)*(sh_2_re_perp_UB_normed / denom));
+    } else {
+      // return lower bound
+      double denom = (1+EPS)*(al_UB + (1+EPS)*sqrt(max((1+EPS)*((1+EPS)*al_UB^2 + eta_UB),0)));
+      return (1-EPS)((1-EPS)*(beta_LB / kappa_UB) + (1-EPS)*(sh_2_re_perp_LB_normed / denom));
+    }     
+
   } else {
-    return -1; // box might contain critical point of this function
+    // can be dealt with tomorrow
   }
-  // for v we only dec function or constant wrt to v
-  v = vUB;
-  return (u*w + v * sqrt(w^2 + v^2 - u^2))/(v^2 - u^2);
 } 
 
 template<typename T>
 const double cosh_2_re_tube_UB(const SL2<T>& w1, const SL2<T>& w2) {
-  // retuns cosh(2t) where t is the distance to magulis point of w1,w2 from axis(w1)
-  // TODO : Check signs ERROR ROUNDING
-  T tr1 = w1.a + w1.d; 
-  T tr2 = w2.a + w2.d;
-  double c2rpLB = cosh_2_re_perp_LB(w1,w2);
-  double s2rpLB = sqrt(c2rpLB^2 - 1);
-  double c2rpUB = cosh_2_re_perp_UB(w1,w2);
-  double s2rpUB = sqrt(c2rpUB^2 - 1);
-  double uLB = c2rpLB * absLB(tr2^2 - 4) - absUB(tr1^2 -4);
-  double vLB = s2rpLB * absLB(tr2^2 - 4);
-  double wLB = absLB(tr2^2) - absUB(tr1^2);
-  double uUB = c2rpUB * absUB(tr2^2 - 4) - absLB(tr1^2 -4);
-  double vUB = s2rpUB * absUB(tr2^2 - 4);
-  double wUB = absUB(tr2^2) - absLB(tr1^2);
-  if (wLB < 0) return -1; // either the box is too big or we need to swtich geods
-  if (wLB^2 + vLB^2 - uUB^2 < 0) return -1; // sqrt in the final formula may not be positive - mox may contain critical pt
-  if (uLB^2 < vUB^2 || vLB^2 < uUB^2) return -1; // denominator may be zero in the box -> may contain criical point
-  double u,v,w; // pick for obtaining (estimating for now) LB
-  if ((uUb <= 0 && 0 < uLB + wLB) || ( 0 <= uLB && uUB <= vLB)) { // inc function of w
-    w = wUB;
-  } else 
-  if ((0 < uLB && uUB <= wLV && vUB < uLB) || (wUB^2 < uLB^2 && uUB^2 < vLB^2 + wLB^2) { // dec function of w
-    w = wLB;
-  } else {
-    return -1; // box might contain critical point of this function
-  }
-  if (0 < uLB + wLB && uUB^2 < vLB^2 + wLB^2) { // inc function of w
-    u = uUB;
-  } else 
-  if (uUB + wUB < 0 && uUB^2 < vLB^2 + wLB^2) { // dec function of w
-    u = uLB;
-  } else {
-    return -1; // box might contain critical point of this function
-  }
-  // for v we only dec function or constant wrt to v
-  v = vLB;
-  return (u*w + v * sqrt(w^2 + v^2 - u^2))/(v^2 - u^2);
 } 
 
 /*
