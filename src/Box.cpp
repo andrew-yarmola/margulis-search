@@ -16,9 +16,9 @@ Box::Box() {
 		size_digits[i] = 8;
 	}
 	pos = 0;
-    compute_center_and_size();
+  compute_center_and_size();
 	compute_cover();
-    compute_nearer();
+  compute_nearer();
 	compute_further();
 	compute_greater();
 }
@@ -36,9 +36,9 @@ Box Box::child(int dir) const
 
 	child.qr = qr;
 
-    child.compute_center_and_size();
+  child.compute_center_and_size();
 	child.compute_cover();
-    child.compute_nearer();
+  child.compute_nearer();
 	child.compute_further();
 	child.compute_greater();
 	return child;
@@ -55,31 +55,37 @@ void Box::compute_center_and_size()
         box_center[i] = scale[i]*center_digits[i];
         box_size[i]= (1+2*EPS)*(size_digits[i]*scale[i]+HALFEPS*fabs(center_digits[i]));
     }
-    _center.lattice = XComplex(box_center[3], box_center[0]);
-    _center.loxodromic_sqrt = XComplex(box_center[4], box_center[1]);
-    _center.parabolic = XComplex(box_center[5], box_center[2]);
+    _center.sinhP = XComplex(box_center[3], box_center[0]);
+    _center.sinhD2 = XComplex(box_center[4], box_center[1]);
+    _center.sinhL2 = XComplex(box_center[5], box_center[2]);
+    _center.coshP = sqrt(((_center.sinhP * _center.sinhP).z + 1).z).z;
+    _center.coshD2 = sqrt(((_center.sinhD2 * _center.sinhD2).z + 1).z).z;
+    _center.coshL2 = sqrt(((_center.sinhL2 * _center.sinhL2).z + 1).z).z;
 }
 
 void Box::compute_cover()
 {
-	_cover.lattice = ACJ(
+	_cover.sinhP = ACJ(
 		XComplex(box_center[3], box_center[0]),
 		XComplex(box_size[3], box_size[0]),
 		0.,
 		0.
 	);
-	_cover.loxodromic_sqrt = ACJ(
+	_cover.sinhD2 = ACJ(
 		XComplex(box_center[4], box_center[1]),
 		0.,
 		XComplex(box_size[4], box_size[1]),
 		0.
 	);
-	_cover.parabolic = ACJ(
+	_cover.sinhL2 = ACJ(
 		XComplex(box_center[5], box_center[2]),
 		0.,
 		0.,
 		XComplex(box_size[5], box_size[2])
 	);
+  _cover.coshP  = sqrt( _cover.sinhP  * _cover.sinhP  + 1);
+  _cover.coshD2 = sqrt( _cover.sinhD2 * _cover.sinhD2 + 1);
+  _cover.coshL2 = sqrt( _cover.sinhL2 * _cover.sinhL2 + 1);
 }
 
 void Box::compute_nearer()
@@ -117,9 +123,9 @@ void Box::compute_nearer()
         }
 	}
 	
-	_nearer.lattice = XComplex(m[3], m[0]);
-	_nearer.loxodromic_sqrt = XComplex(m[4], m[1]);
-	_nearer.parabolic = XComplex(m[5], m[2]);
+	_nearer.sinhP  = XComplex(m[3], m[0]);
+	_nearer.sinhD2 = XComplex(m[4], m[1]);
+	_nearer.sinhL2 = XComplex(m[5], m[2]);
 }
 
 void Box::compute_further()
@@ -150,9 +156,9 @@ void Box::compute_further()
         }
 	}
 	
-	_further.lattice = XComplex(m[3], m[0]);
-	_further.loxodromic_sqrt = XComplex(m[4], m[1]);
-	_further.parabolic = XComplex(m[5], m[2]);
+	_further.sinhP  = XComplex(m[3], m[0]);
+	_further.sinhD2 = XComplex(m[4], m[1]);
+	_further.sinhL2 = XComplex(m[5], m[2]);
 }
 
 void Box::compute_greater()
@@ -186,23 +192,23 @@ void Box::compute_greater()
         }
 	}
 	
-	_greater.lattice = XComplex(m[3], m[0]);
-	_greater.loxodromic_sqrt = XComplex(m[4], m[1]);
-	_greater.parabolic = XComplex(m[5], m[2]);
+	_greater.sinhP  = XComplex(m[3], m[0]);
+	_greater.sinhD2 = XComplex(m[4], m[1]);
+	_greater.sinhL2 = XComplex(m[5], m[2]);
 }
 
 //Params<XComplex> Box::offset(const double* offset) const
 //{
 //	Params<XComplex> result;
-//	result.lattice = XComplex(
+//	result.sinhP = XComplex(
 //		scale[3]*(offset[3]*size_digits[3] + center_digits[3]),
 //		scale[0]*(offset[0]*size_digits[0] + center_digits[0])
 //	);
-//	result.loxodromic_sqrt = XComplex(
+//	result.sinhD2 = XComplex(
 //		scale[4]*(offset[4]*size_digits[4] + center_digits[4]),
 //		scale[1]*(offset[1]*size_digits[1] + center_digits[1])
 //	);
-//	result.parabolic = XComplex(
+//	result.sinhL2 = XComplex(
 //		scale[5]*(offset[5]*size_digits[5] + center_digits[5]),
 //		scale[2]*(offset[2]*size_digits[2] + center_digits[2])
 //	);

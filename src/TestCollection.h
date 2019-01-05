@@ -16,20 +16,24 @@
 typedef enum _box_state
 {
 killed_bounds = 9,
-killed_no_parabolics = 1,
+killed_powers = 8,
+killed_bad_pair = 4,
 killed_identity_impossible = 3,
-killed_parabolics_impossible = 8,
-killed_bad_parabolic = 4,
 killed_elliptic = 5,
 killed_failed_qr = 2,
-open_with_qr = 6,
 variety_nbd = 7,
-variety_center = 10,
-large_horoball_center = 11,
-out_of_bounds_center = 12,
+open_with_qr = 6,
 open = -1
 } 
 box_state;
+
+typedef enum _center_box_state
+{
+variety_center = 1,
+out_of_bounds_center = 2,
+open = -1
+} 
+center_box_state;
 
 struct ImpossibleRelations;
 

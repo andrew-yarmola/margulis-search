@@ -1,6 +1,6 @@
 #ifndef __Box_h
 #define __Box_h
-#include "Params.h"
+#include "Params.hh"
 #include "ACJ.h"
 #include "QuasiRelators.h"
 
@@ -14,7 +14,6 @@ struct Box {
 	Params<XComplex> nearer() const { return _nearer; } // returns all values closer to 0 than in box or 0 if box overlaps
 	Params<XComplex> further() const { return _further; } // returns all values futher from 0 that in the box
 	Params<XComplex> greater() const { return _greater; } // returns all values greater than in the box
-//	Params<XComplex> offset(const double* offset) const;
 private:
 	int pos;
 	double center_digits[6];
@@ -33,6 +32,8 @@ private:
 	void compute_greater();
 };
 
+
+/* TODO : Write for Margulis constnat. Problaby not inline
 inline const double areaLB(const Params<XComplex>&nearer)
 {
     // Area is |lox_sqrt|^2*|Im(lattice)|.
@@ -44,5 +45,6 @@ inline const double areaLB(const Params<XComplex>&nearer)
     double lox_norm = (1-EPS)*(lox_re + lox_im);
     return (1-EPS)*(lox_norm*lat_im);
 }
+*/
 
 #endif // __Box_h

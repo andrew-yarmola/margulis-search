@@ -17,14 +17,14 @@ const T cosh_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w2.a + w2.d;
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  return (td1 * td2 + 2.0*(w1.b * w2.c + w1.c * w2.b))/sqrt((tr1*tr1-4)*(tr2*tr2-4));
+  return (td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2)/sqrt((tr1*tr1 - 4)*(tr2*tr2 - 4));
 };
 
 template<typename T>
 const T cosh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  return td1 * td2 + 2.0*(w1.b * w2.c + w1.c * w2.b);
+  return td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2;
 };
 
 template<typename T>
@@ -33,7 +33,7 @@ const T sinh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w2.a + w2.d;
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  T z  = td1 * td2 + 2.0*(w1.b * w2.c + w1.c * w2.b); 
+  T z  = td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2; 
   return sqrt(z*z - (tr1*tr1 - 4)*(tr2*tr2 - 4));
 };
 
@@ -43,7 +43,7 @@ const T cosh_perp_sq(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w2.a + w2.d;
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  T z   = td1 * td2 + 2.0*(w1.b * w2.c + w1.c * w2.b);
+  T z   = td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2;
   return (z*z)/((tr1*tr1 - 4)*(tr2*tr2 - 4));
 };
 
@@ -51,7 +51,7 @@ template<typename T>
 const T cosh_perp_sq_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  T z   = td1 * td2 + 2.0*(w1.b * w2.c + w1.c * w2.b);
+  T z   = td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2;
   return z*z; 
 };
 
@@ -61,7 +61,7 @@ const T sinh_perp_sq_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w2.a + w2.d;
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  T z  = td1 * td2 + 2.0*(w1.b * w2.c + w1.c * w2.b); 
+  T z  = td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2; 
   return z*z - (tr1*tr1 - 4)*(tr2*tr2 - 4);
 };
 
@@ -81,12 +81,12 @@ const T cosh_perp_x(const SL2<T>& w) {
 template<typename T>
 const T cosh_perp_x_normed(const SL2<T>& w, Params<T>& params) {
   T td = w.a - w.d;
-  return 2.0*td*params.sinhL2; 
+  return td*params.sinhL2*2; 
 };
 
 template<typename T>
 const T sinh_perp_x_normed(const SL2<T>& w, Params<T>& params) {
-  return 4*sqrt(1 - w.a * w.d)*params.sinhL2; 
+  return sqrt(1 - w.a * w.d)*params.sinhL2*4; 
 };
 
 template<typename T>
@@ -101,12 +101,12 @@ const T cosh_perp_x_sq(const SL2<T>& w) {
 template<typename T>
 const T cosh_perp_x_sq_normed(const SL2<T>& w, Params<T>& params) {
   T td = w.a - w.d;
-  return 4*(td*td)*(params.coshL2*params.coshL2-1); 
+  return (td*td)*(params.coshL2*params.coshL2-1)*4; 
 };
 
 template<typename T>
 const T sinh_perp_x_sq_normed(const SL2<T>& w, Params<T>& params) {
-  return 16*(1 - w.a * w.d)*(params.coshL2*params.coshL2-1); 
+  return (1 - w.a * w.d)*(params.coshL2*params.coshL2-1)*16; 
 };
 
 template<typename T>
@@ -122,7 +122,7 @@ template<typename T>
 const T cosh_perp_y_normed(const SL2<T>& w, Params<T>& params) {
   T td = w.a - w.d;
   T dd = w.b - w.c;
-  return 2.0*(td * params.coshP + dd * params.sinhP)*params.sinhD2;
+  return (td * params.coshP + dd * params.sinhP)*params.sinhD2*2;
 };
 
 template<typename T>
@@ -131,7 +131,7 @@ const T sinh_perp_y_normed(const SL2<T>& w, Params<T>& params) {
   T td = w.a - w.d;
   T dd = w.b - w.c;
   T z  = td * params.coshP + dd * params.sinhP;
-  return 2.0*sqrt(z*z-(tr*tr - 4))*params.sinhD2;
+  return sqrt(z*z-(tr*tr - 4))*params.sinhD2*2;
 };
 
 template<typename T>
@@ -148,7 +148,7 @@ const T cosh_perp_y_sq_normed(const SL2<T>& w, Params<T>& params) {
   T td = w.a - w.d;
   T dd = w.b - w.c;
   T z  = td * params.coshP + dd * params.sinhP;
-  return 4*(z*z)*(params.coshD2-1);
+  return (z*z)*(params.coshD2-1)*4;
 };
 
 template<typename T>
@@ -157,7 +157,7 @@ const T sinh_perp_y_sq_normed(const SL2<T>& w, Params<T>& params) {
   T td = w.a - w.d;
   T dd = w.b - w.c;
   T z  = td * params.coshP + dd * params.sinhP;
-  return 4*((z*z)-(tr*tr - 4))*(params.coshD2*params.coshD2-1);
+  return ((z*z)-(tr*tr - 4))*(params.coshD2*params.coshD2-1)*4;
 };
 
 template<typename T>
@@ -184,10 +184,13 @@ const double cosh_2_re_perp_LB_normed(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 const double sinh_2_re_perp_LB_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  double ch_LB = cosh_2_re_perp_LB(w1,w2);
+  double ch_LB = cosh_2_re_perp_LB_normed(w1,w2);
   T tr1 = w1.a + w1.d;
   T tr2 = w1.a + w1.d;
-  double norm_UB = absUB((tr1*tr1 - 4)(tr2*tr2 - 4));
+  T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4);
+  double norm_UB = absUB(x2y2*x2y2);
+  printf("norm_UB %f\n", norm_UB);
+  printf("cosh_sq_LB %f\n", (1-EPS)*(ch_LB*ch_LB));
   // Lemma 7.0 in GMT
   return (1-EPS)*sqrt(max((1-EPS)*((1-EPS)*(ch_LB*ch_LB) - norm_UB),0));
 };
@@ -216,10 +219,13 @@ const double cosh_2_re_perp_UB_normed(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 const double sinh_2_re_perp_UB_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  double ch_UB = cosh_2_re_perp_UB(w1,w2);
+  double ch_UB = cosh_2_re_perp_UB_normed(w1,w2);
   T tr1 = w1.a + w1.d;
   T tr2 = w1.a + w1.d;
-  double norm_LB = absLB((tr1*tr1 - 4)(tr2*tr2 - 4));
+  T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4);
+  double norm_LB = absLB(x2y2*x2y2);
+  printf("norm_LB %f\n", norm_LB);
+  printf("cosh_sq_UB %f\n", (1+EPS)*(ch_UB*ch_UB));
   // Lemma 7.0 in GMT
   return (1+EPS)*sqrt(max((1+EPS)*((1+EPS)*(ch_UB*ch_UB) - norm_LB),0));
 };
@@ -295,22 +301,24 @@ const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) 
   T y1 = tr2*tr2;
   T y2 = tr2*tr2 - 4;
   // Normed cosh and sihn values
-  T cpn = cosh_perp_normed(w1,w2);
-  T spn = sinh_perp_normed(w1,w2);
-  T e2pn = (cpn + spn) * (cpn + spn);
+  T cpnsq = cosh_perp_sq_normed(w1,w2);
+  T spnsq = sinh_perp_sq_normed(w1,w2);
+  T e2pn = cpnsq + spnsq + sqrt(spnsq*cpnsq)*2;
   // exp(2re(P)) x2 y2 
   double e_2_re_perp_LB_normed = absLB(e2pn);
   double e_2_re_perp_UB_normed = absUB(e2pn);
   // cosh(2(re(P)) x2 y2
-  double ch_2_re_perp_LB_normed = cosh_2_re_perp_UB_normed(w1,w2); 
+  double ch_2_re_perp_LB_normed = cosh_2_re_perp_LB_normed(w1,w2); 
   double ch_2_re_perp_UB_normed = cosh_2_re_perp_UB_normed(w1,w2); 
   // sinh(2(re(P)) x2 y2
   double sh_2_re_perp_LB_normed = sinh_2_re_perp_LB_normed(w1,w2); 
   double sh_2_re_perp_UB_normed = sinh_2_re_perp_UB_normed(w1,w2);
 
   // TODO: For now, box must only contain interior points
-  double upw_LB = (1-EPS)*((1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed*absLB(y2)) + absLB(y1)) - absUB(x2)) - absUB(x1));
-  if (upw_LB <= 0 || sh_2_re_perp_LB_normed <= 0) {
+  double u_plus_w_12_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(y1*x2)) - absUB(x2*x2)) - absUB(x1*x2));
+  double u_plus_w_21_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(x1*y2)) - absUB(y2*y2)) - absUB(y1*y2));
+  printf("u + w normed 12 LB : %f, u + w normed 21 LB : %f and sinh2RePx2y2 LB %f\n", u_plus_w_12_LB, u_plus_w_21_LB, sh_2_re_perp_LB_normed);
+  if (u_plus_w_12_LB <= 0 || u_plus_w_21_LB <= 0 || sh_2_re_perp_LB_normed <= 0) {
     return -1; // Box contains non-interior points
   }
 
@@ -326,12 +334,23 @@ const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) 
  
   double eta_LB = (1-EPS)*((1-EPS)*(2*ch_2_re_perp_LB_normed - absUB(x2*x2)) - absUB(y2*y2));
   double eta_UB = (1+EPS)*((1+EPS)*(2*ch_2_re_perp_UB_normed - absLB(x2*x2)) - absLB(y2*y2));
+  
+  printf("al : %f, %f\n", al_LB, al_UB);
+  printf("beta : %f, %f\n", beta_LB, beta_UB);
+  printf("kappa : %f, %f\n", kappa_LB, kappa_UB);
+  printf("eta : %f, %f\n", eta_LB, eta_UB);
+  printf("s : %f, %f\n", sh_2_re_perp_LB_normed, sh_2_re_perp_UB_normed); 
+  printf("cosh2rePnormed : %f, %f\n", ch_2_re_perp_LB_normed, ch_2_re_perp_UB_normed);
 
   if (al_LB >= 0 || kappa_LB > 0) {
     // TODO: verify that this increasing and decreasing behavior is correct within these bounds
+    if (beta_LB < 0 || eta_LB < 0) {
+      printf("Error: non-implemented state: beta_LB  < 0 or eta < 0\n");
+    }
     if (upper) {
       // return upper bound
       double denom = (1-EPS)*(al_LB + (1-EPS)*sqrt(max((1-EPS)*((1-EPS)*(al_LB*al_LB) + eta_LB),0)));
+      if (denom == 0) { return -5; }
       return (1+EPS)*((1+EPS)*(beta_UB / kappa_LB) + (1+EPS)*(sh_2_re_perp_UB_normed / denom));
     } else {
       // return lower bound

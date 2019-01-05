@@ -1,4 +1,5 @@
 REFINEOBJS= MomRefine.o BallSearch.o TestCollection.o Box.o ImpossibleRelations.o ACJ.o Params.o SL2C.o SL2ACJ.o Complex.o roundoff.o CanonicalName.o QuasiRelators.o
+TESTOBJS= test.o Box.o ACJ.o SL2C.o SL2ACJ.o Complex.o roundoff.o
 TREECATOBJS= treecat.o
 CPLUSPLUS= clang++
 CC= clang++
@@ -11,6 +12,9 @@ COPTS=-O3 -std=c++11 -stdlib=libc++
 
 .C.o:
 	$(CC) $(COPTS) $(CCFLAGS) -c ${@:o=C}
+
+test: $(TESTOBJS)
+	$(CPLUSPLUS) $(COPTS) $(TESTOBJS) $(LIBS) -lm -o test
 
 refine: $(REFINEOBJS)
 	$(CPLUSPLUS) $(COPTS) $(REFINEOBJS) $(LIBS) -lm -o ../bin/refine_new
