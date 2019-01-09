@@ -55,12 +55,13 @@ void Box::compute_center_and_size()
         box_center[i] = scale[i]*center_digits[i];
         box_size[i]= (1+2*EPS)*(size_digits[i]*scale[i]+HALFEPS*fabs(center_digits[i]));
     }
-    _center.sinhP = XComplex(box_center[3], box_center[0]);
-    _center.sinhD2 = XComplex(box_center[4], box_center[1]);
-    _center.sinhL2 = XComplex(box_center[5], box_center[2]);
-    _center.coshP = sqrt(((_center.sinhP * _center.sinhP).z + 1).z).z;
-    _center.coshD2 = sqrt(((_center.sinhD2 * _center.sinhD2).z + 1).z).z;
-    _center.coshL2 = sqrt(((_center.sinhL2 * _center.sinhL2).z + 1).z).z;
+    _center.sinhP = Complex(box_center[3], box_center[0]);
+    _center.sinhD2 = Complex(box_center[4], box_center[1]);
+    _center.sinhL2 = Complex(box_center[5], box_center[2]);
+    Complex one = Complex(1,0);
+    _center.coshP = sqrt(_center.sinhP * _center.sinhP + one);
+    _center.coshD2 = sqrt(_center.sinhD2 * _center.sinhD2 + one);
+    _center.coshL2 = sqrt(_center.sinhL2 * _center.sinhL2 + one);
 }
 
 void Box::compute_cover()
@@ -123,9 +124,9 @@ void Box::compute_nearer()
         }
 	}
 	
-	_nearer.sinhP  = XComplex(m[3], m[0]);
-	_nearer.sinhD2 = XComplex(m[4], m[1]);
-	_nearer.sinhL2 = XComplex(m[5], m[2]);
+	_nearer.sinhP  = Complex(m[3], m[0]);
+	_nearer.sinhD2 = Complex(m[4], m[1]);
+	_nearer.sinhL2 = Complex(m[5], m[2]);
 }
 
 void Box::compute_further()
@@ -156,9 +157,9 @@ void Box::compute_further()
         }
 	}
 	
-	_further.sinhP  = XComplex(m[3], m[0]);
-	_further.sinhD2 = XComplex(m[4], m[1]);
-	_further.sinhL2 = XComplex(m[5], m[2]);
+	_further.sinhP  = Complex(m[3], m[0]);
+	_further.sinhD2 = Complex(m[4], m[1]);
+	_further.sinhL2 = Complex(m[5], m[2]);
 }
 
 void Box::compute_greater()
@@ -192,23 +193,23 @@ void Box::compute_greater()
         }
 	}
 	
-	_greater.sinhP  = XComplex(m[3], m[0]);
-	_greater.sinhD2 = XComplex(m[4], m[1]);
-	_greater.sinhL2 = XComplex(m[5], m[2]);
+	_greater.sinhP  = Complex(m[3], m[0]);
+	_greater.sinhD2 = Complex(m[4], m[1]);
+	_greater.sinhL2 = Complex(m[5], m[2]);
 }
 
-//Params<XComplex> Box::offset(const double* offset) const
+//Params<Complex> Box::offset(const double* offset) const
 //{
-//	Params<XComplex> result;
-//	result.sinhP = XComplex(
+//	Params<Complex> result;
+//	result.sinhP = Complex(
 //		scale[3]*(offset[3]*size_digits[3] + center_digits[3]),
 //		scale[0]*(offset[0]*size_digits[0] + center_digits[0])
 //	);
-//	result.sinhD2 = XComplex(
+//	result.sinhD2 = Complex(
 //		scale[4]*(offset[4]*size_digits[4] + center_digits[4]),
 //		scale[1]*(offset[1]*size_digits[1] + center_digits[1])
 //	);
-//	result.sinhL2 = XComplex(
+//	result.sinhL2 = Complex(
 //		scale[5]*(offset[5]*size_digits[5] + center_digits[5]),
 //		scale[2]*(offset[2]*size_digits[2] + center_digits[2])
 //	);

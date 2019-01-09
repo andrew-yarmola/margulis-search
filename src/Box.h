@@ -1,6 +1,6 @@
 #ifndef __Box_h
 #define __Box_h
-#include "Params.hh"
+#include "types.hh"
 #include "ACJ.h"
 #include "QuasiRelators.h"
 
@@ -9,25 +9,25 @@ struct Box {
 	std::string name;
 	QuasiRelators qr;
 	Box child(int dir) const;
-	Params<XComplex> center() const { return _center; }
+	Params<Complex> center() const { return _center; }
 	Params<ACJ> cover() const { return _cover; }
-	Params<XComplex> nearer() const { return _nearer; } // returns all values closer to 0 than in box or 0 if box overlaps
-	Params<XComplex> further() const { return _further; } // returns all values futher from 0 that in the box
-	Params<XComplex> greater() const { return _greater; } // returns all values greater than in the box
+	Params<Complex> nearer() const { return _nearer; } // returns all values closer to 0 than in box or 0 if box overlaps
+	Params<Complex> further() const { return _further; } // returns all values futher from 0 that in the box
+	Params<Complex> greater() const { return _greater; } // returns all values greater than in the box
 private:
 	int pos;
 	double center_digits[6];
 	double size_digits[6];
-    double box_center[6];
-    double box_size[6];
-	Params<XComplex> _center;
+  double box_center[6];
+  double box_size[6];
+	Params<Complex> _center;
 	Params<ACJ> _cover;
-	Params<XComplex> _nearer;
-	Params<XComplex> _further;
-	Params<XComplex> _greater;
-    void compute_center_and_size();
-	void compute_cover();
-    void compute_nearer();
+	Params<Complex> _nearer;
+	Params<Complex> _further;
+	Params<Complex> _greater;
+  void compute_center_and_size();
+  void compute_cover();
+  void compute_nearer();
 	void compute_further();
 	void compute_greater();
 };

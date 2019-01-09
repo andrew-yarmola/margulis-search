@@ -24,30 +24,17 @@
 using namespace std;
 // using namespace __gnu_cxx;
 
-double g_maximumArea = 5.24;
-int g_max_g_len = 7;
-
-string g_testCollectionFullWord;
-
-int g_length(string& w) 
-{
-    int g_count = 0;
-    for (string::size_type pos = 0; pos < w.size(); ++pos)
-        if (w[pos] == 'g' || w[pos] == 'G')
-            ++g_count;
-    return g_count;
-}
-
 int TestCollection::size()
 {
 	return 7 + indexString.size();
 }
 
-SL2C TestCollection::construct_word(string word, Params<XComplex>& params)
+
+SL2 TestCollection::construct_word(string word, Params<XComplex>& params)
 {
-    SL2C w(1,0,0,1);
-	SL2C G(constructG(params));
-	SL2C g(inverse(G));
+  SL2C w(1,0,0,1);
+	SL2C x(construct_x(params));
+	SL2C X(inverse(x));
 
     char h;	
 	int N = 0;

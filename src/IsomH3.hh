@@ -5,11 +5,7 @@
 #include "SL2.hh"
 #include "Params.hh"
 #include "roundoff.h"
-
-double max(double a, double b) {
-  if (a < b) return b;
-  else return a;
-};
+#include "types.hh"
 
 template<typename T>
 const T cosh_perp(const SL2<T>& w1, const SL2<T>& w2) {
@@ -314,14 +310,6 @@ const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) 
   double sh_2_re_perp_LB_normed = sinh_2_re_perp_LB_normed(w1,w2); 
   double sh_2_re_perp_UB_normed = sinh_2_re_perp_UB_normed(w1,w2);
 
-  // TODO: For now, box must only contain interior points
-  double u_plus_w_12_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(y1*x2)) - absUB(x2*x2)) - absUB(x1*x2));
-  double u_plus_w_21_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(x1*y2)) - absUB(y2*y2)) - absUB(y1*y2));
-  printf("u + w normed 12 LB : %f, u + w normed 21 LB : %f and sinh2RePx2y2 LB %f\n", u_plus_w_12_LB, u_plus_w_21_LB, sh_2_re_perp_LB_normed);
-  if (u_plus_w_12_LB <= 0 || u_plus_w_21_LB <= 0 || sh_2_re_perp_LB_normed <= 0) {
-    return -1; // Box contains non-interior points
-  }
-
   // Variables used in formulas paper 
   double al_LB = (1-EPS)*(absLB(y1)-absUB(x1));
   double al_UB = (1+EPS)*(absUB(y1)-absLB(x1));
@@ -342,10 +330,20 @@ const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) 
   printf("s : %f, %f\n", sh_2_re_perp_LB_normed, sh_2_re_perp_UB_normed); 
   printf("cosh2rePnormed : %f, %f\n", ch_2_re_perp_LB_normed, ch_2_re_perp_UB_normed);
 
+  // TODO: For now, box must only contain interior points
+  double u_plus_w_12_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(y1*x2)) - absUB(x2*x2)) - absUB(x1*x2));
+  double u_plus_w_21_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(x1*y2)) - absUB(y2*y2)) - absUB(y1*y2));
+  printf("u + w normed 12 LB : %f, u + w normed 21 LB : %f and sinh2RePx2y2 LB %f\n", u_plus_w_12_LB, u_plus_w_21_LB, sh_2_re_perp_LB_normed);
+  if (u_plus_w_12_LB <= 0 || u_plus_w_21_LB <= 0 || sh_2_re_perp_LB_normed <= 0) {
+    printf("Box contains non-interior points\n");
+    return -1; // Box contains non-interior points
+  }
+
   if (al_LB >= 0 || kappa_LB > 0) {
     // TODO: verify that this increasing and decreasing behavior is correct within these bounds
     if (beta_LB < 0 || eta_LB < 0) {
       printf("Error: non-implemented state: beta_LB  < 0 or eta < 0\n");
+      return -5;
     }
     if (upper) {
       // return upper bound
@@ -362,6 +360,72 @@ const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) 
     return four_cosh_margulis(w2, w1, upper);
   } else { 
     return -2;
+  }
+}; 
+
+template<typename T>
+const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
+  // retuns 2 cosh( margulis ) for w1,w2
+  // TODO : Check signs ERROR ROUNDING
+  T tr1 = w1.a + w1.d;
+  T tr2 = w2.a + w2.d;
+  T x1 = tr1*tr1;
+  T x2 = tr1*tr1 - 4;
+  T y1 = tr2*tr2;
+  T y2 = tr2*tr2 - 4;
+  // Normed cosh and sihn values
+  T cpnsq = cosh_perp_sq_normed(w1,w2);
+  T spnsq = sinh_perp_sq_normed(w1,w2);
+  T em2pn = cpnsq + spnsq - sqrt(spnsq*cpnsq)*2;
+  // exp(2re(P)) x2 y2 
+  double e_minus_2_re_perp_LB_normed = absLB(em2pn);
+  double e_minus_2_re_perp_UB_normed = absUB(em2pn);
+  // cosh(2(re(P)) x2 y2
+  double ch_2_re_perp_LB_normed = cosh_2_re_perp_LB_normed(w1,w2); 
+  double ch_2_re_perp_UB_normed = cosh_2_re_perp_UB_normed(w1,w2); 
+
+  // Variables used in formulas paper 
+  double delta_LB = (1-EPS)*(absLB(y1*x2) - absUB(x1*x2));
+  double delta_UB = (1+EPS)*(absUB(y1*x2) - absLB(x1*x2));
+  
+  double zeta_LB = (1-EPS)*(absLB(x2*x2) - e_minus_2_re_perp_UB_normed);
+  double zeta_UB = (1+EPS)*(absUB(x2*x2) - e_minus_2_re_perp_LB_normed);
+ 
+  double omega_LB = (1-EPS)*((1-EPS)*(2*((1-EPS)*(ch_2_re_perp_LB_normed*absLB(x2*x2))) - absUB(x2*x2*x2*x2)) - absUB(y2*y2*x2*x2));
+  double omega_UB = (1+EPS)*((1+EPS)*(2*((1+EPS)*(ch_2_re_perp_UB_normed*absUB(x2*x2))) - absLB(x2*x2*x2*x2)) - absLB(y2*y2*x2*x2));
+  
+  printf("delta : %f, %f\n", delta_LB, delta_UB);
+  printf("zeta : %f, %f\n", zeta_LB, zeta_UB);
+  printf("omega : %f, %f\n", omega_LB, omega_UB);
+  printf("e_minues_2_perp : %f, %f\n", e_minus_2_re_perp_LB_normed, e_minus_2_re_perp_UB_normed); 
+
+  // TODO: For now, box must only contain interior points
+  double u_plus_w_12_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(y1*x2)) - absUB(x2*x2)) - absUB(x1*x2));
+  double u_plus_w_21_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(x1*y2)) - absUB(y2*y2)) - absUB(y1*y2));
+  printf("u + w normed 12 LB : %f, u + w normed 21 LB : %f and coshh2RePx2y2 LB %f\n", u_plus_w_12_LB, u_plus_w_21_LB, ch_2_re_perp_LB_normed);
+  if (u_plus_w_12_LB <= 0 || u_plus_w_21_LB <= 0 || ch_2_re_perp_LB_normed <= 1) {
+    printf("Box contains non-interior points\n");
+    return -1; // Box contains non-interior points
+  }
+  if (zeta_LB > 0) {
+    if (upper) {
+      // return upper bound
+      double top = (1+EPS)*(delta_UB + (1+EPS)*sqrt(max((1+EPS)*((1+EPS)*(delta_UB*delta_UB) + omega_UB),0)));
+      return (1+EPS)*(top/zeta_LB);
+    } else {
+      // return lower bound
+      double top = (1-EPS)*(delta_LB + (1-EPS)*sqrt(max((1-EPS)*((1-EPS)*(delta_LB*delta_LB) + omega_LB),0)));
+      return (1-EPS)*(top/zeta_UB);
+    }     
+  } else if (zeta_UB < 0) {
+    T e2pn = cpnsq + spnsq + sqrt(spnsq*cpnsq)*2; 
+    if (upper) {
+      return (1+EPS)*(absUB(e2pn)/exp_2_t(w2,w1,false));
+    } else {
+      return (1-EPS)*(absLB(e2pn)/exp_2_t(w2,w1,true));
+    }
+  } else { // u = v somehwere in the box... which is bad
+    return -3;
   }
 }; 
 

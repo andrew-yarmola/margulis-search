@@ -1,8 +1,5 @@
 #ifndef _SL2_h_
 #define _SL2_h_
-#include <complex>
-
-typedef std::complex<double> Complex;
 
 template<typename T>
 struct SL2 {

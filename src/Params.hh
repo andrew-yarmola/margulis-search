@@ -3,26 +3,7 @@
 #include <math.h>
 #include <string>
 #include "SL2.hh"
-
-/*
-* We will work in sinh space. The parameters of interest are
-* Let x and y realize the margulis constant such that re(length(x)) =< re(length(y))
-* cosh(L/2) where L = length(x)
-* cosh(D/2) where D = length(y)
-* cosh(P) where P is the length of the ortholine from axis(x) to axis(y)
-* ASSUMPTION : L,D have imaginary part between -pi and pi, and P has imaginary part 
-* between -pi/2 and pi/2. This is to guarnatee that sqrt(cosh^2(t)-1) = sinh(t) for
-* t = L/2,D/2, and P, where the branch of sqrt is take to be the negative real axis.
-*/
-
-template<typename T> struct Params {
-	T sinhP;
-	T coshP;
-	T sinhD2;
-	T coshD2; // may not always be filled
-	T sinhL2; // may not always be filled
-	T coshL2; // may not always be filled
-};
+#include "types.hh"
 
 /*
 * Let x and y realize the margulis constant such that re(length(x)) =< re(length(y))
@@ -51,24 +32,24 @@ SL2<T> construct_y(const Params<T>& params) {
                 sd2 * sp, cd2 - cp * sd2);
 };
 
-//int x_power(std::string w) {
-//  int count = 0;
-//  for (std::string::size_type p = 0; p < w.size(); ++p) {
-//      if (w[p] == 'x' || w[p] == 'X') ++count;
-//  }
-//  return count;
-//}; 
-//
-//int y_power(std::string w) {
-//  int count = 0;
-//  for (std::string::size_type p = 0; p < w.size(); ++p) {
-//      if (w[p] == 'y' || w[p] == 'Y') ++count;
-//  }
-//  return count;
-//}; 
-//
-//bool x_power_sort(std::string a, std::string b) { return x_power(a) < x_power(b); };
-//
-//bool y_power_sort(std::string a, std::string b) { return y_power(a) < y_power(b); };
+int x_power(std::string w) {
+  int count = 0;
+  for (std::string::size_type p = 0; p < w.size(); ++p) {
+      if (w[p] == 'x' || w[p] == 'X') ++count;
+  }
+  return count;
+}; 
+
+int y_power(std::string w) {
+  int count = 0;
+  for (std::string::size_type p = 0; p < w.size(); ++p) {
+      if (w[p] == 'y' || w[p] == 'Y') ++count;
+  }
+  return count;
+}; 
+
+bool x_power_sort(std::string a, std::string b) { return x_power(a) < x_power(b); };
+
+bool y_power_sort(std::string a, std::string b) { return y_power(a) < y_power(b); };
 
 #endif // __Params_h
