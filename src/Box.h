@@ -1,6 +1,7 @@
 #ifndef __Box_h
 #define __Box_h
 #include "types.hh"
+#include "SL2.hh"
 #include "ACJ.h"
 #include "QuasiRelators.h"
 
@@ -14,6 +15,10 @@ struct Box {
 	Params<Complex> nearer() const { return _nearer; } // returns all values closer to 0 than in box or 0 if box overlaps
 	Params<Complex> further() const { return _further; } // returns all values futher from 0 that in the box
 	Params<Complex> greater() const { return _greater; } // returns all values greater than in the box
+  SL2<Complex> x_center() const { return _x_center; }
+  SL2<Complex> y_center() const { return _y_center; }
+  SL2<ACJ> x_cover() const { return _x_cover; }
+  SL2<ACJ> y_cover() const { return _y_cover; }
 private:
 	int pos;
 	double center_digits[6];
@@ -30,6 +35,10 @@ private:
   void compute_nearer();
 	void compute_further();
 	void compute_greater();
+  SL2<Complex> _x_center;
+  SL2<Complex> _y_center;
+  SL2<ACJ> _x_cover;
+  SL2<ACJ> _y_cover;
 };
 
 

@@ -1,40 +1,36 @@
-/*
- *  CanonicalName.cpp
- *  mom
- *
- *  Created by Nathaniel Thurston on 12/10/2008.
- *  Copyright 2008 __MyCompanyName__. All rights reserved.
- *
- */
-
-#include "CanonicalName.h"
+#include "CanonicalName.hh"
 #include <set>
 #include <algorithm>
 #include <stdio.h>
 
 using namespace std;
 
-std::map<std::string, CanonicalName*> CanonicalName::cache;
+map<string, CanonicalName*> CanonicalName::cache;
 
-int gPower(string s)
-{
-	string::size_type p;
-	int gCount = 0;
-	for (p = 0; p < s.size(); ++p)
-		if (s[p] == 'g' || s[p] == 'G')
-			++gCount;
-	return gCount;
-}
+int x_pow(string w) {
+  int count = 0;
+  for (string::size_type p = 0; p < w.size(); ++p) {
+      if (w[p] == 'x' || w[p] == 'X') ++count;
+  }
+  return count;
+}; 
+
+int y_pow(string w) {
+  int count = 0;
+  for (std::string::size_type p = 0; p < w.size(); ++p) {
+      if (w[p] == 'y' || w[p] == 'Y') ++count;
+  }
+  return count;
+}; 
+
 
 char invertLetter(char c)
 {
 	switch (c) {
-		case 'g': return 'G';
-		case 'G': return 'g';
-		case 'm': return 'M';
-		case 'M': return 'm';
-		case 'n': return 'N';
-		case 'N': return 'n';
+		case 'x': return 'X';
+		case 'X': return 'x';
+		case 'y': return 'Y';
+		case 'Y': return 'y';
 		default: return '?';
 	}
 }
@@ -72,16 +68,10 @@ void CanonicalName::initImpl()
 
 void CanonicalName::initSubstitutions()
 {
-	substitutions.push_back(Substitution("nm", "mn"));
-	substitutions.push_back(Substitution("nM", "Mn"));
-	substitutions.push_back(Substitution("Nm", "mN"));
-	substitutions.push_back(Substitution("NM", "MN"));
-	substitutions.push_back(Substitution("nN", ""));
-	substitutions.push_back(Substitution("Nn", ""));
-	substitutions.push_back(Substitution("mM", ""));
-	substitutions.push_back(Substitution("Mm", ""));
-	substitutions.push_back(Substitution("gG", ""));
-	substitutions.push_back(Substitution("Gg", ""));
+	substitutions.push_back(Substitution("xX", ""));
+	substitutions.push_back(Substitution("Xx", ""));
+	substitutions.push_back(Substitution("yY", ""));
+	substitutions.push_back(Substitution("Yy", ""));
 }
 
 void CanonicalName::addSubstitution(string& a, string& b)
@@ -91,29 +81,32 @@ void CanonicalName::addSubstitution(string& a, string& b)
 	string bc = reduce(b);
 	if (ac == bc)
 		return;
-	int ap = gPower(ac);
-	int bp = gPower(bc);
+	int ap = ac.length();
+	int bp = bc.length();
 	if (ap < bp) {
-		if (getClass(bc) == bc)
-			substitutions.push_back(Substitution(bc, ac));
+		substitutions.push_back(Substitution(bc, ac));
 	} else if (ap > bp) {
-		if (getClass(ac) == ac)
-			substitutions.push_back(Substitution(ac, bc));
+		substitutions.push_back(Substitution(ac, bc));
 	} else {
-		string aclass = getClass(ac);
-		string bclass = getClass(bc);
-		if (aclass < bclass) {
-			if (bclass == bc)
-				substitutions.push_back(Substitution(bc, ac));
-		} else if (bclass < aclass) {
-			if (aclass == ac)
-				substitutions.push_back(Substitution(ac, bc));
-		}
-		
-		return;
+    int ax = x_pow(ac);
+    int bx = x_pow(bc);
+		if (ax < bx) {
+		  substitutions.push_back(Substitution(bc, ac));
+    } else if (ax > bx) {
+		  substitutions.push_back(Substitution(ac, bc));
+    } else {
+      int ay = y_pow(ac);
+      int by = y_pow(bc);
+      if (ay < by) {
+        substitutions.push_back(Substitution(bc, ac));
+      } else if (ay > by) {
+        substitutions.push_back(Substitution(ac, bc));
+      } 
+    }
 	}
 //	printf("added %s -> %s\n", substitutions.back().s.c_str(),
 //		substitutions.back().rep.c_str());
+  return;
 }
 
 void CanonicalName::addRelator(string relator)
@@ -161,16 +154,6 @@ string CanonicalName::reduce(string s)
 	return s;
 }
 
-string CanonicalName::getClass(string& s)
-{
-	string::size_type firstG = s.find_first_of("gG");
-	string::size_type lastG = s.find_last_of("gG");
-	if (firstG != string::npos)
-		return s.substr(firstG, lastG - firstG + 1);
-	else
-		return "";
-}
-
 string CanonicalName::getCanonicalName(string s)
 {
 	if (!impl) {
@@ -179,10 +162,4 @@ string CanonicalName::getCanonicalName(string s)
 	string result = impl->reduce(inverse(impl->reduce(inverse(s))));
 	//fprintf(stderr, "CanonicalName(%s) = %s\n", s.c_str(), result.c_str());
 	return result;
-}
-
-string CanonicalName::getCanonicalClass(string s)
-{
-	string cs = getCanonicalName(s);
-	return getClass(cs);
 }

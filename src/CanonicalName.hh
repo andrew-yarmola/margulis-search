@@ -17,12 +17,10 @@ public:
 	std::string inverse(std::string name);
 	void addRelator(std::string relator);
 	std::string getCanonicalName(std::string name);
-	std::string getCanonicalClass(std::string name);
 	
 private:
 	void addSubstitution(std::string& a, std::string& b);
 	std::string reduce(std::string s);
-	std::string getClass(std::string& s);
 	void addRelatorInternal(std::string relator);
 	void initImpl();
 	void initSubstitutions();

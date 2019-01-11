@@ -15,20 +15,35 @@
 
 template<typename T> struct Params {
 	T sinhP;
-	T coshP;
 	T sinhD2;
+	T sinhL2;
+	T coshP; // may not always be filled
 	T coshD2; // may not always be filled
-	T sinhL2; // may not always be filled
 	T coshL2; // may not always be filled
 };
 
 
 typedef std::complex<double> Complex;
 
-double absUB(Complex& x);
+inline const Complex operator+(const Complex&x,double y) { return x + Complex(y,0); };
+inline const Complex operator-(const Complex&x,double y) { return x - Complex(y,0); };
+inline const Complex operator*(const Complex&x,double y) { return x * Complex(y,0); };
+inline const Complex operator/(const Complex&x,double y) { return x / Complex(y,0); };
 
-double absLB(Complex& x);
+double absUB(const Complex& x);
+
+double absLB(const Complex& x);
 
 double max(double a, double b); 
+
+std::string repeat(std::string s, int n);
+
+int x_power(std::string w);
+
+int y_power(std::string w);
+
+bool x_power_sort(std::string a, std::string b);
+
+bool y_power_sort(std::string a, std::string b);
 
 #endif // __types_h

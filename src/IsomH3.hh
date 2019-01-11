@@ -8,19 +8,93 @@
 #include "types.hh"
 
 template<typename T>
+const double four_cosh_re_length_LB(const SL2<T>& w) {
+  T tr = w.a + w.d;
+  return (1-EPS)*(absLB(tr*tr) + absLB(tr*tr - 4));
+};
+
+template<typename T>
+const double four_cosh_re_length_UB(const SL2<T>& w) {
+  T tr = w.a + w.d;
+  return (1+EPS)*(absUB(tr*tr) + absUB(tr*tr - 4));
+};
+
+template<typename T>
 const T cosh_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T tr1 = w1.a + w1.d;
   T tr2 = w2.a + w2.d;
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  return (td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2)/sqrt((tr1*tr1 - 4)*(tr2*tr2 - 4));
+  T sh1 = sqrt((tr1*tr1 - 4));
+  T sh2 = sqrt((tr2*tr2 - 4));
+  if (absLB(tr1 + sh1) < 4) { sh1 = -sh1; }
+  if (absLB(tr2 + sh2) < 4) { sh2 = -sh2; }
+  return (td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2)/(sh1 * sh2);
+};
+
+template<typename T>
+const T sinh_perp(const SL2<T>& w1, const SL2<T>& w2) {
+  T ch = cosh_perp(w1,w2);
+  T sh = sqrt(ch * ch - 1);
+  if (absLB(ch + sh) < 1) { sh = -sh; }
+  return sh;
+};
+
+template<typename T>
+const double e_re_perp_UB(const SL2<T>& w1, const SL2<T>& w2) {
+  return absUB(cosh_perp(w1,w2) + sinh_perp(w1,w2));
+};
+
+template<typename T>
+const double e_re_perp_x_UB(const SL2<T>& w) {
+  // Note : 2 a d - 1 = +/- cosh(dist((0,infty),(w . 0, w . infrty)))
+  T z = w.a * w.d;
+  T sh = sqrt(z*(z-1));
+  if (absLB((z + sh)*2 - 1) < 1) { sh = -sh; }
+  return absUB((z + sh) * 2 - 1);
+};
+
+template<typename T>
+const double e_re_perp_y_UB(const SL2<T>& w, T& coshP, T& sinhP) {
+  // Note: this seems too complecated
+  T z = w.a * w.d;
+  T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
+  T ch = z*2 + f*sinhP*sinhP/2 + (w.d - w.a)*(w.b - w.c)*sinhP*coshP - 1;
+  T sh = sqrt(z*z-1);
+  if (absLB(ch + sh) < 1) { sh = -sh; }
+  return absUB(ch + sh);
+};
+
+template<typename T>
+const double e_re_perp_LB(const SL2<T>& w1, const SL2<T>& w2) {
+  return absLB(cosh_perp(w1,w2) + sinh_perp(w1,w2));
+};
+
+template<typename T>
+const double e_re_perp_x_LB(const SL2<T>& w) {
+  // Note : 2 a d - 1 = +/- cosh(dist((0,infty),(w . 0, w . infrty)))
+  T z = w.a * w.d;
+  T sh = sqrt(z*(z-1));
+  if (absLB((z + sh)*2 - 1) < 1) { sh = -sh; }
+  return absLB((z + sh) * 2 - 1);
+};
+
+template<typename T>
+const double e_re_perp_y_LB(const SL2<T>& w, T& coshP, T& sinhP) {
+  // Note: this seems too complecated
+  T z = w.a * w.d;
+  T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
+  T ch = z*2 + f*sinhP*sinhP/2 + (w.d - w.a)*(w.b - w.c)*sinhP*cosh - 1;
+  T sh = sqrt(z*z-1);
+  if (absLB(ch + sh) < 1) { sh = -sh; }
+  return absLB(ch + sh);
 };
 
 template<typename T>
 const T cosh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  return td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2;
+  return td1 * td2 + (w1.b * w2.c + w2.b * w1.c)*2;
 };
 
 template<typename T>
@@ -29,8 +103,15 @@ const T sinh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w2.a + w2.d;
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  T z  = td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2; 
-  return sqrt(z*z - (tr1*tr1 - 4)*(tr2*tr2 - 4));
+  T sh1 = sqrt((tr1*tr1 - 4));
+  T sh2 = sqrt((tr2*tr2 - 4));
+  if (absLB(tr1 + sh1) < 4) { sh1 = -sh1; }
+  if (absLB(tr2 + sh2) < 4) { sh2 = -sh2; }
+  T norm = (tr1*tr1 - 4)*(tr2*tr2 - 4);
+  T ch = td1 * td2 + (w1.b * w2.c + w2.b * w1.c)*2; 
+  T sh = sqrt(ch * ch - norm);
+  if (absLB((ch + sh)/(sh1*sh2)) < 1) { sh = -sh; }
+  return sh;
 };
 
 template<typename T>
@@ -39,16 +120,16 @@ const T cosh_perp_sq(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w2.a + w2.d;
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  T z   = td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2;
-  return (z*z)/((tr1*tr1 - 4)*(tr2*tr2 - 4));
+  T ch = td1 * td2 + (w1.b * w2.c + w2.b * w1.c)*2; 
+  return (ch*ch)/((tr1*tr1 - 4)*(tr2*tr2 - 4));
 };
 
 template<typename T>
 const T cosh_perp_sq_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  T z   = td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2;
-  return z*z; 
+  T ch = td1 * td2 + (w1.b * w2.c + w2.b * w1.c)*2; 
+  return ch*ch; 
 };
 
 template<typename T>
@@ -57,7 +138,7 @@ const T sinh_perp_sq_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w2.a + w2.d;
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  T z  = td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2; 
+  T z = td1 * td2 + (w1.b * w2.c + w2.b * w1.c)*2; 
   return z*z - (tr1*tr1 - 4)*(tr2*tr2 - 4);
 };
 
@@ -71,18 +152,21 @@ const T cosh_perp_x(const SL2<T>& w) {
   // returns cosh(R) where R is the complex distance from axis(w) to (0,inf)
   T tr = w.a + w.d;
   T td = w.a - w.d;
-  return td/sqrt(tr*tr - 4); 
+  T sh = sqrt(tr*tr - 4);
+  if (absLB(tr + sh) < 4) { sh = -sh; }
+  return td/sh; 
 };
 
 template<typename T>
-const T cosh_perp_x_normed(const SL2<T>& w, Params<T>& params) {
+const T cosh_perp_x_normed(const SL2<T>& w, const Params<T>& params) {
   T td = w.a - w.d;
   return td*params.sinhL2*2; 
 };
 
 template<typename T>
-const T sinh_perp_x_normed(const SL2<T>& w, Params<T>& params) {
-  return sqrt(1 - w.a * w.d)*params.sinhL2*4; 
+const T sinh_perp_x_normed(const SL2<T>& w, const Params<T>& params) {
+  // TODO: check if correct branch of sqrt
+  return sqrt(-(w.b * w.c))*params.sinhL2*4; 
 };
 
 template<typename T>
@@ -95,18 +179,18 @@ const T cosh_perp_x_sq(const SL2<T>& w) {
 
 
 template<typename T>
-const T cosh_perp_x_sq_normed(const SL2<T>& w, Params<T>& params) {
+const T cosh_perp_x_sq_normed(const SL2<T>& w, const Params<T>& params) {
   T td = w.a - w.d;
   return (td*td)*(params.coshL2*params.coshL2-1)*4; 
 };
 
 template<typename T>
-const T sinh_perp_x_sq_normed(const SL2<T>& w, Params<T>& params) {
+const T sinh_perp_x_sq_normed(const SL2<T>& w, const Params<T>& params) {
   return (1 - w.a * w.d)*(params.coshL2*params.coshL2-1)*16; 
 };
 
 template<typename T>
-const T cosh_perp_y(const SL2<T>& w, Params<T>& params) {
+const T cosh_perp_y(const SL2<T>& w, const Params<T>& params) {
   // returns cosh(R) where R is the complex distance from axis(w) to axis(y)
   T tr = w.a + w.d;
   T td = w.a - w.d;
@@ -115,45 +199,46 @@ const T cosh_perp_y(const SL2<T>& w, Params<T>& params) {
 };
 
 template<typename T>
-const T cosh_perp_y_normed(const SL2<T>& w, Params<T>& params) {
+const T cosh_perp_y_normed(const SL2<T>& w, const Params<T>& params) {
   T td = w.a - w.d;
   T dd = w.b - w.c;
   return (td * params.coshP + dd * params.sinhP)*params.sinhD2*2;
 };
 
 template<typename T>
-const T sinh_perp_y_normed(const SL2<T>& w, Params<T>& params) {
+const T sinh_perp_y_normed(const SL2<T>& w, const Params<T>& params) {
   T tr = w.a + w.d;
   T td = w.a - w.d;
   T dd = w.b - w.c;
-  T z  = td * params.coshP + dd * params.sinhP;
-  return sqrt(z*z-(tr*tr - 4))*params.sinhD2*2;
+  T ch  = td * params.coshP + dd * params.sinhP;
+  // TODO check if correct sqrt
+  return sqrt(ch*ch-(tr*tr - 4))*params.sinhD2*2;
 };
 
 template<typename T>
-const T cosh_perp_y_sq(const SL2<T>& w, Params<T>& params) {
+const T cosh_perp_y_sq(const SL2<T>& w, const Params<T>& params) {
   T tr = w.a + w.d;
   T td = w.a - w.d;
   T dd = w.b - w.c;
-  T z  = td * params.coshP + dd * params.sinhP;
-  return (z*z)/(tr*tr - 4); 
+  T ch = td * params.coshP + dd * params.sinhP;
+  return (ch*ch)/(tr*tr - 4); 
 };
 
 template<typename T>
-const T cosh_perp_y_sq_normed(const SL2<T>& w, Params<T>& params) {
+const T cosh_perp_y_sq_normed(const SL2<T>& w, const Params<T>& params) {
   T td = w.a - w.d;
   T dd = w.b - w.c;
-  T z  = td * params.coshP + dd * params.sinhP;
-  return (z*z)*(params.coshD2-1)*4;
+  T ch  = td * params.coshP + dd * params.sinhP;
+  return (ch*ch)*(params.coshD2-1)*4;
 };
 
 template<typename T>
-const T sinh_perp_y_sq_normed(const SL2<T>& w, Params<T>& params) {
+const T sinh_perp_y_sq_normed(const SL2<T>& w, const Params<T>& params) {
   T tr = w.a + w.d;
   T td = w.a - w.d;
   T dd = w.b - w.c;
-  T z  = td * params.coshP + dd * params.sinhP;
-  return ((z*z)-(tr*tr - 4))*(params.coshD2*params.coshD2-1)*4;
+  T ch  = td * params.coshP + dd * params.sinhP;
+  return ((ch*ch)-(tr*tr - 4))*(params.coshD2*params.coshD2-1)*4;
 };
 
 template<typename T>
@@ -165,9 +250,10 @@ const double cosh_2_re_perp_LB(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 const double sinh_2_re_perp_LB(const SL2<T>& w1, const SL2<T>& w2) {
-  double ch_LB = cosh_2_re_perp_LB(w1,w2);
-  // Lemma 7.0 in GMT
-  return (1-EPS)*sqrt(max((1-EPS)*((1-EPS)*(ch_LB*ch_LB)-1),0));
+  T cp_sq = cosh_perp_sq(w1,w2);
+  double c2rp_sq_LB = (1-EPS)*((1-EPS)*(absLB(cp_sq*cp_sq) + absLB((cp_sq-1)*(cp_sq-1))) + absLB(cp_sq*(cp_sq - 1))*2);  
+  // Lemma 7.0 in GMT and sqrt > 0 so we should be OK
+  return (1-EPS)*sqrt(max((1-EPS)*(c2rp_sq_LB - 1),0));
 };
 
 template<typename T>
@@ -179,16 +265,41 @@ const double cosh_2_re_perp_LB_normed(const SL2<T>& w1, const SL2<T>& w2) {
 };
 
 template<typename T>
+const double cosh_2_re_perp_LB_normed_f(const SL2<T>& w1, const SL2<T>& w2, const T& factor) {
+  T cp_sq_normed = cosh_perp_sq_normed(w1,w2)*factor;
+  T sp_sq_normed = sinh_perp_sq_normed(w1,w2)*factor;
+  // Lemma 7.0 in GMT
+  return (1-EPS)*(absLB(cp_sq_normed) + absLB(sp_sq_normed));
+};
+
+template<typename T>
 const double sinh_2_re_perp_LB_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  double ch_LB = cosh_2_re_perp_LB_normed(w1,w2);
+  T cpsqn = cosh_perp_sq_normed(w1,w2);
+  T spsqn = sinh_perp_sq_normed(w1,w2);
+  double ch_sq_LB = (1-EPS)*((1-EPS)*(absLB(cpsqn*cpsqn) + absLB(spsqn*spsqn)) + absLB(spsqn*cpsqn)*2);
   T tr1 = w1.a + w1.d;
   T tr2 = w1.a + w1.d;
   T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4);
   double norm_UB = absUB(x2y2*x2y2);
   printf("norm_UB %f\n", norm_UB);
-  printf("cosh_sq_LB %f\n", (1-EPS)*(ch_LB*ch_LB));
+  printf("cosh_sq_LB %f\n", ch_sq_LB);
   // Lemma 7.0 in GMT
-  return (1-EPS)*sqrt(max((1-EPS)*((1-EPS)*(ch_LB*ch_LB) - norm_UB),0));
+  return (1-EPS)*sqrt(max((1-EPS)*(ch_sq_LB - norm_UB),0));
+};
+
+template<typename T>
+const double sinh_2_re_perp_LB_normed_f(const SL2<T>& w1, const SL2<T>& w2, const T& factor) {
+  T cpsqn = cosh_perp_sq_normed(w1,w2)*factor;
+  T spsqn = sinh_perp_sq_normed(w1,w2)*factor;
+  double ch_sq_LB = (1-EPS)*((1-EPS)*(absLB(cpsqn*cpsqn) + absLB(spsqn*spsqn)) + absLB(spsqn*cpsqn)*2);
+  T tr1 = w1.a + w1.d;
+  T tr2 = w1.a + w1.d;
+  T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4)*factor*factor;
+  double norm_UB = absUB(x2y2*x2y2);
+  printf("norm_UB %f\n", norm_UB);
+  printf("cosh_sq_LB %f\n", ch_sq_LB);
+  // Lemma 7.0 in GMT
+  return (1-EPS)*sqrt(max((1-EPS)*(ch_sq_LB - norm_UB),0));
 };
 
 template<typename T>
@@ -200,9 +311,10 @@ const double cosh_2_re_perp_UB(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 const double sinh_2_re_perp_UB(const SL2<T>& w1, const SL2<T>& w2) {
-  double ch_UB = cosh_2_re_perp_UB(w1,w2);
+  T cp_sq = cosh_perp_sq(w1,w2);
+  double c2rp_sq_UB = (1+EPS)*((1+EPS)*(absUB(cp_sq*cp_sq) + absUB((cp_sq-1)*(cp_sq-1))) + absUB(cp_sq*(cp_sq - 1))*2);  
   // Lemma 7.0 in GMT
-  return (1+EPS)*sqrt(max((1+EPS)*((1+EPS)*(ch_UB*ch_UB)-1),0));
+  return (1+EPS)*sqrt(max((1+EPS)*(c2rp_sq_UB-1),0));
 };
 
 template<typename T>
@@ -214,16 +326,41 @@ const double cosh_2_re_perp_UB_normed(const SL2<T>& w1, const SL2<T>& w2) {
 };
 
 template<typename T>
+const double cosh_2_re_perp_UB_normed_f(const SL2<T>& w1, const SL2<T>& w2, const T& factor) {
+  T cp_sq_normed = cosh_perp_sq_normed(w1,w2)*factor;
+  T sp_sq_normed = sinh_perp_sq_normed(w1,w2)*factor;
+  // Lemma 7.0 in GMT
+  return (1+EPS)*(absUB(cp_sq_normed) + absUB(sp_sq_normed));
+};
+
+template<typename T>
 const double sinh_2_re_perp_UB_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  double ch_UB = cosh_2_re_perp_UB_normed(w1,w2);
+  T cpsqn = cosh_perp_sq_normed(w1,w2);
+  T spsqn = sinh_perp_sq_normed(w1,w2);
+  double ch_sq_UB = (1+EPS)*((1+EPS)*(absUB(cpsqn*cpsqn) + absUB(spsqn*spsqn)) + absUB(spsqn*cpsqn)*2);
   T tr1 = w1.a + w1.d;
   T tr2 = w1.a + w1.d;
   T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4);
-  double norm_LB = absLB(x2y2*x2y2);
-  printf("norm_LB %f\n", norm_LB);
-  printf("cosh_sq_UB %f\n", (1+EPS)*(ch_UB*ch_UB));
+  double norm_UB = absUB(x2y2*x2y2);
+  printf("norm_UB %f\n", norm_UB);
+  printf("cosh_sq_UB %f\n", ch_sq_UB);
   // Lemma 7.0 in GMT
-  return (1+EPS)*sqrt(max((1+EPS)*((1+EPS)*(ch_UB*ch_UB) - norm_LB),0));
+  return (1+EPS)*sqrt(max((1+EPS)*(ch_sq_UB - norm_UB),0));
+};
+
+template<typename T>
+const double sinh_2_re_perp_UB_normed_f(const SL2<T>& w1, const SL2<T>& w2, const T& factor) {
+  T cpsqn = cosh_perp_sq_normed(w1,w2)*factor;
+  T spsqn = sinh_perp_sq_normed(w1,w2)*factor;
+  double ch_sq_UB = (1+EPS)*((1+EPS)*(absUB(cpsqn*cpsqn) + absUB(spsqn*spsqn)) + absUB(spsqn*cpsqn)*2);
+  T tr1 = w1.a + w1.d;
+  T tr2 = w1.a + w1.d;
+  T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4)*factor*factor;
+  double norm_UB = absUB(x2y2*x2y2);
+  printf("norm_UB %f\n", norm_UB);
+  printf("cosh_sq_UB %f\n", ch_sq_UB);
+  // Lemma 7.0 in GMT
+  return (1+EPS)*sqrt(max((1+EPS)*(ch_sq_UB - norm_UB),0));
 };
 
 template<typename T>
@@ -234,7 +371,7 @@ const double cosh_2_re_perp_x_LB(const SL2<T>& w) {
 };
 
 template<typename T>
-const double cosh_2_re_perp_x_LB_normed(const SL2<T>& w, Params<T>& params) {
+const double cosh_2_re_perp_x_LB_normed(const SL2<T>& w, const Params<T>& params) {
   T cp_sq_normed = cosh_perp_x_sq_normed(w, params);
   T sp_sq_normed = sinh_perp_x_sq_normed(w, params);
   // Lemma 7.0 in GMT
@@ -249,7 +386,7 @@ const double cosh_2_re_perp_x_UB(const SL2<T>& w) {
 };
 
 template<typename T>
-const double cosh_2_re_perp_x_UB_normed(const SL2<T>& w, Params<T>& params) {
+const double cosh_2_re_perp_x_UB_normed(const SL2<T>& w, const Params<T>& params) {
   T cp_sq_normed = cosh_perp_x_sq_normed(w, params);
   T sp_sq_normed = sinh_perp_x_sq_normed(w, params);
   // Lemma 7.0 in GMT
@@ -257,14 +394,14 @@ const double cosh_2_re_perp_x_UB_normed(const SL2<T>& w, Params<T>& params) {
 };
 
 template<typename T>
-const double cosh_2_re_perp_y_LB(const SL2<T>& w, Params<T>& params) {
+const double cosh_2_re_perp_y_LB(const SL2<T>& w, const Params<T>& params) {
   T cp_sq = cosh_perp_y_sq(w, params);
   // Lemma 7.0 in GMT
   return (1-EPS)*(absLB(cp_sq) + absLB(cp_sq-1));
 };
 
 template<typename T>
-const double cosh_2_re_perp_y_LB_normed(const SL2<T>& w, Params<T>& params) {
+const double cosh_2_re_perp_y_LB_normed(const SL2<T>& w, const Params<T>& params) {
   T cp_sq_normed = cosh_perp_y_sq_normed(w, params);
   T sp_sq_normed = sinh_perp_y_sq_normed(w, params);
   // Lemma 7.0 in GMT
@@ -272,18 +409,71 @@ const double cosh_2_re_perp_y_LB_normed(const SL2<T>& w, Params<T>& params) {
 };
 
 template<typename T>
-const double cosh_2_re_perp_y_UB(const SL2<T>& w, Params<T>& params) {
+const double cosh_2_re_perp_y_UB(const SL2<T>& w, const Params<T>& params) {
   T cp_sq = cosh_perp_y_sq(w, params);
   // Lemma 7.0 in GMT
   return (1+EPS)*(absUB(cp_sq) + absUB(cp_sq-1));
 };
 
 template<typename T>
-const double cosh_2_re_perp_y_UB_normed(const SL2<T>& w, Params<T>& params) {
+const double cosh_2_re_perp_y_UB_normed(const SL2<T>& w, const Params<T>& params) {
   T cp_sq_normed = cosh_perp_y_sq_normed(w, params);
   T sp_sq_normed = sinh_perp_y_sq_normed(w, params);
   // Lemma 7.0 in GMT
   return (1+EPS)*(absUB(cp_sq_normed) + absUB(sp_sq_normed));
+};
+
+// We only care about upper bounds on the Jorgenesen inequality. That is,
+// If over a box |tr(w1)^2 - 4| + |tr(w1 w2 W1 W2) - 2| < 1, then one of the
+// words must be the identity or the box contains no discrete subgroups
+template<typename T>
+const double jorgensen_UB(const SL2<T>& w1, const SL2<T>& w2) {
+  SL2<T> W1 = inverse(w1); 
+  SL2<T> W2 = inverse(w2);
+  SL2<T> C = w1*w2*W1*W2;
+  T tr1 = w1.a + w1.d; 
+  T tr2 = C.a + C.d; 
+  return (1+EPS)*(absUB(tr1*tr1 - 4) + absUB(tr2 - 2));
+};
+
+template<typename T>
+const double jorgensen_xw_UB(const SL2<T>& w, const Params<T>& params) {
+  T shL2 = params.sinhL2;
+  T sh2bc = shL2 * shL2 * w.b * w.c; 
+  return 4*((1+EPS)*(absUB(shL2*shL2) + absUB(sh2bc)));
+};
+
+template<typename T>
+const double jorgensen_wx_UB(const SL2<T>& w, const Params<T>& params) {
+  T shL2 = params.sinhL2;
+  T sh2bc = shL2 * shL2 * w.b * w.c; 
+  T tr = w.a + w.d;
+  return (1+EPS)*(absUB(tr*tr - 4) + 4*absUB(sh2bc));
+};
+
+template<typename T>
+const double jorgensen_yw_UB(const SL2<T>& w, const Params<T>& params) {
+  // Note: this seems too complecated
+  T shD2 = params.sinhD2;
+  T sinhP = params.sinhP;
+  T coshP = params.coshP;
+  T z = w.a * w.d;
+  T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
+  T g = z*4 + f*sinhP*sinhP + 2*(w.d - w.a)*(w.b - w.c)*sinhP*coshP - 4;
+  return (1+EPS)(4*absUB(shD2*shD2) + absUB(shD2*shD2*g));
+};
+
+template<typename T>
+const double jorgensen_wy_UB(const SL2<T>& w, const Params<T>& params) {
+  // Note: this seems too complecated
+  T shD2 = params.sinhD2;
+  T sinhP = params.sinhP;
+  T coshP = params.coshP;
+  T z = w.a * w.d;
+  T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
+  T g = z*4 + f*sinhP*sinhP + 2*(w.d - w.a)*(w.b - w.c)*sinhP*coshP - 4;
+  T tr = w.a + w.d;
+  return (1+EPS)(absUB(tr*tr - 4) + absUB(shD2*shD2*g));
 };
 
 template<typename T>
@@ -297,9 +487,11 @@ const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) 
   T y1 = tr2*tr2;
   T y2 = tr2*tr2 - 4;
   // Normed cosh and sihn values
+  T cpn = cosh_perp_normed(w1,w2);
+  T spn = sinh_perp_normed(w1,w2);
   T cpnsq = cosh_perp_sq_normed(w1,w2);
   T spnsq = sinh_perp_sq_normed(w1,w2);
-  T e2pn = cpnsq + spnsq + sqrt(spnsq*cpnsq)*2;
+  T e2pn = cpnsq + spnsq + (spn * cpn) * 2;
   // exp(2re(P)) x2 y2 
   double e_2_re_perp_LB_normed = absLB(e2pn);
   double e_2_re_perp_UB_normed = absUB(e2pn);
@@ -314,8 +506,8 @@ const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) 
   double al_LB = (1-EPS)*(absLB(y1)-absUB(x1));
   double al_UB = (1+EPS)*(absUB(y1)-absLB(x1));
   
-  double beta_LB = (1-EPS)*((1-EPS)*(e_2_re_perp_LB_normed*absLB(y1)) - absUB(y2*y2*x1));
-  double beta_UB = (1+EPS)*((1+EPS)*(e_2_re_perp_UB_normed*absUB(y1)) - absLB(y2*y2*x1));
+  double beta_LB = (1-EPS)*(absLB(e2pn*y1) - absUB(y2*y2*x1));
+  double beta_UB = (1+EPS)*(absUB(e2pn*y1) - absLB(y2*y2*x1));
 
   double kappa_LB = (1-EPS)*(e_2_re_perp_LB_normed - absUB(y2*y2));
   double kappa_UB = (1+EPS)*(e_2_re_perp_UB_normed - absLB(y2*y2));
@@ -374,9 +566,13 @@ const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
   T y1 = tr2*tr2;
   T y2 = tr2*tr2 - 4;
   // Normed cosh and sihn values
+  T cpn = cosh_perp_normed(w1,w2);
+  T spn = sinh_perp_normed(w1,w2);
+  printf("Cosh perp %f + %f I and Sinh perp %f + %f I\n", cpn.f.re, cpn.f.im, spn.f.re, spn.f.im);
   T cpnsq = cosh_perp_sq_normed(w1,w2);
   T spnsq = sinh_perp_sq_normed(w1,w2);
-  T em2pn = cpnsq + spnsq - sqrt(spnsq*cpnsq)*2;
+  printf("Cosh^2 perp %f + %f I and Sinh^2 perp %f + %f I\n", cpnsq.f.re, cpnsq.f.im, spnsq.f.re, spnsq.f.im);
+  T em2pn = cpnsq + spnsq - (spn * cpn) * 2;
   // exp(2re(P)) x2 y2 
   double e_minus_2_re_perp_LB_normed = absLB(em2pn);
   double e_minus_2_re_perp_UB_normed = absUB(em2pn);
@@ -391,8 +587,8 @@ const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
   double zeta_LB = (1-EPS)*(absLB(x2*x2) - e_minus_2_re_perp_UB_normed);
   double zeta_UB = (1+EPS)*(absUB(x2*x2) - e_minus_2_re_perp_LB_normed);
  
-  double omega_LB = (1-EPS)*((1-EPS)*(2*((1-EPS)*(ch_2_re_perp_LB_normed*absLB(x2*x2))) - absUB(x2*x2*x2*x2)) - absUB(y2*y2*x2*x2));
-  double omega_UB = (1+EPS)*((1+EPS)*(2*((1+EPS)*(ch_2_re_perp_UB_normed*absUB(x2*x2))) - absLB(x2*x2*x2*x2)) - absLB(y2*y2*x2*x2));
+  double omega_LB = (1-EPS)*((1-EPS)*(2*cosh_2_re_perp_LB_normed_f(w1,w2,x2*x2) - absUB(x2*x2*x2*x2)) - absUB(y2*y2*x2*x2));
+  double omega_UB = (1+EPS)*((1+EPS)*(2*cosh_2_re_perp_UB_normed_f(w1,w2,x2*x2) - absLB(x2*x2*x2*x2)) - absLB(y2*y2*x2*x2));
   
   printf("delta : %f, %f\n", delta_LB, delta_UB);
   printf("zeta : %f, %f\n", zeta_LB, zeta_UB);
@@ -418,6 +614,7 @@ const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
       return (1-EPS)*(top/zeta_UB);
     }     
   } else if (zeta_UB < 0) {
+    // TODO : replace with a better formula for exp(2p-2t)
     T e2pn = cpnsq + spnsq + sqrt(spnsq*cpnsq)*2; 
     if (upper) {
       return (1+EPS)*(absUB(e2pn)/exp_2_t(w2,w1,false));

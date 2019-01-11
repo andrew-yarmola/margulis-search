@@ -271,9 +271,6 @@ bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, v
   if (!t.lChild) {
     if (depth >= g_options.maxDepth || ++g_boxesVisited >= g_options.maxSize || ++newDepth > g_options.inventDepth) {
 //    fprintf(stderr,"Deph %d, max depth %d, boxes_visited %d, max size %d, newDepth %d, invent depth %d\n", depth, g_options.maxDepth, g_boxesVisited, g_options.maxSize, newDepth, g_options.inventDepth);
-      Params<XComplex> params = box.center();
-      Params<XComplex> nearer = box.nearer();
-      double margulis_min = four_times      
       fprintf(stderr, "HOLE %s (%s)\n", box.name.c_str(), box.qr.desc().c_str());
       return false;
     }
@@ -463,7 +460,7 @@ int main(int argc, char** argv)
       box = box.child(1);
     }
   }
-  
+ 
   g_tests.load(g_options.wordsFile);
   g_tests.loadImpossibleRelations(g_options.powersFile);
   

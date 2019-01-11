@@ -1,4 +1,5 @@
 #include "Box.h"
+#include "Params.hh"
 
 // Initial box dimensions are 2^(18/6), 2^(17/6), ..., 2^(13/6). The last is > 4.49
 
@@ -54,14 +55,25 @@ void Box::compute_center_and_size()
         // where box operations are floating point. 
         box_center[i] = scale[i]*center_digits[i];
         box_size[i]= (1+2*EPS)*(size_digits[i]*scale[i]+HALFEPS*fabs(center_digits[i]));
-    }
-    _center.sinhP = Complex(box_center[3], box_center[0]);
-    _center.sinhD2 = Complex(box_center[4], box_center[1]);
-    _center.sinhL2 = Complex(box_center[5], box_center[2]);
-    Complex one = Complex(1,0);
-    _center.coshP = sqrt(_center.sinhP * _center.sinhP + one);
-    _center.coshD2 = sqrt(_center.sinhD2 * _center.sinhD2 + one);
-    _center.coshL2 = sqrt(_center.sinhL2 * _center.sinhL2 + one);
+  }
+  _center.sinhP = Complex(box_center[3], box_center[0]);
+  _center.sinhD2 = Complex(box_center[4], box_center[1]);
+  _center.sinhL2 = Complex(box_center[5], box_center[2]);
+  Complex one = Complex(1,0);
+  _center.coshP = sqrt(_center.sinhP * _center.sinhP + one);
+  if (absLB( _center.coshP + _center.sinhP) < 1) {
+    _center.coshP = - _center.coshP;
+  }   
+  _center.coshD2 = sqrt(_center.sinhD2 * _center.sinhD2 + one);
+  if (absLB( _center.coshD2 + _center.sinhD2) < 1) {
+    _center.coshD2 = - _center.coshD2;
+  }   
+  _center.coshL2 = sqrt(_center.sinhL2 * _center.sinhL2 + one);
+  if (absLB( _center.coshL2 + _center.sinhL2) < 1) {
+    _center.coshL2 = - _center.coshL2;
+  }
+  _x_center = construct_x(_center); 
+  _y_center = construct_y(_center); 
 }
 
 void Box::compute_cover()
@@ -84,9 +96,20 @@ void Box::compute_cover()
 		0.,
 		XComplex(box_size[5], box_size[2])
 	);
-  _cover.coshP  = sqrt( _cover.sinhP  * _cover.sinhP  + 1);
+  _cover.coshP = sqrt( _cover.sinhP  * _cover.sinhP  + 1);
+  if (absLB( _cover.coshP + _cover.sinhP) < 1) {
+    _cover.coshP = - _cover.coshP;
+  }   
   _cover.coshD2 = sqrt( _cover.sinhD2 * _cover.sinhD2 + 1);
+  if (absLB( _cover.coshD2 + _cover.sinhD2) < 1) {
+    _cover.coshD2 = - _cover.coshD2;
+  }   
   _cover.coshL2 = sqrt( _cover.sinhL2 * _cover.sinhL2 + 1);
+  if (absLB( _cover.coshL2 + _cover.sinhL2) < 1) {
+    _cover.coshL2 = - _cover.coshL2;
+  }   
+  _x_cover = construct_x(_cover); 
+  _y_cover = construct_y(_cover); 
 }
 
 void Box::compute_nearer()

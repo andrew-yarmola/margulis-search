@@ -9,14 +9,35 @@ struct SL2 {
 };
 
 template<typename T>
-const SL2<T> operator*(const SL2<T> &x, const SL2<T> &y) {
-  return SL2<T>(x.a*y.a+x.b*y.c, x.a*y.b+x.b*y.d,
-                x.c*y.a+x.d*y.c, x.c*y.b+x.d*y.d);
+const SL2<T> operator*(const SL2<T> &M, const SL2<T> &N) {
+  return SL2<T>(M.a*N.a+M.b*N.c, M.a*N.b+M.b*N.d,
+                M.c*N.a+M.d*N.c, M.c*N.b+M.d*N.d);
 };
 
 template<typename T>
-const SL2<T> inverse(const SL2<T> &x) {
-  return SL2<T>(x.d,-x.b,-x.c,x.a);
+const SL2<T> inverse(const SL2<T> &M) {
+  return SL2<T>(M.d,-M.b,-M.c,M.a);
+};
+
+template<typename T>
+inline const SL2<T> pow(const SL2<T> &M, int n) {
+  SL2<T> A; // identity
+  if (n == 0) { return A; }
+  SL2<T> B;
+  if (n < 0) { 
+    B = inverse(M);
+    n = -n;
+  } else {
+    B = M;
+  }
+  while (n > 1) {
+    if (n & 1) { // n odd
+      A = A*B;
+    }
+    B = B*B;
+    n /= 2; // int division
+  } 
+  return A*B;
 };
 
 #endif
