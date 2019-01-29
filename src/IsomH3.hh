@@ -55,12 +55,14 @@ const double e_re_perp_x_UB(const SL2<T>& w) {
 };
 
 template<typename T>
-const double e_re_perp_y_UB(const SL2<T>& w, T& coshP, T& sinhP) {
+const double e_re_perp_y_UB(const SL2<T>& w, const T& coshP, const T& sinhP) {
   // Note: this seems too complecated
   T z = w.a * w.d;
   T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
   T ch = z*2 + f*sinhP*sinhP/2 + (w.d - w.a)*(w.b - w.c)*sinhP*coshP - 1;
-  T sh = sqrt(z*z-1);
+  fprintf(stderr, "Cosh LB %f and UB %f\n", absLB(ch), absUB(ch));
+  T sh = sqrt(ch*ch-1);
+  fprintf(stderr, "Sinh LB %f and UB %f\n", absLB(sh), absUB(sh));
   if (absLB(ch + sh) < 1) { sh = -sh; }
   return absUB(ch + sh);
 };
@@ -84,8 +86,10 @@ const double e_re_perp_y_LB(const SL2<T>& w, T& coshP, T& sinhP) {
   // Note: this seems too complecated
   T z = w.a * w.d;
   T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
-  T ch = z*2 + f*sinhP*sinhP/2 + (w.d - w.a)*(w.b - w.c)*sinhP*cosh - 1;
-  T sh = sqrt(z*z-1);
+  T ch = z*2 + f*sinhP*sinhP/2 + (w.d - w.a)*(w.b - w.c)*sinhP*coshP - 1;
+  fprintf(stderr, "Cosh LB %f and UB %f\n", absLB(ch), absUB(ch));
+  T sh = sqrt(ch*ch-1);
+  fprintf(stderr, "Sinh LB %f and UB %f\n", absLB(sh), absUB(sh));
   if (absLB(ch + sh) < 1) { sh = -sh; }
   return absLB(ch + sh);
 };
@@ -281,8 +285,8 @@ const double sinh_2_re_perp_LB_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w1.a + w1.d;
   T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4);
   double norm_UB = absUB(x2y2*x2y2);
-  printf("norm_UB %f\n", norm_UB);
-  printf("cosh_sq_LB %f\n", ch_sq_LB);
+  fprintf(stderr, "norm_UB %f\n", norm_UB);
+  fprintf(stderr, "cosh_sq_LB %f\n", ch_sq_LB);
   // Lemma 7.0 in GMT
   return (1-EPS)*sqrt(max((1-EPS)*(ch_sq_LB - norm_UB),0));
 };
@@ -296,8 +300,8 @@ const double sinh_2_re_perp_LB_normed_f(const SL2<T>& w1, const SL2<T>& w2, cons
   T tr2 = w1.a + w1.d;
   T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4)*factor*factor;
   double norm_UB = absUB(x2y2*x2y2);
-  printf("norm_UB %f\n", norm_UB);
-  printf("cosh_sq_LB %f\n", ch_sq_LB);
+  fprintf(stderr, "norm_UB %f\n", norm_UB);
+  fprintf(stderr, "cosh_sq_LB %f\n", ch_sq_LB);
   // Lemma 7.0 in GMT
   return (1-EPS)*sqrt(max((1-EPS)*(ch_sq_LB - norm_UB),0));
 };
@@ -342,8 +346,8 @@ const double sinh_2_re_perp_UB_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w1.a + w1.d;
   T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4);
   double norm_UB = absUB(x2y2*x2y2);
-  printf("norm_UB %f\n", norm_UB);
-  printf("cosh_sq_UB %f\n", ch_sq_UB);
+  fprintf(stderr, "norm_UB %f\n", norm_UB);
+  fprintf(stderr, "cosh_sq_UB %f\n", ch_sq_UB);
   // Lemma 7.0 in GMT
   return (1+EPS)*sqrt(max((1+EPS)*(ch_sq_UB - norm_UB),0));
 };
@@ -357,8 +361,8 @@ const double sinh_2_re_perp_UB_normed_f(const SL2<T>& w1, const SL2<T>& w2, cons
   T tr2 = w1.a + w1.d;
   T x2y2 = (tr1*tr1 - 4)*(tr2*tr2 - 4)*factor*factor;
   double norm_UB = absUB(x2y2*x2y2);
-  printf("norm_UB %f\n", norm_UB);
-  printf("cosh_sq_UB %f\n", ch_sq_UB);
+  fprintf(stderr, "norm_UB %f\n", norm_UB);
+  fprintf(stderr, "cosh_sq_UB %f\n", ch_sq_UB);
   // Lemma 7.0 in GMT
   return (1+EPS)*sqrt(max((1+EPS)*(ch_sq_UB - norm_UB),0));
 };
@@ -459,8 +463,8 @@ const double jorgensen_yw_UB(const SL2<T>& w, const Params<T>& params) {
   T coshP = params.coshP;
   T z = w.a * w.d;
   T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
-  T g = z*4 + f*sinhP*sinhP + 2*(w.d - w.a)*(w.b - w.c)*sinhP*coshP - 4;
-  return (1+EPS)(4*absUB(shD2*shD2) + absUB(shD2*shD2*g));
+  T g = z*4 + f*sinhP*sinhP + (w.d - w.a)*(w.b - w.c)*sinhP*coshP*2 - 4;
+  return (1+EPS)*(4*absUB(shD2*shD2) + absUB(shD2*shD2*g));
 };
 
 template<typename T>
@@ -471,13 +475,13 @@ const double jorgensen_wy_UB(const SL2<T>& w, const Params<T>& params) {
   T coshP = params.coshP;
   T z = w.a * w.d;
   T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
-  T g = z*4 + f*sinhP*sinhP + 2*(w.d - w.a)*(w.b - w.c)*sinhP*coshP - 4;
+  T g = z*4 + f*sinhP*sinhP + (w.d - w.a)*(w.b - w.c)*sinhP*coshP*2 - 4;
   T tr = w.a + w.d;
-  return (1+EPS)(absUB(tr*tr - 4) + absUB(shD2*shD2*g));
+  return (1+EPS)*(absUB(tr*tr - 4) + absUB(shD2*shD2*g));
 };
 
 template<typename T>
-const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
+const double four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
   // retuns 2 cosh( margulis ) for w1,w2
   // TODO : Check signs ERROR ROUNDING
   T tr1 = w1.a + w1.d;
@@ -515,27 +519,27 @@ const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) 
   double eta_LB = (1-EPS)*((1-EPS)*(2*ch_2_re_perp_LB_normed - absUB(x2*x2)) - absUB(y2*y2));
   double eta_UB = (1+EPS)*((1+EPS)*(2*ch_2_re_perp_UB_normed - absLB(x2*x2)) - absLB(y2*y2));
   
-  printf("al : %f, %f\n", al_LB, al_UB);
-  printf("beta : %f, %f\n", beta_LB, beta_UB);
-  printf("kappa : %f, %f\n", kappa_LB, kappa_UB);
-  printf("eta : %f, %f\n", eta_LB, eta_UB);
-  printf("s : %f, %f\n", sh_2_re_perp_LB_normed, sh_2_re_perp_UB_normed); 
-  printf("cosh2rePnormed : %f, %f\n", ch_2_re_perp_LB_normed, ch_2_re_perp_UB_normed);
+  fprintf(stderr, "al : %f, %f\n", al_LB, al_UB);
+  fprintf(stderr, "beta : %f, %f\n", beta_LB, beta_UB);
+  fprintf(stderr, "kappa : %f, %f\n", kappa_LB, kappa_UB);
+  fprintf(stderr, "eta : %f, %f\n", eta_LB, eta_UB);
+  fprintf(stderr, "s : %f, %f\n", sh_2_re_perp_LB_normed, sh_2_re_perp_UB_normed); 
+  fprintf(stderr, "cosh2rePnormed : %f, %f\n", ch_2_re_perp_LB_normed, ch_2_re_perp_UB_normed);
 
   // TODO: For now, box must only contain interior points
   double u_plus_w_12_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(y1*x2)) - absUB(x2*x2)) - absUB(x1*x2));
   double u_plus_w_21_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(x1*y2)) - absUB(y2*y2)) - absUB(y1*y2));
-  printf("u + w normed 12 LB : %f, u + w normed 21 LB : %f and sinh2RePx2y2 LB %f\n", u_plus_w_12_LB, u_plus_w_21_LB, sh_2_re_perp_LB_normed);
+  fprintf(stderr, "u + w normed 12 LB : %f, u + w normed 21 LB : %f and sinh2RePx2y2 LB %f\n", u_plus_w_12_LB, u_plus_w_21_LB, sh_2_re_perp_LB_normed);
   if (u_plus_w_12_LB <= 0 || u_plus_w_21_LB <= 0 || sh_2_re_perp_LB_normed <= 0) {
-    printf("Box contains non-interior points\n");
+    fprintf(stderr, "Box contains non-interior points\n");
     return -1; // Box contains non-interior points
   }
 
   if (al_LB >= 0 || kappa_LB > 0) {
     // TODO: verify that this increasing and decreasing behavior is correct within these bounds
     if (beta_LB < 0 || eta_LB < 0) {
-      printf("Error: non-implemented state: beta_LB  < 0 or eta < 0\n");
-      return -5;
+      fprintf(stderr, "Error: non-implemented state: beta_LB  < 0 or eta < 0\n");
+      return -3;
     }
     if (upper) {
       // return upper bound
@@ -549,15 +553,46 @@ const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) 
     }     
 
   } else if (al_UB <= 0 || kappa_UB < 0) {
-    return four_cosh_margulis(w2, w1, upper);
+    return four_cosh_margulis_simple(w2, w1, upper);
   } else { 
     return -2;
   }
 }; 
 
 template<typename T>
+const double four_cosh_re_length(const SL2<T>& w, bool upper) {
+  if (upper) return four_cosh_re_length_UB(w);
+  else return four_cosh_re_length_LB(w);
+}
+
+template<typename T>
+const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
+  // TODO Optimize for x and y as w1 (or w2)
+  double margulis = pow(2,100);
+  int n = 1;
+  int m = 1;
+  SL2<T> A(w1);
+  while (four_cosh_re_length(A,upper) < margulis) {
+    SL2<T> B(w2);
+    while (four_cosh_re_length(B,upper) < margulis) {
+      double margulis_new = four_cosh_margulis_simple(A,B,upper);
+      if (margulis_new >= 0) {
+        margulis = fmin(margulis, margulis_new);
+      } else {
+        fprintf(stderr, "Failed Margulis computation with error %f\n", margulis_new); 
+      }
+      m += 1;
+      B = pow(w2,m); // reducing number of powers needed, might be better to just accumuate
+    }
+    n += 1;
+    A = pow(w2,n); // reducing the number of powers needed, might be better to just accumulate
+  }
+  return margulis; 
+}
+
+template<typename T>
 const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
-  // retuns 2 cosh( margulis ) for w1,w2
+  // retuns exp(2t) bounds where t is the distance along orth(w1,w2) from axis(w1) to margulis point
   // TODO : Check signs ERROR ROUNDING
   T tr1 = w1.a + w1.d;
   T tr2 = w2.a + w2.d;
@@ -568,10 +603,10 @@ const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
   // Normed cosh and sihn values
   T cpn = cosh_perp_normed(w1,w2);
   T spn = sinh_perp_normed(w1,w2);
-  printf("Cosh perp %f + %f I and Sinh perp %f + %f I\n", cpn.f.re, cpn.f.im, spn.f.re, spn.f.im);
+//  fprintf(stderr, "Cosh perp %f + %f I and Sinh perp %f + %f I\n", cpn.f.re, cpn.f.im, spn.f.re, spn.f.im);
   T cpnsq = cosh_perp_sq_normed(w1,w2);
   T spnsq = sinh_perp_sq_normed(w1,w2);
-  printf("Cosh^2 perp %f + %f I and Sinh^2 perp %f + %f I\n", cpnsq.f.re, cpnsq.f.im, spnsq.f.re, spnsq.f.im);
+//  fprintf(stderr, "Cosh^2 perp %f + %f I and Sinh^2 perp %f + %f I\n", cpnsq.f.re, cpnsq.f.im, spnsq.f.re, spnsq.f.im);
   T em2pn = cpnsq + spnsq - (spn * cpn) * 2;
   // exp(2re(P)) x2 y2 
   double e_minus_2_re_perp_LB_normed = absLB(em2pn);
@@ -590,17 +625,17 @@ const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
   double omega_LB = (1-EPS)*((1-EPS)*(2*cosh_2_re_perp_LB_normed_f(w1,w2,x2*x2) - absUB(x2*x2*x2*x2)) - absUB(y2*y2*x2*x2));
   double omega_UB = (1+EPS)*((1+EPS)*(2*cosh_2_re_perp_UB_normed_f(w1,w2,x2*x2) - absLB(x2*x2*x2*x2)) - absLB(y2*y2*x2*x2));
   
-  printf("delta : %f, %f\n", delta_LB, delta_UB);
-  printf("zeta : %f, %f\n", zeta_LB, zeta_UB);
-  printf("omega : %f, %f\n", omega_LB, omega_UB);
-  printf("e_minues_2_perp : %f, %f\n", e_minus_2_re_perp_LB_normed, e_minus_2_re_perp_UB_normed); 
+  fprintf(stderr, "delta : %f, %f\n", delta_LB, delta_UB);
+  fprintf(stderr, "zeta : %f, %f\n", zeta_LB, zeta_UB);
+  fprintf(stderr, "omega : %f, %f\n", omega_LB, omega_UB);
+  fprintf(stderr, "e_minues_2_perp : %f, %f\n", e_minus_2_re_perp_LB_normed, e_minus_2_re_perp_UB_normed); 
 
   // TODO: For now, box must only contain interior points
   double u_plus_w_12_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(y1*x2)) - absUB(x2*x2)) - absUB(x1*x2));
   double u_plus_w_21_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(x1*y2)) - absUB(y2*y2)) - absUB(y1*y2));
-  printf("u + w normed 12 LB : %f, u + w normed 21 LB : %f and coshh2RePx2y2 LB %f\n", u_plus_w_12_LB, u_plus_w_21_LB, ch_2_re_perp_LB_normed);
+  fprintf(stderr, "u + w normed 12 LB : %f, u + w normed 21 LB : %f and coshh2RePx2y2 LB %f\n", u_plus_w_12_LB, u_plus_w_21_LB, ch_2_re_perp_LB_normed);
   if (u_plus_w_12_LB <= 0 || u_plus_w_21_LB <= 0 || ch_2_re_perp_LB_normed <= 1) {
-    printf("Box contains non-interior points\n");
+    fprintf(stderr, "Box contains non-interior points\n");
     return -1; // Box contains non-interior points
   }
   if (zeta_LB > 0) {
@@ -622,8 +657,34 @@ const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
       return (1-EPS)*(absLB(e2pn)/exp_2_t(w2,w1,true));
     }
   } else { // u = v somehwere in the box... which is bad
-    return -3;
+    return -2;
   }
 }; 
+
+template<typename T>
+const bool margulis_is_inner(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
+  // Check is the point realizing the margulis constant always lies in the interior fo the ortholine
+  // TODO : Check signs ERROR ROUNDING
+  T tr1 = w1.a + w1.d;
+  T tr2 = w2.a + w2.d;
+  T x1 = tr1*tr1;
+  T x2 = tr1*tr1 - 4;
+  T y1 = tr2*tr2;
+  T y2 = tr2*tr2 - 4;
+  // cosh(2(re(P)) x2 y2
+  double ch_2_re_perp_LB_normed = cosh_2_re_perp_LB_normed(w1,w2); 
+  double ch_2_re_perp_UB_normed = cosh_2_re_perp_UB_normed(w1,w2); 
+
+  // TODO: For now, box must only contain interior points
+  double u_plus_w_12_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(y1*x2)) - absUB(x2*x2)) - absUB(x1*x2));
+  double u_plus_w_21_LB = (1-EPS)*((1-EPS)*((1-EPS)*(ch_2_re_perp_LB_normed + absLB(x1*y2)) - absUB(y2*y2)) - absUB(y1*y2));
+  fprintf(stderr, "u + w normed 12 LB : %f, u + w normed 21 LB : %f and coshh2RePx2y2 LB %f\n", u_plus_w_12_LB, u_plus_w_21_LB, ch_2_re_perp_LB_normed);
+  if (u_plus_w_12_LB <= 0 || u_plus_w_21_LB <= 0 || ch_2_re_perp_LB_normed <= 1) {
+    fprintf(stderr, "Box contains non-interior points\n");
+    return false; // Box contains non-interior points
+  } else {
+    return true;
+  }
+}
 
 #endif // __IsomH3_h

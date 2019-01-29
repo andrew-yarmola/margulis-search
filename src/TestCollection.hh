@@ -16,6 +16,7 @@ typedef enum _box_state
   killed_failed_qr = 6,
   variety_nbd = 7,
   open_with_qr = 8,
+  out_of_bounds_center = 9,
   variety_center = 9,
   bad_tubes_center = 10,
   bad_margulis_center = 11,
@@ -23,34 +24,36 @@ typedef enum _box_state
 } 
 box_state;
 
-typedef std::pair<std::string, std::string> word_pair;
-
 struct ImpossibleRelations;
 
 struct TestCollection {
 	int size();
 	box_state evaluateCenter(int index, Box& box);
-	box_state evaluateBox(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs,
-                        std::unordered_map<int,ACJ>& para_cache,std::unordered_map<std::string,SL2<ACJ>>& words_cache);
+	box_state evaluateBox(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<ACJ> >& words_cache);
 	const char* getName(int index);
-	int add(std::string word);
+	int add(const word_pair& pair);
+	int add(std::string pair);
 	void load(const char* fileName);
 	void loadImpossibleRelations(const char* fileName);
 private:
-	std::map<std::string, int> stringIndex;
-	std::vector<std::string> indexString;
+	std::map<word_pair, int> pairIndex;
+	std::vector<word_pair> pairVector;
 	box_state evaluate_approx(word_pair pair, const Box& params);
-  box_state evaluate_ACJ(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs,
-                         std::unordered_map<int,ACJ>& para_cache, std::unordered_map<std::string,SL2<ACJ>>& words_cache);
+  box_state evaluate_ACJ(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<ACJ> >& words_cache);
   bool ready_for_elliptics_test(SL2<ACJ>& w);
   bool only_elliptics(SL2<ACJ>& w, Params<ACJ>& params);
 	ImpossibleRelations *impossible;
 };
 
 template<typename T>
-inline const bool inside_var_nbd(const SL2<T>& w, const Params<T>& params) {
-  return jorgensen_xw_UB(w, params) < 1 || jorgensen_wx_UB(w, params) < 1 ||
-         jorgensen_yw_UB(w, params) < 1 || jorgensen_wy_UB(w, params) < 1;
+inline const bool inside_var_nbd_x(const SL2<T>& w, const Params<T>& params) {
+  return jorgensen_xw_UB(w, params) < 1 || jorgensen_wx_UB(w, params) < 1;
+        
+}
+
+template<typename T>
+inline const bool inside_var_nbd_y(const SL2<T>& w, const Params<T>& params) {
+  return jorgensen_yw_UB(w, params) < 1 || jorgensen_wy_UB(w, params) < 1;
         
 }
 
@@ -61,31 +64,47 @@ inline const bool not_identity(const SL2<T>& w) {
 }
 
 template<typename T>
-inline bool tubes_intersect(SL2<T>& w, SL2<T>& x, SL2<T>& y, Params<T>& params) {
+inline bool tubes_intersect_x(const SL2<T>& w, const SL2<T>& x, const SL2<T>& y, const Params<T>& params) {
     double exp_2_t_x_LB = exp_2_t(x,y,false);
-    double exp_2_t_y_LB = exp_2_t(y,x,false);
-    double exp_2_re_perp_x_UB = e_re_perp_x_UB(w);
-    double exp_2_re_perp_y_UB = e_re_perp_y_UB(w, params.coshP, params.sinhP);
-    return (exp_2_re_perp_x_UB < exp_2_t_x_LB) || (exp_2_re_perp_y_UB < exp_2_t_y_LB);
+    fprintf(stderr, "Tube around x is %f\n", exp_2_t_x_LB); 
+    if (exp_2_t_x_LB < 0) {
+      fprintf(stderr, "Failed tube computation with error %f\n", exp_2_t_x_LB); 
+      return false;
+    } else {
+      double exp_re_perp_x_UB = e_re_perp_x_UB(w);
+      fprintf(stderr, "Dist to x conj %f\n", exp_re_perp_x_UB); 
+      return exp_re_perp_x_UB < exp_2_t_x_LB;
+    }
 }
 
 template<typename T>
-inline bool margulis_larger_than_cutoff(SL2<T>& w1, SL2<T>& w2, double cutoff) {
+inline bool tubes_intersect_y(const SL2<T>& w, const SL2<T>& x, const SL2<T>& y, const Params<T>& params) {
+    double exp_2_t_y_LB = exp_2_t(y,x,false);
+    fprintf(stderr, "Tube around y is %f\n", exp_2_t_y_LB); 
+    if (exp_2_t_y_LB < 0) {
+      fprintf(stderr, "Failed tube computation with error %f\n", exp_2_t_y_LB); 
+      return false;
+    } else {
+      double exp_re_perp_y_UB = e_re_perp_y_UB(w, params.coshP, params.sinhP);
+      fprintf(stderr, "Dist to y conj  %f\n", exp_re_perp_y_UB); 
+      return exp_re_perp_y_UB < exp_2_t_y_LB;
+    }
+}
+
+template<typename T>
+inline bool margulis_larger_than_cutoff(const SL2<T>& w1, const SL2<T>& w2, double cutoff) {
   // Cutoff is given as 4 cosh(margulis_cutoff)
   // TODO Optimize for x and y as w1 (or w2)
-  double margulis = 10000;
-  int n = 1;
-  int m = 1;
-  SL2<T> A(w1);
-  while (four_cosh_re_length_LB(A) < cutoff) {
-    SL2<T> B(w2);
-    while (four_cosh_re_length_LB(B) < cutoff) {
-      margulis = min(margulis, four_cosh_margulis(A,B,false)); 
-      m += 1;
-      B = pow(w2,m); // reduing number of powers needed, might be better to just accumuate
-    }
-    n += 1;
-    A = pow(w2,n); // reducing the number of powers needed, might be better to just accumulate
-  }
-  return margulis >= cutoff; 
+  double margulis_LB = four_cosh_margulis(w1, w2, false);
+  if (margulis_LB >= cutoff) return true;
+  else return false;
+}
+
+template<typename T>
+inline bool margulis_smaller_than_xy(const SL2<T>& w1, const SL2<T>& w2, const SL2<T>& x, const SL2<T>& y) {
+  // TODO Compute x y margulis once for each box
+  double margulis_UB = four_cosh_margulis(w1, w2, true);
+  double margulis_xy_LB = four_cosh_margulis(x, y, false);
+  if (margulis_UB < margulis_xy_LB) return true;
+  else return false;
 }

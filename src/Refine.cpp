@@ -1,12 +1,3 @@
-/*
- *  MomRefine.cpp
- *  mom
- *
- *  Created by Nathaniel Thurston on 10/10/2007.
- *  Copyright 2007 THingith ehf.. All rights reserved.
- *
- */
-
 #include <getopt.h>
 #include <stdio.h>
 #include <vector>
@@ -17,36 +8,36 @@
 #include <unistd.h>
 
 #include "Box.h"
-#include "TestCollection.h"
-#include "BallSearch.h"
+#include "TestCollection.hh"
+#include "TubeSearch.hh"
 #include "QuasiRelators.h"
 
 using namespace std;
 
 struct Options {
   Options() :
-  boxName(""), // Binary representation of box
-  wordsFile("words"), // Previously generated words
-  powersFile("null"), // Output from power parabolic.pl
-  maxDepth(18), // Maximum depth for a file
-  truncateDepth(6), 
-  inventDepth(12),
-  maxSize(1000000),
-  improveTree(true),
-  wordSearchDepth(-1),
-  fillHoles(true),
-  maxWordLength(20) {}
-  const char* boxName;
-  const char* wordsFile;
-  const char* powersFile;
-  int maxDepth;
-  int truncateDepth;
-  int inventDepth;
-  int maxSize;
-  bool improveTree;
-  int wordSearchDepth;
-  bool fillHoles;
-  int maxWordLength;
+  box_name(""), // Binary representation of box
+  words_file("words"), // Previously generated words
+  powers_file("null"), // Output from power parabolic.pl
+  max_depth(18), // Maximum depth for a file
+  truncate_depth(6), 
+  invent_depth(12),
+  max_size(1000000),
+  improve_tree(false),
+  word_search_depth(-1),
+  fill_holes(false),
+  max_word_length(20) {}
+  const char* box_name;
+  const char* words_file;
+  const char* powers_file;
+  int max_depth;
+  int truncate_depth;
+  int invent_depth;
+  int max_size;
+  bool improve_tree;
+  int word_search_depth;
+  bool fill_holes;
+  int max_word_length;
 };
 
 Options g_options;
@@ -85,18 +76,10 @@ PartialTree readTree()
   } else {
     if (isdigit(buf[0])) {
       t.testIndex = atoi(buf);
-  } else {
-  // Add word as eliminator to test collection
-      if (strchr("xXyY", buf[0]) != NULL) {
-        t.testIndex = g_tests.add(buf);
-      } else {
-        if (buf[0] == 'E') {
-            char * comma = strchr(buf,',');
-            comma[0] = '\0'; 
-        } else {
-            buf[n-2] = '\0';
-        }
-        t.testIndex = g_tests.add(&buf[2]);
+    } else {
+//    Add word pair as eliminator to test collection
+      if (strchr("xXyY", buf[1]) != NULL) {
+        t.testIndex = g_tests.add(string(buf));
       }
     }
   }
@@ -126,11 +109,10 @@ int treeSize(PartialTree& t) {
   return size;
 }
 
+double g_4_cosh_margulis_bound = 5.262;
+double g_exp_half_margulis_bound = 1.474; 
 
-extern string g_testCollectionFullWord;
-extern double g_margulis_bound;
-
-unordered_map<string,SL2ACJ> short_words_cache;
+unordered_map<string, SL2<ACJ> > short_words_cache;
 
 bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, vector< Box >& place, int newDepth, int& searchedDepth)
 {
@@ -142,14 +124,17 @@ bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, v
 
   string aux_word;
   if (t.testIndex >= 0) {
+    fprintf(stderr, "********************************* Validation *********************************\n");
+    fprintf(stderr, "%s", box.desc().c_str());
     box_state result = g_tests.evaluateBox(t.testIndex, box, aux_word, new_qrs, short_words_cache);
     if (result != open && result != open_with_qr) {
       t.aux_word.assign(aux_word);
       t.testResult = result;
       fprintf(stderr, "Eliminated %s with test %s with result %d\n", box.name.c_str(), g_tests.getName(t.testIndex), result);
+      fprintf(stderr, "********************************* End Validation *********************************\n");
       return true;
     } else if (result == open_with_qr) {
-      fprintf(stderr,"Retested %d, new qrs len %d\n", result, new_qrs.size());
+      fprintf(stderr,"Retested %d, new qrs len %lu\n", result, new_qrs.size());
       for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {
         fprintf(stderr, "New QR is %s\n", (*it).c_str());
         box.qr.getName(*it); // Also adds qr to the box's list
@@ -158,9 +143,10 @@ bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, v
     } else { 
       fprintf(stderr, "FAILED to eliminate %s with test %s with result %d\n", box.name.c_str(), g_tests.getName(t.testIndex), result);
     }
+    fprintf(stderr, "********************************* End Validation *********************************\n");
   }
 
-  if (t.testIndex == -2 && !g_options.fillHoles) {
+  if (t.testIndex == -2 && !g_options.fill_holes) {
     return true;
   }
 
@@ -169,7 +155,7 @@ bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, v
   vector<string> quasiRelators = box.qr.wordClasses();
   for (vector<string>::iterator it = quasiRelators.begin(); it != quasiRelators.end(); ++it) {
     // So not idenity and absUB(w.b) < 1
-    SL2ACJ w = g_tests.construct_word(*it, cover, short_words_cache); 
+    SL2<ACJ> w = construct_word(*it, cover, short_words_cache); 
     if (not_identity(w)) {
 //    fprintf(stderr, "Failed qr %s at %s\n", (*it).c_str(), box.name.c_str());
 //    fprintf(stderr," absLB(b) = %f\n absLB(c) = %f\n absLB(a-1) = %f\n absLB(d-1) = %f\n absLB(a+1) = %f\n absLB(d+1) = %f\n",
@@ -180,28 +166,31 @@ bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, v
     }
   }
 
-  if (g_options.improveTree || !t.lChild) {
+  if (g_options.improve_tree || !t.lChild) {
     for (int i = 0; i < g_tests.size(); ++i) {
       vector<box_state>& th = history[i];
       while (th.size() <= depth && (th.size() < depth-6 || th.empty() || th.back() == open)) {
+        fprintf(stderr, "********************************* Center Test *********************************\n");
+        fprintf(stderr, "%s", box.desc().c_str());
         box_state result = g_tests.evaluateCenter(i, place[th.size()]);
+        fprintf(stderr, "********************************* End Center Test *********************************\n");
         th.push_back(result);
       }
       if (th.back() != open) {
         new_qrs.clear();
-        box_state result = g_tests.evaluateBox(i, box, aux_word, new_qrs, para_cache, short_words_cache);
+        fprintf(stderr, "********************************* Evaluate *********************************\n");
+        fprintf(stderr, "%s", box.desc().c_str());
+        box_state result = g_tests.evaluateBox(i, box, aux_word, new_qrs, short_words_cache);
+        fprintf(stderr, "********************************* End Evaluate *********************************\n");
 
         switch (result) {
           case variety_nbd : 
-          case killed_no_parabolics :
-          case killed_bad_parabolic :
+          case killed_bad_tubes :
+          case killed_margulis :
+          case killed_fake_elliptic :
+          case killed_only_elliptic :
           case killed_failed_qr :
-          case killed_identity_impossible :
-          case killed_elliptic : {
-            t.aux_word.assign(aux_word);   
-          }
-          case killed_bounds :
-          case killed_parabolics_impossible : {
+          case killed_bounds : {
             t.testIndex = i;
             t.testResult = result;
             return true;
@@ -220,34 +209,31 @@ bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, v
     }
   }
 
-  if (g_options.wordSearchDepth >= 0 && (g_options.improveTree || !t.lChild)) {
-    while (depth - searchedDepth > g_options.wordSearchDepth) {
+  if (g_options.word_search_depth >= 0 && (g_options.improve_tree || !t.lChild)) {
+    while (depth - searchedDepth > g_options.word_search_depth) {
       Box& searchPlace = place[++searchedDepth];
-      vector<string> searchWords = findWords( searchPlace.center(), vector<string>(), -200, g_options.maxWordLength, box.qr.wordClasses());
-      string new_word = searchWords.back();
+      vector<word_pair> searchPairs = findPairs(searchPlace.center(), vector<string>(), 50, g_options.max_word_length, box.qr.wordClasses());
+      word_pair new_pair = searchPairs.back();
 
       int old_size = g_tests.size();
-      int new_index = g_tests.add(new_word);
+      int new_index = g_tests.add(new_pair);
       history.resize(g_tests.size());
 
       if (old_size < g_tests.size()) {
-        fprintf(stderr, "search (%s) found %s(%s)\n",
-                searchPlace.qr.desc().c_str(), new_word.c_str(), searchPlace.name.c_str());
+        fprintf(stderr, "search (%s) found (%s,%s) at (%s)\n",
+                searchPlace.qr.desc().c_str(), new_pair.first.c_str(), new_pair.second.c_str(), searchPlace.name.c_str());
 
         new_qrs.clear();
-        box_state result = g_tests.evaluateBox(new_index, box, aux_word, new_qrs, para_cache, short_words_cache);
+        box_state result = g_tests.evaluateBox(new_index, box, aux_word, new_qrs, short_words_cache);
 
         switch (result) {
           case variety_nbd : 
-          case killed_no_parabolics :
-          case killed_bad_parabolic :
+          case killed_bad_tubes :
+          case killed_margulis :
+          case killed_fake_elliptic :
+          case killed_only_elliptic :
           case killed_failed_qr :
-          case killed_identity_impossible :
-          case killed_elliptic : {
-            t.aux_word.assign(aux_word);   
-          }
-          case killed_bounds :
-          case killed_parabolics_impossible : {
+          case killed_bounds : {
             t.testIndex = new_index;
             t.testResult = result;
             return true;
@@ -269,8 +255,8 @@ bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, v
   t.testIndex = -1;
 
   if (!t.lChild) {
-    if (depth >= g_options.maxDepth || ++g_boxesVisited >= g_options.maxSize || ++newDepth > g_options.inventDepth) {
-//    fprintf(stderr,"Deph %d, max depth %d, boxes_visited %d, max size %d, newDepth %d, invent depth %d\n", depth, g_options.maxDepth, g_boxesVisited, g_options.maxSize, newDepth, g_options.inventDepth);
+    if (depth >= g_options.max_depth || ++g_boxesVisited >= g_options.max_size || ++newDepth > g_options.invent_depth) {
+//    fprintf(stderr,"Deph %d, max depth %d, boxes_visited %d, max size %d, newDepth %d, invent depth %d\n", depth, g_options.max_depth, g_boxesVisited, g_options.max_size, newDepth, g_options.invent_depth);
       fprintf(stderr, "HOLE %s (%s)\n", box.name.c_str(), box.qr.desc().c_str());
       return false;
     }
@@ -289,13 +275,13 @@ bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, v
   }
   if (searchedDepth > depth)
     searchedDepth = depth;
-  if (isComplete || depth < g_options.truncateDepth)
+  if (isComplete || depth < g_options.truncate_depth)
     isComplete = refineRecursive(box.child(1), *t.rChild, depth+1, history, place, newDepth, searchedDepth) && isComplete;
   if (oldTestIndex >= 0 && t.testIndex != oldTestIndex) {
     fprintf(stderr, "invalid box %s(%s) %d %s\n", g_tests.getName(oldTestIndex), box.name.c_str(),
       treeSize(t), isComplete ? "Patched" : "Unpatched");
   }
-  if (!isComplete && depth >= g_options.truncateDepth) {
+  if (!isComplete && depth >= g_options.truncate_depth) {
     truncateTree(t);
   }
   return isComplete;
@@ -329,25 +315,14 @@ void printTree(PartialTree& t)
         printf("%s\n", g_tests.getName(t.testIndex));
           return;
         }
-      case killed_no_parabolics : type = 'K'; break;
       case variety_nbd : type = 'V'; break;
-      case killed_parabolics_impossible : type = 'P'; break;
-      case killed_identity_impossible : type = 'I'; break;
+      case killed_bad_tubes : type = 'T'; break;
+      case killed_margulis : type = 'M'; break;
+      case killed_fake_elliptic : type = 'F'; break;
+      case killed_only_elliptic : type = 'E'; break;
       case killed_failed_qr : type = 'Q'; break;
-      case killed_bad_parabolic : type = 'L'; break;
-      case killed_elliptic : type = 'E'; break;
     }
-//    printf("%c\n", type);
-    string killer;
-    if (type == 'P') {
-      killer = g_tests.getName(t.testIndex);
-    } else if (type == 'E') {
-      killer = g_tests.getName(t.testIndex);
-      killer += "," + t.aux_word; 
-    } else {
-      killer = t.aux_word;
-    }
-    printf("%c(%s)\n", type, killer.c_str());
+    printf("%c%s\n", type, g_tests.getName(t.testIndex));
 }
 
 const char* g_programName;
@@ -356,14 +331,15 @@ static struct option longOptions[] = {
   {"box",  required_argument, NULL, 'b' },
   {"words", required_argument, NULL, 'w' },
   {"powers", required_argument, NULL, 'p'},
-  {"maxDepth", required_argument, NULL, 'd' },
-  {"inventDepth", required_argument, NULL, 'i' },
-  {"improveTree", no_argument, NULL, 'I'},
-  {"truncateDepth", required_argument, NULL, 't' },
-  {"maxSize", required_argument, NULL, 's' },
-  {"wordSearchDepth", required_argument, NULL, 'B'},
-  {"fillHoles", no_argument, NULL, 'f'},
-  {"maxArea", required_argument, NULL, 'a'},
+  {"max_depth", required_argument, NULL, 'd' },
+  {"invent_depth", required_argument, NULL, 'i' },
+  {"improve_tree", no_argument, NULL, 'I'},
+  {"truncate_depth", required_argument, NULL, 't' },
+  {"max_size", required_argument, NULL, 's' },
+  {"word_search_depth", required_argument, NULL, 'B'},
+  {"fill_holes", no_argument, NULL, 'f'},
+  {"max_4_cosh_margulis", required_argument, NULL, 'm'},
+  {"max_exp_half_margulis", required_argument, NULL, 'e'},
   {NULL, 0, NULL, 0}
 };
 
@@ -388,7 +364,7 @@ void usage()
 Options controlling which relators to use:\n\
   [ --words  <words_file> ]\n\
     File containing starting list of words to try.\n\
-  [ --wordSearchDepth <n> ]\n\
+  [ --word_search_depth <n> ]\n\
     Perform a search for relators when visiting a node at least n levels deep.\n\
 \n\
 Options controlling which relators eliminate boxes:\n\
@@ -397,18 +373,18 @@ Options controlling which relators eliminate boxes:\n\
     See ImpossibleRelators::load(...)\n\
 \n\
 Options controlling tree manipulation:\n\
-  [ --maxDepth <n> ]\n\
+  [ --max_depth <n> ]\n\
     Don't descend more than n levels deeper than the root box.\n\
-  [ --inventDepth <n> ]\n\
+  [ --invent_depth <n> ]\n\
     Don't descend more than n levels deeper than the terminal node of the input tree.\n\
-  [ --maxSize <n> ]\n\
+  [ --max_size <n> ]\n\
     Don't allow the output tree to have more than n nodes.\n\
-  [ --truncateDepth <n> ]\n\
+  [ --truncate_depth <n> ]\n\
     Don't emit holes more than n levels deeper than the root node.\n\
     Instead, replace the subtree-with-holes with a single hole.\n\
-  [ --improveTree ]\n\
+  [ --improve_tree ]\n\
     If set, attempt to directly eliminate internal nodes of the input tree.\n\
-  [ --fillHoles ]\n\
+  [ --fill_holes ]\n\
     If set, attempt to patch holes in the input tree.\n\
 ";
   fprintf(stderr, "Usage: %s %s\n\n%s", g_programName, optStr, longUsage);
@@ -436,24 +412,25 @@ int main(int argc, char** argv)
 
   int ch;
   while ((ch = getopt_long(argc, argv, optStr, longOptions, NULL)) != -1) {
-        fprintf(stderr,"Arg %c, %s\n", ch, optarg);
+    fprintf(stderr,"Arg %c, %s\n", ch, optarg);
     switch(ch) {
-    case 'b': g_options.boxName = optarg; break;
-    case 'w': g_options.wordsFile = optarg; break;
-    case 'p': g_options.powersFile = optarg; break;
-    case 'd': g_options.maxDepth = atoi(optarg); break;
-    case 'i': g_options.inventDepth = atoi(optarg); break;
-    case 'I': g_options.improveTree = atoi(optarg); break;
-    case 't': g_options.truncateDepth = atoi(optarg); break;
-    case 's': g_options.maxSize = atoi(optarg); break;
-    case 'B': g_options.wordSearchDepth = atoi(optarg); break;
-    case 'f': g_options.fillHoles = atoi(optarg); break;
-    case 'm': g_margulis_bound = atof(optarg); break;
+    case 'b': g_options.box_name = optarg; break;
+    case 'w': g_options.words_file = optarg; break;
+    case 'p': g_options.powers_file = optarg; break;
+    case 'd': g_options.max_depth = atoi(optarg); break;
+    case 'i': g_options.invent_depth = atoi(optarg); break;
+    case 'I': g_options.improve_tree = true; break;
+    case 't': g_options.truncate_depth = atoi(optarg); break;
+    case 's': g_options.max_size = atoi(optarg); break;
+    case 'B': g_options.word_search_depth = atoi(optarg); break;
+    case 'f': g_options.fill_holes = true; break;
+    case 'm': g_4_cosh_margulis_bound = atof(optarg); break;
+    case 'e': g_exp_half_margulis_bound = atof(optarg); break;
     }
   }
 
   Box box;
-  for (const char* boxP = g_options.boxName; *boxP; ++boxP) {
+  for (const char* boxP = g_options.box_name; *boxP; ++boxP) {
     if (*boxP == '0') {
       box = box.child(0);
     } else if (*boxP == '1') {
@@ -461,9 +438,9 @@ int main(int argc, char** argv)
     }
   }
  
-  g_tests.load(g_options.wordsFile);
-  g_tests.loadImpossibleRelations(g_options.powersFile);
-  
+  g_tests.load(g_options.words_file);
+  g_tests.loadImpossibleRelations(g_options.powers_file);
+
   PartialTree t = readTree();
   refineTree(box, t);
   printTree(t);

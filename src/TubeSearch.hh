@@ -4,7 +4,7 @@
 #include <string>
 #include "types.hh"
 
-std::set< std::pair<std::string, std::string> > findPairs(
+std::vector< word_pair > findPairs(
 	Params<Complex> center,
 	std::vector< std::string > seedWords,
 	int numWords,

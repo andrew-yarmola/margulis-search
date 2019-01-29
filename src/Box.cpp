@@ -45,6 +45,36 @@ Box Box::child(int dir) const
 	return child;
 }
 
+std::string Box::desc() {
+  ACJ sinhP = _cover.sinhP;
+  ACJ sinhD2 = _cover.sinhD2;
+  ACJ sinhL2 = _cover.sinhL2; 
+  ACJ coshP = _cover.coshP;
+  ACJ coshD2 = _cover.coshD2;
+  ACJ coshL2 = _cover.coshL2; 
+  Complex c_sinhP = _center.sinhP;
+  Complex c_sinhD2 = _center.sinhD2;
+  Complex c_sinhL2 = _center.sinhL2; 
+  Complex c_coshP = _center.coshP;
+  Complex c_coshD2 = _center.coshD2;
+  Complex c_coshL2 = _center.coshL2; 
+
+  char _desc[1000];
+  sprintf(_desc, "%s\n", name.c_str());
+  sprintf(_desc + strlen(_desc), "sinhP %f + %f I with size %f, absLB %f, and absUB %f\n", sinhP.f.re, sinhP.f.im, sinhP.size, absLB(sinhP), absUB(sinhP));
+  sprintf(_desc + strlen(_desc), "sinhD2 %f + %f I with size %f, absLB %f, and absUB %f\n", sinhD2.f.re, sinhD2.f.im, sinhD2.size, absLB(sinhD2), absUB(sinhD2));
+  sprintf(_desc + strlen(_desc), "sinhL2 %f + %f I with size %f, absLB %f, and absUB %f\n", sinhL2.f.re, sinhL2.f.im, sinhL2.size, absLB(sinhL2), absUB(sinhL2));
+  sprintf(_desc + strlen(_desc), "coshP %f + %f I with size %f, absLB %f, and absUB %f\n", coshP.f.re, coshP.f.im, coshP.size, absLB(coshP), absUB(coshP));
+  sprintf(_desc + strlen(_desc), "coshD2 %f + %f I with size %f, absLB %f, and absUB %f\n", coshD2.f.re, coshD2.f.im, coshD2.size, absLB(coshD2), absUB(coshD2));
+  sprintf(_desc + strlen(_desc),"coshL2 %f + %f I with size %f, absLB %f, and absUB %f\n", coshL2.f.re, coshL2.f.im, coshL2.size, absLB(coshL2), absUB(coshL2));
+  sprintf(_desc + strlen(_desc), "Center sinhP %f + %f I, coshP %f + %f I\n", c_sinhP.real(), c_sinhP.imag(), c_coshP.real(), c_coshP.imag());
+  sprintf(_desc + strlen(_desc), "Center sinhD2 %f + %f I, coshD2 %f + %f I\n", c_sinhD2.real(), c_sinhD2.imag(), c_coshD2.real(), c_coshD2.imag());
+  sprintf(_desc + strlen(_desc), "Center sinhL2 %f + %f I, coshL2 %f + %f I\n", c_sinhL2.real(), c_sinhL2.imag(), c_coshL2.real(), c_coshL2.imag());
+
+  std::string s(_desc);
+  return s;
+}
+
 void Box::compute_center_and_size()
 {
 	for (int i = 0; i < 6; ++i) {

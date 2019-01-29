@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include "QuasiRelators.h"
-#include "Params.h"
+#include "types.hh"
 using namespace std;
 
 string QuasiRelators::getName(string w)
@@ -43,11 +43,11 @@ void QuasiRelators::addQuasiRelator(string w)
 string QuasiRelators::min_pow_desc()
 {
     vector<string> qrs(nameVector);
-    sort(qrs.begin(), qrs.end(), g_power_sort);
-    int min_power = g_power(qrs.front());
+    sort(qrs.begin(), qrs.end(), x_power_sort);
+    int min_power = x_power(qrs.front());
 	string buf;
 	for (vector<string>::iterator it = qrs.begin(); it != qrs.end(); ++it) {
-        if (g_power(*it) > min_power) {
+        if (x_power(*it) > min_power) {
             break;
         }
 		if (!buf.empty()) {

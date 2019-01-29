@@ -8,6 +8,7 @@
 struct Box {
 	Box();
 	std::string name;
+  std::string desc();
 	QuasiRelators qr;
 	Box child(int dir) const;
 	Params<Complex> center() const { return _center; }

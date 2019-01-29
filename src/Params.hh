@@ -1,6 +1,7 @@
 #ifndef __Params_h
 #define __Params_h
 #include <math.h>
+#include <unordered_map>
 #include <string>
 #include "SL2.hh"
 #include "types.hh"
@@ -90,8 +91,15 @@ SL2<T> construct_word(std::string word, const Params<T>& params)
       recover = repeat("y",y_pow) + recover;
     }
   }
-  printf("Original %s vs %s\n", word.c_str(), recover.c_str());
+  // fprintf(stderr, "Original %s vs %s\n", word.c_str(), recover.c_str());
 	return w;
 };
+
+template<typename T>
+SL2<T> construct_word(std::string word, const Params<T>& params, std::unordered_map< std::string, SL2<T> >& word_cache) {
+  // TODO: fill and make use of cache
+  return construct_word(word, params);  
+}
+
 
 #endif // __Params_h

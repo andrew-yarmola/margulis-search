@@ -3,7 +3,7 @@
 #include <queue>
 #include <algorithm>
 #include "TubeSearch.hh"
-#include "CanonicalName.h"
+#include "CanonicalName.hh"
 #include "IsomH3.hh"
 #include "roundoff.h"
 
@@ -24,6 +24,14 @@ namespace TubeSearchImpl {
 		double ortho_dist_LB;
 		double ortho_dist_UB;
     double jorgensen;
+    double jorgensen_xw1;
+    double jorgensen_xw2;
+    double jorgensen_yw1;
+    double jorgensen_yw2;
+    double jorgensen_w1x;
+    double jorgensen_w2x;
+    double jorgensen_w1y;
+    double jorgensen_w2y;
 	};
 	
 	struct OrthoDistComp : public binary_function<const WordPair&, const WordPair&, bool>
@@ -98,10 +106,28 @@ namespace TubeSearchImpl {
     ortho_dist_LB = e_re_perp_LB(first.matrix, second.matrix);  
     ortho_dist_UB = e_re_perp_UB(first.matrix, second.matrix);  
     jorgensen = jorgensen_UB(first.matrix, second.matrix);
+    jorgensen_xw1 = jorgensen_xw_UB(first.matrix, params);
+    jorgensen_xw2 = jorgensen_xw_UB(second.matrix, params);
+    jorgensen_yw1 = jorgensen_yw_UB(first.matrix, params);
+    jorgensen_yw2 = jorgensen_yw_UB(second.matrix, params);
+    jorgensen_w1x = jorgensen_wx_UB(first.matrix, params);
+    jorgensen_w2x = jorgensen_wx_UB(second.matrix, params);
+    jorgensen_w1y = jorgensen_wy_UB(first.matrix, params);
+    jorgensen_w2y = jorgensen_wy_UB(second.matrix, params);
   }
 	
 	void TubeSearch::pushWord(Word word)
 	{
+    Complex a = word.matrix.a;
+    Complex b = word.matrix.b;
+    Complex c = word.matrix.c;
+    Complex d = word.matrix.d;
+    fprintf(stderr, "Word: [%s]\n", word.name.c_str());
+    fprintf(stderr, "At the center is has coords\n");
+    fprintf(stderr, "a: %f + I %f\n", a.real(), a.imag());
+    fprintf(stderr, "b: %f + I %f\n", b.real(), b.imag());
+    fprintf(stderr, "c: %f + I %f\n", c.real(), c.imag());
+    fprintf(stderr, "d: %f + I %f\n", d.real(), d.imag());
 		vector<Word>::iterator it;
 //  first, check to see if this word has already been pushed
 		findNames(word);
@@ -110,7 +136,7 @@ namespace TubeSearchImpl {
 				return;
       }
     }
-//  fprintf(stderr,"pushWord(%s) class=%s\n", word.name.c_str(), word.nameClass.c_str());
+    fprintf(stderr,"pushWord(%s)\n", word.name.c_str());
 		words.push_back(word);
 		Word* wp = &words.back();
 		for (it = words.begin(); it != words.end(); ++it) {
@@ -118,8 +144,13 @@ namespace TubeSearchImpl {
       if (it->name == word.name || it->name == inverse(word).name) continue; 
 //      fprintf(stderr, "First word %s, Second word %s\n", it->name.c_str(), word.name.c_str());
 		  WordPair pair(*it, word, params);
-			if (pair.ortho_dist_LB > 1.001 && ( pair.ortho_dist_UB < 2*exp_re_perp || 
-              pair.jorgensen < 1.5 || pair.ortho_dist_LB > 100000000 )) { // TODO check if this is sane
+			if (pair.ortho_dist_LB > 1.05 && ( pair.ortho_dist_UB < 2*exp_re_perp || pair.ortho_dist_LB > 100000000 )) { // TODO check if this is sane
+        fprintf(stderr,"pushWordPair(%s,%s) with ortho dist %f\n", pair.first.name.c_str(), pair.second.name.c_str(), pair.ortho_dist_UB);
+				pairs.push(pair);
+      }
+      if (pair.jorgensen < 4 ||
+          pair.jorgensen_xw1 < 4 || pair.jorgensen_xw2 < 4 || pair.jorgensen_yw1 < 4 || pair.jorgensen_yw2 < 4 ||  
+          pair.jorgensen_w1x < 4 || pair.jorgensen_w2x < 4 || pair.jorgensen_w1y < 4 || pair.jorgensen_w2y < 4 ) {
         fprintf(stderr,"pushWordPair(%s,%s) with ortho dist %f\n", pair.first.name.c_str(), pair.second.name.c_str(), pair.ortho_dist_UB);
 				pairs.push(pair);
       }
@@ -134,21 +165,11 @@ namespace TubeSearchImpl {
     findNames(w);
     if (w.name == "") return;
     w.matrix = construct_word(word, params);
-//  Complex a = w.matrix.a;
-//  Complex b = w.matrix.b;
-//  Complex c = w.matrix.c;
-//  Complex d = w.matrix.d;
-    fprintf(stderr, "Word: %s\n", w.name.c_str());
-//  fprintf(stderr, "At the center is has coords\n");
-//  fprintf(stderr, "a: %f + I %f\n", a.re, a.im);
-//  fprintf(stderr, "b: %f + I %f\n", b.re, b.im);
-//  fprintf(stderr, "c: %f + I %f\n", c.re, c.im);
-//  fprintf(stderr, "d: %f + I %f\n", d.re, d.im);
-//``printf("pushWord(%s): distance=%f\n", w.name.c_str(), 0.5 / norm(w.matrix.c));
+//  printf("pushWord(%s): distance=%f\n", w.name.c_str(), 0.5 / norm(w.matrix.c));
 		pushWord(w);
-//		Word wInv = inverse(w);
-//		findNames(wInv);
-//		pushWord(wInv);
+//	Word wInv = inverse(w);
+//	findNames(wInv);
+//	pushWord(wInv);
 //  fprintf(stderr, "pushed words %s(%s) and %s(%s)\n",
 //  w.name.c_str(), w.nameClass.c_str(),
 //  wInv.name.c_str(), wInv.nameClass.c_str());
@@ -160,14 +181,18 @@ namespace TubeSearchImpl {
 			WordPair smallest(pairs.top());
       fprintf(stderr, "Smallest (%s, %s)\n", smallest.first.name.c_str(), smallest.second.name.c_str());
 //      fprintf(stderr, "adding %s\n", (smallest.first*smallest.second).name.c_str());
-      pushWord(smallest.first * smallest.second);
-//      fprintf(stderr, "adding %s\n", (inverse(smallest.first)*smallest.second).name.c_str());
       pushWord(inverse(smallest.first) * smallest.second);
-//      fprintf(stderr, "adding %s\n", (smallest.first*inverse(smallest.second)).name.c_str());
+//      fprintf(stderr, "adding %s\n", (inverse(smallest.first)*smallest.second).name.c_str());
       pushWord(smallest.first * inverse(smallest.second));
-      if (smallest.ortho_dist_UB < exp_re_perp || smallest.jorgensen < 1 || smallest.ortho_dist_LB > 1000000) {
-        printf("Pair (%s,%s) with jorgensen %f and ortho (%f,%f)\n", smallest.first.name.c_str(), smallest.second.name.c_str(),
-                smallest.jorgensen, smallest.ortho_dist_LB,  smallest.ortho_dist_UB);
+//      fprintf(stderr, "adding %s\n", (smallest.first*inverse(smallest.second)).name.c_str());
+      pushWord(smallest.first * smallest.second);
+      if (smallest.ortho_dist_UB < exp_re_perp || smallest.ortho_dist_LB > 1000000 || smallest.jorgensen < 1.5 ||
+          smallest.jorgensen_xw1 < 1.5 || smallest.jorgensen_xw2 < 1.5 || smallest.jorgensen_yw1 < 1.5 || smallest.jorgensen_yw2 < 1.5 ||  
+          smallest.jorgensen_w1x < 1.5 || smallest.jorgensen_w2x < 1.5 || smallest.jorgensen_w1y < 1.5 || smallest.jorgensen_w2y < 1.5 ) {
+        fprintf(stderr, "Pair (%s,%s) with ortho (%f,%f) and jorgensen:\nw1w2 %f\nxw1 %f\nxw2 %f\nyw1 %f\nyw2 %f\nw1x %f\nw2x %f\nw1y %f\nw2y %f\n",
+          smallest.first.name.c_str(), smallest.second.name.c_str(), smallest.ortho_dist_LB,  smallest.ortho_dist_UB, smallest.jorgensen,
+          smallest.jorgensen_xw1, smallest.jorgensen_xw2, smallest.jorgensen_yw1, smallest.jorgensen_yw2,  
+          smallest.jorgensen_w1x, smallest.jorgensen_w2x, smallest.jorgensen_w1y, smallest.jorgensen_w2y);
         m_foundShortOrtho = true;
         pairs.pop();
 	  	  return smallest;
@@ -183,7 +208,7 @@ namespace TubeSearchImpl {
 //        result.name.c_str(),
 //        result.nameClass.c_str()
 //        );
-//      printf("duplicate; resorting\n");
+//      fprintf(stderr, "duplicate; resorting\n");
 		}
     Word w;
     return WordPair(w, w, params);
@@ -195,7 +220,7 @@ namespace TubeSearchImpl {
 	}
 }
 
-set< pair<string, string> > findPairs(Params<Complex> center, vector<string> seedWords, int numWords, int maxLength,
+vector< word_pair > findPairs(Params<Complex> center, vector<string> seedWords, int numWords, int maxLength,
 	vector<string> relators)
 {
 //fprintf(stderr, "Params:\n");
@@ -213,9 +238,10 @@ set< pair<string, string> > findPairs(Params<Complex> center, vector<string> see
 	for (int i = 0; i < seedWords.size(); ++i)
 		if (seedWords[i].size() > 0)
 			search.pushWord(seedWords[i]);
+	// search.pushWord("");
 	search.pushWord("x");
 	search.pushWord("y");
-	set< pair<string, string> > foundPairs;
+	set< word_pair > foundPairs;
 	while (numWords > int(search.words.size()) || (-numWords > int(search.words.size()) && !search.foundShortOrtho())) {
     fprintf(stderr, "While loop: words size %d\n", (int) search.words.size());
 		TubeSearchImpl::WordPair p = search.findPair();
@@ -223,10 +249,11 @@ set< pair<string, string> > findPairs(Params<Complex> center, vector<string> see
 			search.m_foundShortOrtho = false;
 			continue;
 		}
-    pair<string, string> P(p.first.name, p.second.name);
+    word_pair P(p.first.name, p.second.name);
 		foundPairs.insert(P);
 	}
-	return foundPairs;
+  vector< word_pair > v(foundPairs.begin(), foundPairs.end());
+	return v;
 }
 
 // 	Complex centerDiff = (first.matrix.a / first.matrix.c
@@ -266,7 +293,7 @@ set< pair<string, string> > findPairs(Params<Complex> center, vector<string> see
 //            // Looks like this is an heuristic ball size 
 // 		ortho_dist_UB = 0.5 / pow(absLB(currentCombination.matrix.c),2);
 // 	}
-//		printf("WordPair(%s,%s):setCurrentIndex(%d) : %d,%d %f %s size=%f\n",
+//	 fprintf(stderr, "WordPair(%s,%s):setCurrentIndex(%d) : %d,%d %f %s size=%f\n",
 //			first->name.c_str(), second->name.c_str(),
 //			i, distances[i].x, distances[i].y, distances[i].distance,
 //			currentCombination.name.c_str(), ortho_dist_UB);
