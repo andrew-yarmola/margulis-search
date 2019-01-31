@@ -24,21 +24,25 @@ namespace TubeSearchImpl {
 		double ortho_dist_LB;
 		double ortho_dist_UB;
     double jorgensen;
-    double jorgensen_xw1;
-    double jorgensen_xw2;
-    double jorgensen_yw1;
-    double jorgensen_yw2;
-    double jorgensen_w1x;
-    double jorgensen_w2x;
-    double jorgensen_w1y;
-    double jorgensen_w2y;
+    double jorgensen_xw1 = 100000000000;
+    double jorgensen_xw2 = 100000000000;
+    double jorgensen_yw1 = 100000000000;
+    double jorgensen_yw2 = 100000000000;
+    double jorgensen_w1x = 100000000000;
+    double jorgensen_w2x = 100000000000;
+    double jorgensen_w1y = 100000000000;
+    double jorgensen_w2y = 100000000000;
 	};
 	
-	struct OrthoDistComp : public binary_function<const WordPair&, const WordPair&, bool>
+	struct PairComp : public binary_function<const WordPair&, const WordPair&, bool>
 	{
 		bool operator() (const WordPair& a, const WordPair& b)
 		{
-			return a.ortho_dist_UB > b.ortho_dist_UB;
+      if (a.ortho_dist_UB > 0 && b.ortho_dist_UB > 0) {
+			  return a.ortho_dist_UB < b.ortho_dist_UB;
+      } else {
+        return a.jorgensen > b.jorgensen;
+      }
 		}
 	};
 	
@@ -46,12 +50,18 @@ namespace TubeSearchImpl {
 		TubeSearch(Params<Complex> params_) :params(params_),
                x(construct_x(params)), X(inverse(x)),
                y(construct_y(params)), Y(inverse(y)),
-               exp_re_perp(absUB(params.coshP + params.sinhP)), m_foundShortOrtho(false) {}
+               exp_re_perp(absUB(params.coshP + params.sinhP)), m_foundGoodPair(false) {
+      x_word.name = "x";
+      x_word.matrix = x;
+      y_word.name = "y";
+      y_word.matrix = y;
+    }
+
 		~TubeSearch() {}
 		void pushWord(Word word);
 		void pushWord(string word);
 		WordPair findPair();
-		bool foundShortOrtho() { return m_foundShortOrtho; }
+		bool foundGoodPair() { return m_foundGoodPair; }
 		void findNames(Word& word);
 		void addRelator(string word);
 		
@@ -61,10 +71,12 @@ namespace TubeSearchImpl {
 		SL2<Complex> y;
 		SL2<Complex> X;
 		SL2<Complex> Y;
+    Word x_word;
+    Word y_word;
     double exp_re_perp;
-		bool m_foundShortOrtho;
+		bool m_foundGoodPair;
 		vector<Word> words;
-		priority_queue<WordPair, vector<WordPair>, OrthoDistComp> pairs;
+		priority_queue<WordPair, vector<WordPair>, PairComp> pairs;
 	};
 	
 	void TubeSearch::findNames(Word& word)
@@ -99,25 +111,51 @@ namespace TubeSearchImpl {
 
 	WordPair::WordPair(Word& first, Word& second, const Params<Complex>& params):first(first), second(second)
 	{
-//  fprintf(stderr, "Buidling word pair\n");
+//  fprintf(stderr, "Building word pair\n");
 //  fprintf(stderr, "a_1 = %f + %f i, c_1 = %f + %f i\n a_2 =  %f + %f i, c_2 = %f + %f i\n",
 //                   first.matrix.a.re, first.matrix.a.im, first.matrix.c.re, first.matrix.c.im,
 //                   second.matrix.a.re, second.matrix.a.im, second.matrix.c.re, second.matrix.c.im); 
-    ortho_dist_LB = e_re_perp_LB(first.matrix, second.matrix);  
-    ortho_dist_UB = e_re_perp_UB(first.matrix, second.matrix);  
+    if (first.name.length() == 0 || second.name.length() == 0) {
+      ortho_dist_LB = 1;
+      ortho_dist_UB = 1;
+    } else {
+      ortho_dist_LB = e_re_perp_LB(first.matrix, second.matrix);  
+      ortho_dist_UB = e_re_perp_UB(first.matrix, second.matrix);  
+    }
     jorgensen = jorgensen_UB(first.matrix, second.matrix);
-    jorgensen_xw1 = jorgensen_xw_UB(first.matrix, params);
-    jorgensen_xw2 = jorgensen_xw_UB(second.matrix, params);
+   
+    if (y_power(first.name) > 0) { 
+      jorgensen_xw1 = jorgensen_xw_UB(first.matrix, params);
+      jorgensen_w1x = jorgensen_wx_UB(first.matrix, params);
+    }
+    if (y_power(second.name) > 0) { 
+      jorgensen_xw2 = jorgensen_xw_UB(second.matrix, params);
+      jorgensen_w2x = jorgensen_wx_UB(second.matrix, params);
+    }
+    if (x_power(first.name) > 0) { 
     jorgensen_yw1 = jorgensen_yw_UB(first.matrix, params);
-    jorgensen_yw2 = jorgensen_yw_UB(second.matrix, params);
-    jorgensen_w1x = jorgensen_wx_UB(first.matrix, params);
-    jorgensen_w2x = jorgensen_wx_UB(second.matrix, params);
     jorgensen_w1y = jorgensen_wy_UB(first.matrix, params);
-    jorgensen_w2y = jorgensen_wy_UB(second.matrix, params);
+    }
+    if (x_power(second.name) > 0) { 
+      jorgensen_yw2 = jorgensen_yw_UB(second.matrix, params);
+      jorgensen_w2y = jorgensen_wy_UB(second.matrix, params);
+    }
+    fprintf(stderr, "Built pair (%s,%s) with ortho (%f,%f) and jorgensen:\nw1w2 %f\nxw1 %f\nxw2 %f\nyw1 %f\nyw2 %f\nw1x %f\nw2x %f\nw1y %f\nw2y %f\n",
+      first.name.c_str(), second.name.c_str(), ortho_dist_LB,  ortho_dist_UB, jorgensen,
+      jorgensen_xw1, jorgensen_xw2, jorgensen_yw1, jorgensen_yw2,  
+      jorgensen_w1x, jorgensen_w2x, jorgensen_w1y, jorgensen_w2y);
   }
 	
 	void TubeSearch::pushWord(Word word)
 	{
+		vector<Word>::iterator it;
+//  first, check to see if this word has already been pushed
+		findNames(word);
+		for (it = words.begin(); it != words.end(); ++it) {
+			if (it->name == word.name || it->name == inverse(word).name) {
+				return;
+      }
+    }
     Complex a = word.matrix.a;
     Complex b = word.matrix.b;
     Complex c = word.matrix.c;
@@ -128,33 +166,37 @@ namespace TubeSearchImpl {
     fprintf(stderr, "b: %f + I %f\n", b.real(), b.imag());
     fprintf(stderr, "c: %f + I %f\n", c.real(), c.imag());
     fprintf(stderr, "d: %f + I %f\n", d.real(), d.imag());
-		vector<Word>::iterator it;
-//  first, check to see if this word has already been pushed
-		findNames(word);
-		for (it = words.begin(); it != words.end(); ++it) {
-			if (it->name == word.name) {
-				return;
-      }
-    }
-    fprintf(stderr,"pushWord(%s)\n", word.name.c_str());
-		words.push_back(word);
-		Word* wp = &words.back();
+//   fprintf(stderr,"pushWord(%s)\n", word.name.c_str());
 		for (it = words.begin(); it != words.end(); ++it) {
 //    fprintf(stderr,"Trying to print\n");
-      if (it->name == word.name || it->name == inverse(word).name) continue; 
-//      fprintf(stderr, "First word %s, Second word %s\n", it->name.c_str(), word.name.c_str());
+//    fprintf(stderr, "First word %s, Second word %s\n", it->name.c_str(), word.name.c_str());
 		  WordPair pair(*it, word, params);
-			if (pair.ortho_dist_LB > 1.05 && ( pair.ortho_dist_UB < 2*exp_re_perp || pair.ortho_dist_LB > 100000000 )) { // TODO check if this is sane
-        fprintf(stderr,"pushWordPair(%s,%s) with ortho dist %f\n", pair.first.name.c_str(), pair.second.name.c_str(), pair.ortho_dist_UB);
+      if (pair.jorgensen < 2) {
+        fprintf(stderr,"pushWordPair(%s,%s) with jorgensen %f\n", pair.first.name.c_str(), pair.second.name.c_str(), pair.jorgensen);
 				pairs.push(pair);
       }
-      if (pair.jorgensen < 4 ||
-          pair.jorgensen_xw1 < 4 || pair.jorgensen_xw2 < 4 || pair.jorgensen_yw1 < 4 || pair.jorgensen_yw2 < 4 ||  
-          pair.jorgensen_w1x < 4 || pair.jorgensen_w2x < 4 || pair.jorgensen_w1y < 4 || pair.jorgensen_w2y < 4 ) {
+      if (pair.jorgensen_w1x < 2 || pair.jorgensen_xw1 < 2) {
+        WordPair p(pair.first, x_word, params);
+        pairs.push(p);
+      }
+      if (pair.jorgensen_w2x < 2 || pair.jorgensen_xw2 < 2) {
+        WordPair p(pair.second, x_word, params);
+        pairs.push(p);
+      }
+      if (pair.jorgensen_w1y < 2 || pair.jorgensen_yw1 < 2) {
+        WordPair p(pair.first, y_word, params);
+        pairs.push(p);
+      }
+      if (pair.jorgensen_w2y < 2 || pair.jorgensen_yw2 < 2) {
+        WordPair p(pair.second, y_word, params);
+        pairs.push(p);
+      }
+			if (pair.ortho_dist_LB > 1.005 && ( pair.ortho_dist_UB < 2*exp_re_perp || pair.ortho_dist_LB > 100000000 )) { // TODO check if this is sane
         fprintf(stderr,"pushWordPair(%s,%s) with ortho dist %f\n", pair.first.name.c_str(), pair.second.name.c_str(), pair.ortho_dist_UB);
 				pairs.push(pair);
       }
 		}
+		words.push_back(word);
 //  fprintf(stderr,"Done with pushWord\n");
 	}
 	
@@ -186,14 +228,14 @@ namespace TubeSearchImpl {
       pushWord(smallest.first * inverse(smallest.second));
 //      fprintf(stderr, "adding %s\n", (smallest.first*inverse(smallest.second)).name.c_str());
       pushWord(smallest.first * smallest.second);
-      if (smallest.ortho_dist_UB < exp_re_perp || smallest.ortho_dist_LB > 1000000 || smallest.jorgensen < 1.5 ||
-          smallest.jorgensen_xw1 < 1.5 || smallest.jorgensen_xw2 < 1.5 || smallest.jorgensen_yw1 < 1.5 || smallest.jorgensen_yw2 < 1.5 ||  
-          smallest.jorgensen_w1x < 1.5 || smallest.jorgensen_w2x < 1.5 || smallest.jorgensen_w1y < 1.5 || smallest.jorgensen_w2y < 1.5 ) {
-        fprintf(stderr, "Pair (%s,%s) with ortho (%f,%f) and jorgensen:\nw1w2 %f\nxw1 %f\nxw2 %f\nyw1 %f\nyw2 %f\nw1x %f\nw2x %f\nw1y %f\nw2y %f\n",
-          smallest.first.name.c_str(), smallest.second.name.c_str(), smallest.ortho_dist_LB,  smallest.ortho_dist_UB, smallest.jorgensen,
-          smallest.jorgensen_xw1, smallest.jorgensen_xw2, smallest.jorgensen_yw1, smallest.jorgensen_yw2,  
-          smallest.jorgensen_w1x, smallest.jorgensen_w2x, smallest.jorgensen_w1y, smallest.jorgensen_w2y);
-        m_foundShortOrtho = true;
+      if (smallest.ortho_dist_UB < exp_re_perp || smallest.ortho_dist_LB > 1000000 || smallest.jorgensen < 1 ||
+          smallest.jorgensen_xw1 < 1 || smallest.jorgensen_xw2 < 1 || smallest.jorgensen_yw1 < 1 || smallest.jorgensen_yw2 < 1 ||  
+          smallest.jorgensen_w1x < 1 || smallest.jorgensen_w2x < 1 || smallest.jorgensen_w1y < 1 || smallest.jorgensen_w2y < 1 ) {
+//        fprintf(stderr, "Pair (%s,%s) with ortho (%f,%f) and jorgensen:\nw1w2 %f\nxw1 %f\nxw2 %f\nyw1 %f\nyw2 %f\nw1x %f\nw2x %f\nw1y %f\nw2y %f\n",
+//          smallest.first.name.c_str(), smallest.second.name.c_str(), smallest.ortho_dist_LB,  smallest.ortho_dist_UB, smallest.jorgensen,
+//          smallest.jorgensen_xw1, smallest.jorgensen_xw2, smallest.jorgensen_yw1, smallest.jorgensen_yw2,  
+//          smallest.jorgensen_w1x, smallest.jorgensen_w2x, smallest.jorgensen_w1y, smallest.jorgensen_w2y);
+        m_foundGoodPair = true;
         pairs.pop();
 	  	  return smallest;
 			}
@@ -241,12 +283,13 @@ vector< word_pair > findPairs(Params<Complex> center, vector<string> seedWords, 
 	// search.pushWord("");
 	search.pushWord("x");
 	search.pushWord("y");
+	search.pushWord("YXyyxxyxYYXX");
 	set< word_pair > foundPairs;
-	while (numWords > int(search.words.size()) || (-numWords > int(search.words.size()) && !search.foundShortOrtho())) {
+	while (numWords > int(search.words.size()) || (-numWords > int(search.words.size()) && !search.foundGoodPair())) {
     fprintf(stderr, "While loop: words size %d\n", (int) search.words.size());
 		TubeSearchImpl::WordPair p = search.findPair();
 		if (p.first.name.length() > maxLength || p.second.name.length() > maxLength) {
-			search.m_foundShortOrtho = false;
+			search.m_foundGoodPair = false;
 			continue;
 		}
     word_pair P(p.first.name, p.second.name);

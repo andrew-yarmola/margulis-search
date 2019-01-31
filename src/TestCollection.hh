@@ -47,14 +47,14 @@ private:
 
 template<typename T>
 inline const bool inside_var_nbd_x(const SL2<T>& w, const Params<T>& params) {
-  return jorgensen_xw_UB(w, params) < 1 || jorgensen_wx_UB(w, params) < 1;
-        
+  // The second test may only work when x has trace close to +/- 2
+  return jorgensen_wx_UB(w, params) < 1 || jorgensen_xw_UB(w, params) < 1;
 }
 
 template<typename T>
 inline const bool inside_var_nbd_y(const SL2<T>& w, const Params<T>& params) {
-  return jorgensen_yw_UB(w, params) < 1 || jorgensen_wy_UB(w, params) < 1;
-        
+  // The second test may only work when y has trace close to +/- 2
+  return jorgensen_wy_UB(w, params) < 1 || jorgensen_yw_UB(w, params) < 1;
 }
 
 template<typename T>
