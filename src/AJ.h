@@ -38,6 +38,8 @@ inline const AJ operator*(const AJ& x,double y);
 inline const AJ operator/(const AJ& x,double y);
 inline const double absUB(const AJ& x);
 inline const double absLB(const AJ& x);
+inline const AJ abs_squared(const AJ& x);
+inline const AJ abs(const AJ& x);
 inline const double size(const AJ& x);
 const AJ operator*(const AJ& x,const AJ& y);
 const AJ operator/(const AJ& x,const AJ& y);

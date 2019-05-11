@@ -10,6 +10,18 @@ inline const AJ conj(const AJ&x) {
 
 }
 
+inline const AJ abs_squared(const AJ& x) {
+
+  return x*conj(x);
+
+}
+
+inline const AJ abs(const AJ& x) {
+
+  return sqrt(abs_squared(x));
+
+}
+
 inline const AJ operator+(const AJ&x,const AJ&y) {
 
 	AComplex r_a = x.a+y.a;
