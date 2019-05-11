@@ -8,6 +8,15 @@
 #include "types.hh"
 
 template<typename T>
+const T apply_mobius(const SL2<T>& w, const T& z) {
+  // TODO: check if we care about division by zero
+  return (w.a*z + w.b)/(w.c*z + w.d);
+}
+
+
+
+
+template<typename T>
 const double four_cosh_re_length_LB(const SL2<T>& w) {
   T tr = w.a + w.d;
   return (1-EPS)*(absLB(tr*tr) + absLB(tr*tr - 4));
