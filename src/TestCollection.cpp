@@ -45,13 +45,13 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
     return open;
 }
 
-box_state TestCollection::evaluate_ACJ(word_pair pair, const Box& box, string& aux_word,
-                                       vector<string>& new_qrs, unordered_map< string,SL2<ACJ> >& words_cache)
+box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& aux_word,
+                                       vector<string>& new_qrs, unordered_map< string,SL2<AJ> >& words_cache)
 {
     fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
     // we can assume that words pairs use canonical names
-    SL2<ACJ> w1 = construct_word(pair.first, box.cover());
-    SL2<ACJ> w2 = construct_word(pair.second, box.cover());
+    SL2<AJ> w1 = construct_word(pair.first, box.cover());
+    SL2<AJ> w2 = construct_word(pair.second, box.cover());
 
     if (y_power(pair.first) > 0) {
       if (inside_var_nbd_x(w1, box.cover())) return variety_nbd;
@@ -103,10 +103,10 @@ box_state TestCollection::evaluateCenter(int index, Box& box)
 	}
 }
 
-box_state TestCollection::evaluateBox(int index, Box& box, string& aux_word, vector<string>& new_qrs, unordered_map< string,SL2<ACJ> >& words_cache)
+box_state TestCollection::evaluateBox(int index, Box& box, string& aux_word, vector<string>& new_qrs, unordered_map< string,SL2<AJ> >& words_cache)
 {
   fprintf(stderr, "Evaluating box test index %d\n", index);
-	Params<ACJ> cover = box.cover();
+	Params<AJ> cover = box.cover();
 	switch(index) {
 		case 0:	{ // re_length of both geodesics is short enough
       return check_bounds(g_exp_half_margulis_bound <= absLB(cover.coshL2 + cover.sinhL2)); 
@@ -118,7 +118,7 @@ box_state TestCollection::evaluateBox(int index, Box& box, string& aux_word, vec
       return check_bounds(margulis_larger_than_cutoff(box.x_cover(), box.y_cover(), g_4_cosh_margulis_bound));
     }
 		default:
-			return evaluate_ACJ(pairVector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);
+			return evaluate_AJ(pairVector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);
 	}
 }
 
@@ -187,15 +187,15 @@ void TestCollection::loadImpossibleRelations(const char* fileName)
 	impossible = ImpossibleRelations::create(fileName);
 }
 
-//box_state TestCollection::evaluate_ACJ(string word, Params<ACJ>& params, string& aux_word, vector<string>& new_qrs,
-//                                       unordered_map<int,ACJ>& para_cache, unordered_map<string,SL2ACJ>& words_cache)
+//box_state TestCollection::evaluate_AJ(string word, Params<AJ>& params, string& aux_word, vector<string>& new_qrs,
+//                                       unordered_map<int,AJ>& para_cache, unordered_map<string,SL2AJ>& words_cache)
 //{
 //    box_state state = open;
 //    bool found_qrs = false;
 //    aux_word.assign(word);
 //    int g_len = g_length(word);
 //    double one = 1; // Exact
-//	  SL2ACJ w = construct_word(word, params, para_cache, words_cache);
+//	  SL2AJ w = construct_word(word, params, para_cache, words_cache);
 //
 //    if (g_len <= g_max_g_len && inside_var_nbd(w)) return variety_nbd;
 //
@@ -213,7 +213,7 @@ void TestCollection::loadImpossibleRelations(const char* fileName)
 //			if (isImpossible) return killed_parabolics_impossible;
 //            else if (mandatory.size() > 0) {
 //                for (vector<string>::iterator it = mandatory.begin(); it != mandatory.end(); ++it) {
-//                    SL2ACJ w_sub = construct_word(*it, params, para_cache, words_cache);
+//                    SL2AJ w_sub = construct_word(*it, params, para_cache, words_cache);
 //                    if (not_para_fix_inf(w_sub)) {
 //                        aux_word.assign(*it);
 //                        return killed_elliptic;
@@ -223,7 +223,7 @@ void TestCollection::loadImpossibleRelations(const char* fileName)
 //   
 //            // Look for lattice points. We guess at the center
 //            // No reason to look for a unique lattice point if w.b has large size
-//            ACJ L = params.lattice;
+//            AJ L = params.lattice;
 //            if (absLB(L) > 2*w.b.size) {
 //                XComplex cL = L.f;
 //                XComplex cT = (absUB((w.d.f - one).z) < 2 || absUB((w.a.f - one).z) < 2) ? w.b.f : -w.b.f;
@@ -233,9 +233,9 @@ void TestCollection::loadImpossibleRelations(const char* fileName)
 //                int M_pow = (int) floor((cT - (cL * N_pow).z).z.re);
 //                // We look over 16 nearby lattice points
 //                int s[4] = {0,-1,1,2};
-//                SL2ACJ w_k;
-//                ACJ T;
-//                pair<unordered_map<int,ACJ>::iterator,bool> lookup_para;
+//                SL2AJ w_k;
+//                AJ T;
+//                pair<unordered_map<int,AJ>::iterator,bool> lookup_para;
 //                int N, M;
 //                for (int i = 0; i < 4; ++i) {
 //                    N = N_pow + s[i];
@@ -246,13 +246,13 @@ void TestCollection::loadImpossibleRelations(const char* fileName)
 //                            w_k = w;
 //                        } else {
 //                            if (abs(M) > 1024 || abs(N) > 1024) { fprintf(stderr, "Error constructing word: huge translation\n"); }
-//                            lookup_para = para_cache.emplace(4096*M+N, ACJ());
+//                            lookup_para = para_cache.emplace(4096*M+N, AJ());
 //                            if (lookup_para.second) {
 //                                T = params.lattice*double(N) + double(M);
 //                                swap(lookup_para.first->second, T);
 //                            }
 //                            // Shift to "0"
-//                            w_k = SL2ACJ(w.a - lookup_para.first->second * w.c, w.b - lookup_para.first->second * w.d, w.c, w.d); // Cheaper multiplying
+//                            w_k = SL2AJ(w.a - lookup_para.first->second * w.c, w.b - lookup_para.first->second * w.d, w.c, w.d); // Cheaper multiplying
 //                            // What if we now have a variety word?
 //                            if (g_len <= g_max_g_len && inside_var_nbd(w_k)) { // TODO: Test with constucted word!
 //                                state = variety_nbd;
@@ -271,7 +271,7 @@ void TestCollection::loadImpossibleRelations(const char* fileName)
 //                                // Mandaotry includes list of things that must be parabolic. If they are not parabolic
 //                                // anywhere in the box, we can kill the box
 //                                for (vector<string>::iterator it = mandatory.begin(); it != mandatory.end(); ++it) {
-//                                    SL2ACJ w_sub = construct_word(*it, params, para_cache, words_cache);
+//                                    SL2AJ w_sub = construct_word(*it, params, para_cache, words_cache);
 //                                    if (not_para_fix_inf(w_sub)) {
 //                                        aux_word.assign(*it);
 //                                        return killed_elliptic;
@@ -282,8 +282,8 @@ void TestCollection::loadImpossibleRelations(const char* fileName)
 //                        if (absUB(w_k.b) < 1 && absLB(w_k.b) > 0) {
 //    //                        string word_k = shifted_word(word, - M, - N);
 //    //                        fprintf(stderr, "Killed by Failed qr %s\n", word_k.c_str());
-//    //                        SL2ACJ new_w_k = construct_word(word_k, params);
-//    //                        SL2ACJ gah_k = constructT(params, - M, - N) * w;
+//    //                        SL2AJ new_w_k = construct_word(word_k, params);
+//    //                        SL2AJ gah_k = constructT(params, - M, - N) * w;
 //    //                        fprintf(stderr," absLB(b) = %f\n absLB(c) = %f\n absLB(a-1) = %f\n absLB(d-1) = %f\n absLB(a+1) = %f\n absLB(d+1) = %f\n",
 //    //                                        absLB(w_k.b), absLB(w_k.c), absLB(w_k.a - 1.), absLB(w_k.d - 1.), absLB(w_k.a + 1.), absLB(w_k.d + 1.));
 //    //                        fprintf(stderr," absLB(b) = %f\n absLB(c) = %f\n absLB(a-1) = %f\n absLB(d-1) = %f\n absLB(a+1) = %f\n absLB(d+1) = %f\n",
@@ -304,7 +304,7 @@ void TestCollection::loadImpossibleRelations(const char* fileName)
 //                            found_qrs = true;
 //                            new_qrs.push_back(shifted_word(word, - M, - N));
 //    //                        string word_k = shifted_word(word, - M, - N);
-//    //                        SL2ACJ new_w_k = construct_word(word_k, params);
+//    //                        SL2AJ new_w_k = construct_word(word_k, params);
 //    //                        fprintf(stderr,"Horo Ratio for new QR is %f\n", absUB(w_k.c / params.loxodromic_sqrt));
 //    //                        fprintf(stderr,"Reconstucted horo ratio for QR is %f\n", absUB(new_w_k.c / params.loxodromic_sqrt));
 //                        }

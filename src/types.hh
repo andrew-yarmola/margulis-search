@@ -31,6 +31,8 @@ inline const Complex operator+(const Complex&x,double y) { return x + Complex(y,
 inline const Complex operator-(const Complex&x,double y) { return x - Complex(y,0); };
 inline const Complex operator*(const Complex&x,double y) { return x * Complex(y,0); };
 inline const Complex operator/(const Complex&x,double y) { return x / Complex(y,0); };
+inline const Complex abs(const Complex& x) { return Complex(hypot(x.real(), x.imag()), 0); };
+inline const Complex abs_sqrd(const Complex& x) { return Complex(x.real()*x.real()+x.imag()*x.imag(), 0); };
 
 double absUB(const Complex& x);
 

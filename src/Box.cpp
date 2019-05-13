@@ -46,12 +46,12 @@ Box Box::child(int dir) const
 }
 
 std::string Box::desc() {
-  ACJ sinhP = _cover.sinhP;
-  ACJ sinhD2 = _cover.sinhD2;
-  ACJ sinhL2 = _cover.sinhL2; 
-  ACJ coshP = _cover.coshP;
-  ACJ coshD2 = _cover.coshD2;
-  ACJ coshL2 = _cover.coshL2; 
+  AJ sinhP = _cover.sinhP;
+  AJ sinhD2 = _cover.sinhD2;
+  AJ sinhL2 = _cover.sinhL2; 
+  AJ coshP = _cover.coshP;
+  AJ coshD2 = _cover.coshD2;
+  AJ coshL2 = _cover.coshL2; 
   Complex c_sinhP = _center.sinhP;
   Complex c_sinhD2 = _center.sinhD2;
   Complex c_sinhL2 = _center.sinhL2; 
@@ -108,23 +108,32 @@ void Box::compute_center_and_size()
 
 void Box::compute_cover()
 {
-	_cover.sinhP = ACJ(
+	_cover.sinhP = AJ(
 		XComplex(box_center[3], box_center[0]),
 		XComplex(box_size[3], box_size[0]),
 		0.,
-		0.
+		0.,
+    0.,
+    0.,
+    0.
 	);
-	_cover.sinhD2 = ACJ(
+	_cover.sinhD2 = AJ(
 		XComplex(box_center[4], box_center[1]),
 		0.,
 		XComplex(box_size[4], box_size[1]),
-		0.
+		0.,
+    0.,
+    0.,
+    0.
 	);
-	_cover.sinhL2 = ACJ(
+	_cover.sinhL2 = AJ(
 		XComplex(box_center[5], box_center[2]),
 		0.,
 		0.,
-		XComplex(box_size[5], box_size[2])
+		XComplex(box_size[5], box_size[2]),
+    0.,
+    0.,
+    0.
 	);
   _cover.coshP = sqrt( _cover.sinhP  * _cover.sinhP  + 1);
   if (absLB( _cover.coshP + _cover.sinhP) < 1) {

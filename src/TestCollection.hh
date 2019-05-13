@@ -29,7 +29,7 @@ struct ImpossibleRelations;
 struct TestCollection {
 	int size();
 	box_state evaluateCenter(int index, Box& box);
-	box_state evaluateBox(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<ACJ> >& words_cache);
+	box_state evaluateBox(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
 	const char* getName(int index);
 	int add(const word_pair& pair);
 	int add(std::string pair);
@@ -39,9 +39,9 @@ private:
 	std::map<word_pair, int> pairIndex;
 	std::vector<word_pair> pairVector;
 	box_state evaluate_approx(word_pair pair, const Box& params);
-  box_state evaluate_ACJ(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<ACJ> >& words_cache);
-  bool ready_for_elliptics_test(SL2<ACJ>& w);
-  bool only_elliptics(SL2<ACJ>& w, Params<ACJ>& params);
+  box_state evaluate_AJ(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
+  bool ready_for_elliptics_test(SL2<AJ>& w);
+  bool only_elliptics(SL2<AJ>& w, Params<AJ>& params);
 	ImpossibleRelations *impossible;
 };
 
