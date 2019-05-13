@@ -1,5 +1,5 @@
-#ifndef _AJ_h_
-#define _AJ_h_
+#ifndef __AJ_h_
+#define __AJ_h_
 #include "Complex.h"
 #include <assert.h>
 #include <stdio.h>
@@ -47,4 +47,4 @@ const AJ operator/(double x,const AJ& y);
 const AJ sqrt(const AJ& x);
 
 #include "AJ.inline"
-#endif
+#endif // __AJ_h

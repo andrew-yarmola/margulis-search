@@ -50,4 +50,13 @@ bool x_power_sort(std::string a, std::string b);
 
 bool y_power_sort(std::string a, std::string b);
 
+template<typename T>
+void print_type(T& x); 
+
+template<typename T>
+void print_type(const char desc[], T& x) {
+  printf("%s\n", desc);
+  print_type(x);
+} 
+
 #endif // __types_h

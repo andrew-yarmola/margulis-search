@@ -1,4 +1,17 @@
 #include "AJ.h"
+#include "types.hh"
+
+template<>
+void print_type<const AJ>(const AJ& x) {
+	printf("f: %f + %f I\n\
+z0: %f + %f I   w0: %f + %f I\n\
+z1: %f + %f I   w1: %f + %f I\n\
+z2: %f + %f I   w2: %f + %f I\n\
+err: %f\n", x.f.re, x.f.im,
+		   x.z0.re, x.z0.im, x.w0.re, x.w0.im,
+		   x.z1.re, x.z1.im, x.w1.re, x.w1.im,
+		   x.z2.re, x.z2.im, x.w2.re, x.w2.im,x.e);
+}
 
 const AJ operator*(const AJ&x,const AJ&y) {
 
@@ -77,10 +90,10 @@ const AJ sqrt(const AJ&x) {
 		AComplex r_w0 = AComplex(x.w0.re,x.w0.im,0)/t;
 		AComplex r_w1 = AComplex(x.w1.re,x.w1.im,0)/t;
 		AComplex r_w2 = AComplex(x.w2.re,x.w2.im,0)/t;
-	  double C = (r_f.e+(r_z0.e+r_w0.e))+((r_z1.e+r_w1.e)+(r_z2.e+r_w2.e));
+		double C = (r_f.e+(r_z0.e+r_w0.e))+((r_z1.e+r_w1.e)+(r_z2.e+r_w2.e));
 		double r_error = (1+3*EPS)*(
-							((1+EPS)*sqrt(ax)-(1-3*EPS)*(xdist/(2*sqrt(ax))+sqrt(D)))+C);
-	  return AJ(r_f.z,r_z0.z,r_z1.z,r_z2.z,r_w0.z,r_w1.z,r_w2.z,r_error);
+							 ((1+EPS)*sqrt(ax)-(1-3*EPS)*(xdist/(2*sqrt(ax))+sqrt(D)))+C);
+		return AJ(r_f.z,r_z0.z,r_z1.z,r_z2.z,r_w0.z,r_w1.z,r_w2.z,r_error);
 	}
 
 }

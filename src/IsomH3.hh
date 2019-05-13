@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string>
 #include "SL2.hh"
+#include "AJ.h"
 #include "Params.hh"
 #include "roundoff.h"
 #include "types.hh"
@@ -151,19 +152,30 @@ template<typename T>
 const double four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
   // retuns 4 cosh( margulis ) for w1,w2
   // TODO : Check signs ERROR ROUNDING
-  T tr1 = w1.a + w1.d;
-  T tr2 = w2.a + w2.d;
-  T x1 = tr1*tr1;
-  T x2 = tr1*tr1 - 4;
-  T y1 = tr2*tr2;
-  T y2 = tr2*tr2 - 4;
+  const T tr1 = w1.a + w1.d;
+  const T tr2 = w2.a + w2.d;
+  const T x1 = tr1*tr1;
+  const T x2 = tr1*tr1 - 4;
+  const T y1 = tr2*tr2;
+  const T y2 = tr2*tr2 - 4;
   // exp(2re(P)) 
-  T ep = e_perp(w1,w2);
-  T e_2_re_perp = abs_sqrd(ep);
+  const T ep = e_perp(w1,w2);
+  const T e_2_re_perp = abs_sqrd(ep);
   // cosh(2(re(P))
-  T ch_2_re_perp = cosh_2_re_perp(w1,w2); 
+  const T ch_2_re_perp = cosh_2_re_perp(w1,w2); 
   // sinh(2(re(P))
-  T sh_2_re_perp = sinh_2_re_perp(w1,w2); 
+  const T sh_2_re_perp = sinh_2_re_perp(w1,w2); 
+
+  print_type("tr(w1):", tr1);
+  print_type("tr(w2):", tr2);
+  print_type("x1:", x1);
+  print_type("x2:", x2);
+  print_type("y1:", y1);
+  print_type("y2:", y2);
+  print_type("exp(P):", ep);
+  print_type("exp(2re(P)):", e_2_re_perp);
+  print_type("cosh(2re(P)):", ch_2_re_perp);
+  print_type("sinh(2re(P)):", sh_2_re_perp);
 
   T result = (e_2_re_perp*(y1*x2) - (x1*y2))/(e_2_re_perp*x2 - y2) +
              (sh_2_re_perp*(x2*y2))/((y1-x1)+sqrt((y1-x1)*(y1-x1) + (ch_2_re_perp*2)*(x2*y2) - (x2*x2) - (y2*y2)));

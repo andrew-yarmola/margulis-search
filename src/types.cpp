@@ -48,3 +48,7 @@ bool x_power_sort(std::string a, std::string b) { return x_power(a) < x_power(b)
 
 bool y_power_sort(std::string a, std::string b) { return y_power(a) < y_power(b); }
 
+template<>
+void print_type<const Complex>(const Complex& x) {
+  printf("%f + %f I\n", x.real(), x.imag());
+}

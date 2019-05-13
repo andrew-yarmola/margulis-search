@@ -3,12 +3,34 @@
 #include "Box.h"
 #include "IsomH3.hh"
 #include "AJ.h"
+#include "types.hh"
 #include "TubeSearch.hh"
 #include "TestCollection.hh"
 
 using namespace std;
 
+void test_AJ() {
+  AJ one =  AJ(1,0,0,0,0,0,0,0);
+  AJ zero = AJ(0,0,0,0,0,0,0,0);
+  AJ x = AJ(XComplex(3,4),0,0,0,0,0,0);
+  AJ y = AJ(6,XComplex(4,3),0,0,0,0,0);
+  AJ z = AJ(15,0,XComplex(5,12),0,0,0,0,0);
+  AJ w = AJ(10,0,0,XComplex(0,1),0,0,0,0);
+  print_type("1+1", one + one); 
+  print_type("1/0", one / zero); 
+  print_type("abs(3+4i)", abs(x)); 
+  print_type("abs(3+4i)^2", abs_sqrd(x)); 
+  print_type("conj(6+(4+3i)z0", conj(y)); 
+  print_type("conj(31+(4+3i)z0+(5+12i)z1+(0+1i)z2", conj(y+z+w)); 
+  print_type(y*z); 
+  print_type(z*(z+y)); 
+  print_type(abs(z*2)); 
+  print_type(abs(z*w)); 
+  print_type(x+y); 
+}
+
 int main() {
+  test_AJ();
   SL2<Complex> M = SL2<Complex>(1,Complex(7,5),0,1);
   printf("%f + i %f\n", (M*M).b.real(), (M*M).b.imag());
   printf("%f + i %f\n", inverse(M).b.real(), inverse(M).b.imag());
