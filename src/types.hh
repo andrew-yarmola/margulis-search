@@ -24,7 +24,7 @@ template<typename T> struct Params {
 
 
 typedef std::complex<double> Complex;
-
+typedef std::pair<double, double> float_pair;
 typedef std::pair<std::string, std::string> word_pair;
 
 inline const Complex operator+(const Complex&x,double y) { return x + Complex(y,0); };

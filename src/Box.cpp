@@ -91,15 +91,15 @@ void Box::compute_center_and_size()
   _center.sinhL2 = Complex(box_center[5], box_center[2]);
   Complex one = Complex(1,0);
   _center.coshP = sqrt(_center.sinhP * _center.sinhP + one);
-  if (absLB( _center.coshP + _center.sinhP) < 1) {
+  if (absUB( _center.coshP + _center.sinhP) < 1) {
     _center.coshP = - _center.coshP;
   }   
   _center.coshD2 = sqrt(_center.sinhD2 * _center.sinhD2 + one);
-  if (absLB( _center.coshD2 + _center.sinhD2) < 1) {
+  if (absUB( _center.coshD2 + _center.sinhD2) < 1) {
     _center.coshD2 = - _center.coshD2;
   }   
   _center.coshL2 = sqrt(_center.sinhL2 * _center.sinhL2 + one);
-  if (absLB( _center.coshL2 + _center.sinhL2) < 1) {
+  if (absUB( _center.coshL2 + _center.sinhL2) < 1) {
     _center.coshL2 = - _center.coshL2;
   }
   _x_center = construct_x(_center); 
@@ -136,15 +136,15 @@ void Box::compute_cover()
     0.
 	);
   _cover.coshP = sqrt( _cover.sinhP  * _cover.sinhP  + 1);
-  if (absLB( _cover.coshP + _cover.sinhP) < 1) {
+  if (absUB( _cover.coshP + _cover.sinhP) < 1) {
     _cover.coshP = - _cover.coshP;
   }   
   _cover.coshD2 = sqrt( _cover.sinhD2 * _cover.sinhD2 + 1);
-  if (absLB( _cover.coshD2 + _cover.sinhD2) < 1) {
+  if (absUB( _cover.coshD2 + _cover.sinhD2) < 1) {
     _cover.coshD2 = - _cover.coshD2;
   }   
   _cover.coshL2 = sqrt( _cover.sinhL2 * _cover.sinhL2 + 1);
-  if (absLB( _cover.coshL2 + _cover.sinhL2) < 1) {
+  if (absUB( _cover.coshL2 + _cover.sinhL2) < 1) {
     _cover.coshL2 = - _cover.coshL2;
   }   
   _x_cover = construct_x(_cover); 

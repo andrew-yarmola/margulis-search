@@ -15,15 +15,9 @@ const T apply_mobius(const SL2<T>& w, const T& z) {
 }
 
 template<typename T>
-const double four_cosh_re_length_LB(const SL2<T>& w) {
+const T four_cosh_re_length(const SL2<T>& w) {
   T tr = w.a + w.d;
-  return (1-EPS)*(absLB(tr*tr) + absLB(tr*tr - 4));
-}
-
-template<typename T>
-const double four_cosh_re_length_UB(const SL2<T>& w) {
-  T tr = w.a + w.d;
-  return (1+EPS)*(absUB(tr*tr) + absUB(tr*tr - 4));
+  return abs_sqrd(tr) + abs(tr*tr - 4);
 }
 
 // TODO: Check that we do need the product of the square roots and
@@ -41,8 +35,8 @@ const T norm(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w2.a + w2.d;
   T sh1 = sqrt((tr1*tr1 - 4));
   T sh2 = sqrt((tr2*tr2 - 4));
-  if (absLB(tr1 + sh1) < 4) { sh1 = -sh1; }
-  if (absLB(tr2 + sh2) < 4) { sh2 = -sh2; }
+  if (absUB(tr1 + sh1) < 2) { sh1 = -sh1; }
+  if (absUB(tr2 + sh2) < 2) { sh2 = -sh2; }
   return sh1*sh2;
 }
 
@@ -82,20 +76,24 @@ const T abs_cosh_perp_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 const T sinh_perp_sqrd_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  T z = cosh_perp_normed(w1,w2); 
-  return z*z - norm_sqrd(w1,w2);
+  T ch = cosh_perp_normed(w1,w2); 
+  return ch*ch - norm_sqrd(w1,w2);
 }
 
-//template<typename T>
-//const T sinh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
-//  return sqrt(cosh_perp_sqrd(w1,w2)-1)*norm(w1,w2);
-//}
+template<typename T>
+const T sinh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
+  T ch = cosh_perp_normed(w1,w2); 
+  T n_sqrd = norm_sqrd(w1,w2);
+  T sh = sqrt(ch * ch - n_sqrd);
+  if (absUB(ch + sh) < absUB(norm(w1,w2))) { sh = -sh; }
+  return sh;
+}
 
 template<typename T>
 const T sinh_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T ch = cosh_perp(w1,w2);
   T sh = sqrt(ch * ch - 1);
-  if (absLB(ch + sh) < 1) { sh = -sh; }
+  if (absUB(ch + sh) < 1) { sh = -sh; }
   return sh;
 }
 
@@ -117,10 +115,27 @@ const T cosh_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
 }
 
 template<typename T>
+const T cosh_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
+  T abs_cp_sqrd_normed = abs_cosh_perp_sqrd_normed(w1,w2);
+  T abs_sp_sqrd_normed = abs_sinh_perp_sqrd_normed(w1,w2);
+  return abs_cp_sqrd_normed + abs_sp_sqrd_normed;
+}
+
+template<typename T>
 const T sinh_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T ch = cosh_2_re_perp(w1,w2);
   T sh = sqrt(ch * ch - 1);
-  if (absLB(ch + sh) < 1) { sh = -sh; }
+  if (absUB(ch + sh) < 1) { sh = -sh; }
+  return sh;
+}
+
+template<typename T>
+const T sinh_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
+  T ch = cosh_2_re_perp_normed(w1,w2);
+  T n = norm_sqrd(w1,w2);
+  T abs_n_sqrd = abs_sqrd(n);
+  T sh = sqrt(ch * ch - abs_n_sqrd);
+  if (absUB(ch + sh) < absUB(n)) { sh = -sh; }
   return sh;
 }
 
@@ -132,10 +147,24 @@ const T e_perp(const SL2<T>& w1, const SL2<T>& w2) {
 }
 
 template<typename T>
+const T e_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
+  T cp = cosh_perp_normed(w1,w2);
+  T sp = sinh_perp_normed(w1,w2);
+  return abs_sqrd(cp + sp);
+}
+
+template<typename T>
 const T e_m_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T cp = cosh_perp(w1,w2);
   T sp = sinh_perp(w1,w2);
   return cp - sp;
+}
+
+template<typename T>
+const T e_m_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
+  T cp = cosh_perp_normed(w1,w2);
+  T sp = sinh_perp_normed(w1,w2);
+  return abs_sqrd(cp - sp);
 }
 
 template<typename T>
@@ -149,99 +178,105 @@ const double e_re_perp_LB(const SL2<T>& w1, const SL2<T>& w2) {
 }
 
 template<typename T>
-const double four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
-  // retuns 4 cosh( margulis ) for w1,w2
-  // TODO : Check signs ERROR ROUNDING
+const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w2) {
+  // retuns 4 cosh( margulis ) and exp(2t) for w1,w2
   const T tr1 = w1.a + w1.d;
   const T tr2 = w2.a + w2.d;
-  const T x1 = tr1*tr1;
-  const T x2 = tr1*tr1 - 4;
-  const T y1 = tr2*tr2;
-  const T y2 = tr2*tr2 - 4;
-  // exp(2re(P)) 
-  const T ep = e_perp(w1,w2);
-  const T e_2_re_perp = abs_sqrd(ep);
-  // cosh(2(re(P))
-  const T ch_2_re_perp = cosh_2_re_perp(w1,w2); 
-  // sinh(2(re(P))
-  const T sh_2_re_perp = sinh_2_re_perp(w1,w2); 
+  const T x1 = abs_sqrd(tr1);
+  const T x2 = abs(tr1*tr1 - 4);
+  const T x2_sqrd = abs_sqrd(tr1*tr1 - 4);
+  const T y1 = abs_sqrd(tr2);
+  const T y2 = abs(tr2*tr2 - 4);
+  const T y2_sqrd = abs_sqrd(tr2*tr2 - 4);
+  // exp(2re(P))x2y2
+  const T e_2_re_perp_n = e_2_re_perp_normed(w1,w2);
+  const T e_m_2_re_perp_n = e_m_2_re_perp_normed(w1,w2);
+  // cosh(2(re(P))x2y2
+  const T ch_2_re_perp_n = cosh_2_re_perp_normed(w1,w2); 
+  // sinh(2(re(P))x2y2
+  const T sh_2_re_perp_n = sinh_2_re_perp_normed(w1,w2); 
 
+  printf("***********************************\n");
   print_type("tr(w1):", tr1);
   print_type("tr(w2):", tr2);
   print_type("x1:", x1);
   print_type("x2:", x2);
   print_type("y1:", y1);
   print_type("y2:", y2);
-  print_type("exp(P):", ep);
-  print_type("exp(2re(P)):", e_2_re_perp);
-  print_type("cosh(2re(P)):", ch_2_re_perp);
-  print_type("sinh(2re(P)):", sh_2_re_perp);
+  print_type("exp(2re(P))x2y2:", e_2_re_perp_n);
+  print_type("exp(-2re(P))x2y2:", e_m_2_re_perp_n);
+  print_type("cosh(2re(P))x2y2:", ch_2_re_perp_n);
+  print_type("sinh(2re(P))x2y2:", sh_2_re_perp_n);
+  printf("***********************************\n");
 
-  T result = (e_2_re_perp*(y1*x2) - (x1*y2))/(e_2_re_perp*x2 - y2) +
-             (sh_2_re_perp*(x2*y2))/((y1-x1)+sqrt((y1-x1)*(y1-x1) + (ch_2_re_perp*2)*(x2*y2) - (x2*x2) - (y2*y2)));
+  const T four_cosh_marg = (e_2_re_perp_n*y1 - x1*y2_sqrd)/(e_2_re_perp_n - y2_sqrd) +
+             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
 
-  if (upper) {
-    return absUB(result);
-  } else {
-    return absLB(result);
-  }
+  const T exp_2_t = (x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))))/(x2_sqrd - e_m_2_re_perp_n);
+
+  std::pair<T,T> result(four_cosh_marg,exp_2_t);
+
+  return result;
+
+//  printf("###################################\n");
+//  print_type("4 cosh(margulis) :", four_cosh_marg);
+//  print_type("exp(2t) :", exp_2_t);
+//  printf("absLB(exp(2t)) = %f and absUB(exp(2t)) = %f :\n", absLB(exp_2_t), absUB(exp_2_t));
+//  printf("###################################\n");
+
+//  float_pair result;
+//
+//  if (upper_margulis) {
+//    result.first = absUB(four_cosh_marg);
+//  } else {
+//    result.first = absLB(four_cosh_marg);
+//  }
+//  if (upper_t) {
+//    result.second = absUB(exp_2_t);
+//  } else {
+//    result.second = absLB(exp_2_t);
+//  }
+//  return result;
 } 
 
 template<typename T>
-const double four_cosh_re_length(const SL2<T>& w, bool upper) {
-  if (upper) return four_cosh_re_length_UB(w);
-  else return four_cosh_re_length_LB(w);
-}
-
-template<typename T>
-const double four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
+const float_pair four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper_margulis, bool upper_t) {
   // TODO Optimize for x and y as w1 (or w2)
-  double margulis = pow(2,100);
+  T margulis = T() + pow(2,50);
+  T exp_2_t;
   int n = 1;
   int m = 1;
   SL2<T> A(w1);
-  while (four_cosh_re_length(A,upper) < margulis) {
+  printf("%f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
+  while (absLB(four_cosh_re_length(A)) < absUB(margulis)) {
     SL2<T> B(w2);
-    while (four_cosh_re_length(B,upper) < margulis) {
-      double margulis_new = four_cosh_margulis_simple(A,B,upper);
-      if (margulis_new >= 0) {
-        margulis = fmin(margulis, margulis_new);
+    printf("%f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
+    while (absLB(four_cosh_re_length(B)) < absUB(margulis)) {
+      std::pair<T,T> m_pair = four_cosh_margulis_simple(A,B);
+      T margulis_new = m_pair.first;
+      T exp_2_t_new = m_pair.second;
+      printf("w1^%d and w2^%d give margulis = %f and exp(2t) = %f\n", n, m, absLB(margulis_new), absLB(exp_2_t_new)); 
+      if (absLB(margulis_new) > 0) {
+        // We use LB for a partial ordering because we assume that size(margulis) is aobut the same for each comp
+        if (absLB(margulis_new) < absLB(margulis)) {
+          margulis = margulis_new;
+          exp_2_t = exp_2_t_new;
+        }
       } else {
-        fprintf(stderr, "Failed Margulis computation with error %f\n", margulis_new); 
+        fprintf(stderr, "Failed Margulis computation with error %f\n", absLB(margulis_new)); 
       }
       m += 1;
       B = pow(w2,m); // reducing number of powers needed, might be better to just accumuate
+      printf("%f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
     }
     n += 1;
     A = pow(w2,n); // reducing the number of powers needed, might be better to just accumulate
+    printf("%f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
   }
-  return margulis; 
+  double margulis_f = upper_margulis ? absUB(margulis) : absLB(margulis);
+  double exp_2_t_f = upper_t ? absUB(exp_2_t) : absLB(exp_2_t);
+  return float_pair(margulis_f, exp_2_t_f); 
 }
-
-template<typename T>
-const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
-  // retuns exp(2t) bounds where t is the distance along orth(w1,w2) from axis(w1) to margulis point
-  // TODO : Check signs ERROR ROUNDING
-  T tr1 = w1.a + w1.d;
-  T tr2 = w2.a + w2.d;
-  T x1 = tr1*tr1;
-  T x2 = tr1*tr1 - 4;
-  T y1 = tr2*tr2;
-  T y2 = tr2*tr2 - 4;
-  // exp(2re(P)) 
-  T emp = e_m_perp(w1,w2);
-  T e_m_2_re_perp = abs_sqrd(emp);
-  // cosh(2(re(P))
-  T ch_2_re_perp = cosh_2_re_perp(w1,w2); 
-
-  T result = ((y1-x1)+sqrt((y1-x1)*(y1-x1) + (ch_2_re_perp*2)*(x2*y2) - (x2*x2) - (y2*y2)))/(x2 - y2*e_m_2_re_perp);
-
-  if (upper) {
-    return absUB(result);
-  } else {
-    return absLB(result);
-  }
-} 
 
 //template<typename T>
 //const bool margulis_is_inner(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
@@ -267,7 +302,6 @@ const double exp_2_t(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
 //  } else {
 //    return true;
 //  }
-//}
 
 template<typename T>
 const T cosh_perp_x(const SL2<T>& w) {
@@ -414,5 +448,44 @@ const double jorgensen_wy_UB(const SL2<T>& w, const Params<T>& params) {
   T tr = w.a + w.d;
   return (1+EPS)*(absUB(tr*tr - 4) + absUB(shD2*shD2*g));
 }
+
+//template<typename T>
+//const double four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w2, bool upper) {
+//  // retuns 4 cosh( margulis ) for w1,w2
+//  const T tr1 = w1.a + w1.d;
+//  const T tr2 = w2.a + w2.d;
+//  const T x1 = abs_sqrd(tr1);
+//  const T x2 = abs(tr1*tr1 - 4);
+//  const T y1 = abs_sqrd(tr2);
+//  const T y2 = abs(tr2*tr2 - 4);
+//  // exp(2re(P)) 
+//  const T ep = e_perp(w1,w2);
+//  const T e_2_re_perp = abs_sqrd(ep);
+//  // cosh(2(re(P))
+//  const T ch_2_re_perp = cosh_2_re_perp(w1,w2); 
+//  // sinh(2(re(P))
+//  const T sh_2_re_perp = sinh_2_re_perp(w1,w2); 
+//
+//  print_type("tr(w1):", tr1);
+//  print_type("tr(w2):", tr2);
+//  print_type("x1:", x1);
+//  print_type("x2:", x2);
+//  print_type("y1:", y1);
+//  print_type("y2:", y2);
+//  print_type("exp(P):", ep);
+//  print_type("exp(2re(P)):", e_2_re_perp);
+//  print_type("cosh(2re(P)):", ch_2_re_perp);
+//  print_type("sinh(2re(P)):", sh_2_re_perp);
+//
+//  T result = (e_2_re_perp*(y1*x2) - (x1*y2))/(e_2_re_perp*x2 - y2) +
+//             (sh_2_re_perp*(x2*y2))/((y1-x1)+sqrt((y1-x1)*(y1-x1) + (ch_2_re_perp*2)*(x2*y2) - (x2*x2) - (y2*y2)));
+//
+//  if (upper) {
+//    return absUB(result);
+//  } else {
+//    return absLB(result);
+//  }
+//} 
+
 
 #endif // __IsomH3_h
