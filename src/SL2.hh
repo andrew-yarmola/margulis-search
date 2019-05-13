@@ -1,6 +1,8 @@
 #ifndef _SL2_h_
 #define _SL2_h_
 
+#include "types.hh"
+
 template<typename T>
 struct SL2 {
   SL2<T>() : a(1), b(0), c(0), d(1) {}
@@ -39,6 +41,14 @@ inline const SL2<T> pow(const SL2<T> &M, int n) {
   } 
   return A*B;
 };
+
+template<typename T>
+void print_SL2(const SL2<T>& x) {
+  print_type("a =", x.a);
+  print_type("b =", x.b);
+  print_type("c =", x.c);
+  print_type("d =", x.d);
+}
 
 #endif
 

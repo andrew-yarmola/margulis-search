@@ -247,9 +247,11 @@ const float_pair four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upp
   int n = 1;
   int m = 1;
   SL2<T> A(w1);
+  print_SL2(A);
   printf("%f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
   while (absLB(four_cosh_re_length(A)) < absUB(margulis)) {
     SL2<T> B(w2);
+    print_SL2(B);
     printf("%f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
     while (absLB(four_cosh_re_length(B)) < absUB(margulis)) {
       std::pair<T,T> m_pair = four_cosh_margulis_simple(A,B);
@@ -266,11 +268,13 @@ const float_pair four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upp
         fprintf(stderr, "Failed Margulis computation with error %f\n", absLB(margulis_new)); 
       }
       m += 1;
-      B = pow(w2,m); // reducing number of powers needed, might be better to just accumuate
+      B = pow(w2, m); // reducing number of powers needed, might be better to just accumuate
+      print_SL2(B);
       printf("%f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
     }
     n += 1;
-    A = pow(w2,n); // reducing the number of powers needed, might be better to just accumulate
+    A = pow(w1, n); // reducing the number of powers needed, might be better to just accumulate
+    print_SL2(A);
     printf("%f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
   }
   double margulis_f = upper_margulis ? absUB(margulis) : absLB(margulis);
