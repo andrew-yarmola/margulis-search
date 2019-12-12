@@ -52,3 +52,18 @@ template<>
 void print_type<const Complex>(const Complex& x) {
   printf("%f + %f I\n", x.real(), x.imag());
 }
+
+template<>
+void print_type<Complex>(Complex& x) {
+  print_type((const Complex) x);
+}
+
+template<>
+bool comp_type<const Complex>(const Complex& a, const Complex& b) {
+  return std::abs(a) < std::abs(b);
+}
+
+template<>
+bool comp_type<Complex>(Complex& a, Complex& b) {
+  return comp_type((const Complex) a, (const Complex) b);
+}

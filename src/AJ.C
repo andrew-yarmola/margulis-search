@@ -7,10 +7,28 @@ void print_type<const AJ>(const AJ& x) {
 z0: %f + %f I   w0: %f + %f I\n\
 z1: %f + %f I   w1: %f + %f I\n\
 z2: %f + %f I   w2: %f + %f I\n\
-err: %f\n", x.f.re, x.f.im,
+err: %f\n\
+absLB: %f\n\
+abdUB: %f\n", x.f.re, x.f.im,
 		   x.z0.re, x.z0.im, x.w0.re, x.w0.im,
 		   x.z1.re, x.z1.im, x.w1.re, x.w1.im,
-		   x.z2.re, x.z2.im, x.w2.re, x.w2.im,x.e);
+		   x.z2.re, x.z2.im, x.w2.re, x.w2.im,x.e,
+       absLB(x), absUB(x));
+}
+
+template<>
+void print_type<AJ>(AJ& x) {
+  print_type((const AJ) x);
+}
+
+template<>
+bool comp_type<const AJ>(const AJ& a, const AJ& b) {
+  return a.e < b.e;
+}
+
+template<>
+bool comp_type<AJ>(AJ& a, AJ& b) {
+  return comp_type((const AJ) a, (const AJ) b);
 }
 
 const AJ operator*(const AJ&x,const AJ&y) {

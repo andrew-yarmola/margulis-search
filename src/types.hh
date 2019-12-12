@@ -38,8 +38,6 @@ double absUB(const Complex& x);
 
 double absLB(const Complex& x);
 
-double max(double a, double b); 
-
 std::string repeat(std::string s, int n);
 
 int x_power(std::string w);
@@ -51,7 +49,20 @@ bool x_power_sort(std::string a, std::string b);
 bool y_power_sort(std::string a, std::string b);
 
 template<typename T>
+inline T max(T& x, T& y) {
+  return ((x+y)+abs(x-y))/2;
+} 
+
+template<typename T>
+inline T min(T& x, T& y) {
+  return ((x+y)-abs(x-y))/2;
+} 
+
+template<typename T>
 void print_type(T& x); 
+
+template<typename T>
+bool comp_type(T& a, T& b); 
 
 template<typename T>
 void print_type(const char desc[], T& x) {
