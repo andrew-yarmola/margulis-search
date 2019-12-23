@@ -319,6 +319,8 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
 //  return result;
 } 
 
+#define MAX_LOOPS 10000
+
 template<typename T>
 const float_pair four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper_margulis, bool upper_t) {
   // TODO Optimize for x and y as w1 (or w2)
@@ -328,12 +330,14 @@ const float_pair four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upp
   SL2<T> A(w1);
   print_SL2(A);
   printf("%f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
+  int loops = 0;
   while (absLB(four_cosh_re_length(A)) < absUB(margulis)) {
     int m = 1;
     SL2<T> B(w2);
     print_SL2(B);
     printf("%f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
     while (absLB(four_cosh_re_length(B)) < absUB(margulis)) {
+      if (loops > MAX_LOOPS) { break; }
       std::pair<T,T> m_pair = four_cosh_margulis_simple(A,B);
       T margulis_new = m_pair.first;
       T exp_2_t_new = m_pair.second;
@@ -354,9 +358,11 @@ const float_pair four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upp
 //      }
       m += 1;
       B = pow(w2, m); // reducing number of powers needed, might be better to just accumuate
+      loops += 1;
       print_SL2(B);
       printf("%f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
     }
+    if (loops > MAX_LOOPS) { break; }
     n += 1;
     A = pow(w1, n); // reducing the number of powers needed, might be better to just accumulate
     print_SL2(A);

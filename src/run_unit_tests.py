@@ -17,6 +17,7 @@ def command_output(command):
         sys.exit(1)
 
 def test_bounds(box, four_cosh_margulis, exp_2t, debug = False, debug_file = None) :
+  print(box)
   out = command_output('./{} {}'.format(test_bin, box))
   (margulis_out, exp_2t_out) = out.splitlines()[-2:]
   margulis_match = re.fullmatch('.*margulis.*between\s(\S*)\s\((\S*)\)\sand\s(\S*)\s\((\S*)\)', margulis_out)
@@ -50,7 +51,7 @@ if __name__ == '__main__' :
     for row in test_data_reader :
       name = row[0]
       sinh_ortho = sinh(eval(row[5]))
-      # ortho is out put bounds 
+      # ortho is out of bounds 
       # TODO make ortho.real be the largest box coordinate
       if abs(sinh_ortho.real) > 5.65 :
         skipped.add(name)
@@ -59,6 +60,7 @@ if __name__ == '__main__' :
       exp_2t = exp(2*float(row[6]))
       boxes = eval(row[11])
       for box in boxes :
+        print("Working on " + name)
         try :
           test_bounds(box, four_cosh_margulis, exp_2t)
         except :
@@ -67,5 +69,4 @@ if __name__ == '__main__' :
             test_bounds(box, four_cosh_margulis, exp_2t, debug = True, debug_file = name + '_debug')
           except :
             failed.add(name)
-  print('Skipped out of bounds manifolds: {}'.format(sorted(skipped)))
   print('Failed for manifolds: {}'.format(sorted(failed)))
