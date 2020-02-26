@@ -46,6 +46,10 @@ int main(int argc,char**argv)
 
   SL2<AJ> x = construct_x(params);
   SL2<AJ> y = construct_y(params);
+//  printf("x is :\n");
+//  print_SL2(x);
+//  printf("y is :\n");
+//  print_SL2(y);
   SL2<Complex> c_x = construct_x(box.center());
   SL2<Complex> c_y = construct_y(box.center());
 

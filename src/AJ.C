@@ -22,6 +22,16 @@ void print_type<AJ>(AJ& x) {
 }
 
 template<>
+void print_center<const AJ>(const AJ& x) {
+	printf("f: %f + %f I\nabsLB: %f, abdUB: %f\n", x.f.re, x.f.im, absLB(x), absUB(x));
+}
+
+template<>
+void print_center<AJ>(AJ& x) {
+  print_center((const AJ) x);
+}
+
+template<>
 bool comp_type<const AJ>(const AJ& a, const AJ& b) {
   return a.e < b.e;
 }

@@ -62,12 +62,21 @@ template<typename T>
 void print_type(T& x); 
 
 template<typename T>
+void print_center(T& x); 
+
+template<typename T>
 bool comp_type(T& a, T& b); 
 
 template<typename T>
 void print_type(const char desc[], T& x) {
   printf("%s\n", desc);
   print_type(x);
+} 
+
+template<typename T>
+void print_center(const char desc[], T& x) {
+  printf("%s\n", desc);
+  print_center(x);
 } 
 
 #endif // __types_h
