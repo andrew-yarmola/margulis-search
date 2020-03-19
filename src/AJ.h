@@ -28,12 +28,13 @@ struct AJ {
 	double size;
 };
 
+inline const AJ eye(const AJ& x) { return AJ(XComplex(0,1)); };
 inline const AJ operator-(const AJ& x);
 inline const AJ conj(const AJ& x);
 inline const AJ operator+(const AJ& x,const AJ& y);
 inline const AJ operator-(const AJ& x,const AJ& y);
 inline const AJ operator+(const AJ& x,double y);
-inline const AJ operator-(const AJ& x,const AJ& y);
+inline const AJ operator-(const AJ& x,double y);
 inline const AJ operator*(const AJ& x,double y);
 inline const AJ operator/(const AJ& x,double y);
 inline const double absUB(const AJ& x);

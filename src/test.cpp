@@ -38,27 +38,23 @@ int main(int argc,char**argv)
 		}
 	}
 
-  Params<AJ> params = box.cover();
-  AJ sinhP = params.sinhP;
-  AJ coshP = params.coshP;
-
   printf("Box: %s", box.desc().c_str());
 
-  SL2<AJ> x = construct_x(params);
-  SL2<AJ> y = construct_y(params);
+  SL2<AJ> x = box.x_cover(); 
+  SL2<AJ> y = box.y_cover();
 //  printf("x is :\n");
 //  print_SL2(x);
 //  printf("y is :\n");
 //  print_SL2(y);
-  SL2<Complex> c_x = construct_x(box.center());
-  SL2<Complex> c_y = construct_y(box.center());
+//  SL2<Complex> c_x = construct_x(box.center());
+//  SL2<Complex> c_y = construct_y(box.center());
 
-  float_pair up_up = four_cosh_margulis(x,y,true,true);
-  float_pair up_lb = four_cosh_margulis(x,y,true,false);
-  float_pair lb_up = four_cosh_margulis(x,y,false,true);
-  float_pair lb_lb = four_cosh_margulis(x,y,false,false);
+//  float_pair up_up = four_cosh_margulis(x,y,true,true);
+//  float_pair up_lb = four_cosh_margulis(x,y,true,false);
+//  float_pair lb_up = four_cosh_margulis(x,y,false,true);
+//  float_pair lb_lb = four_cosh_margulis(x,y,false,false);
 
-  printf("4 cosh(margulis) between %f (%f) and %f (%f)\n", lb_lb.first, lb_up.first, up_up.first, up_lb.first);
-  printf("exp(2t) between %f (%f) and %f (%f)\n", lb_lb.second, up_lb.second, up_up.second, lb_up.second);
+//  printf("4 cosh(margulis) between %f (%f) and %f (%f)\n", lb_lb.first, lb_up.first, up_up.first, up_lb.first);
+//  printf("exp(2t) between %f (%f) and %f (%f)\n", lb_lb.second, up_lb.second, up_up.second, lb_up.second);
 
 }

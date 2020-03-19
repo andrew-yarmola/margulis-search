@@ -50,7 +50,7 @@ namespace TubeSearchImpl {
 		TubeSearch(Params<Complex> params_) :params(params_),
                x(construct_x(params)), X(inverse(x)),
                y(construct_y(params)), Y(inverse(y)),
-               exp_re_perp(absUB(params.coshP + params.sinhP)), m_foundGoodPair(false) {
+               exp_re_perp((params.expdx * params.expdy).real()), m_foundGoodPair(false) {
       x_word.name = "x";
       x_word.matrix = x;
       y_word.name = "y";
@@ -71,9 +71,9 @@ namespace TubeSearchImpl {
 		SL2<Complex> y;
 		SL2<Complex> X;
 		SL2<Complex> Y;
-    Word x_word;
-    Word y_word;
-    double exp_re_perp;
+        Word x_word;
+        Word y_word;
+        double exp_re_perp;
 		bool m_foundGoodPair;
 		vector<Word> words;
 		priority_queue<WordPair, vector<WordPair>, PairComp> pairs;

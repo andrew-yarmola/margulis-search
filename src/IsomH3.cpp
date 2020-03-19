@@ -1,11 +1,6 @@
 #include "IsomH3.hh"
 #include "roundoff.h"
 
-double max(double a, double b) {
-  if (a < b) return b;
-  else return a;
-}
-
 // TODO: Check that we do need the product of the square roots and
 // note the square root of the product.
 template<typename T>
