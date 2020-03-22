@@ -22,7 +22,7 @@ template<typename T>
 SL2<T> construct_word(std::string word, const Params<T>& params)
 {
   // TODO : add caching of powers if we are too slow
-  std::string recover = "";
+  // std::string recover = "";
   SL2<T> w; // identity
   SL2<T> x = construct_x(params);
   SL2<T> y = construct_y(params);
@@ -42,19 +42,19 @@ SL2<T> construct_word(std::string word, const Params<T>& params)
     if (y_pow != 0 && x_pow != 0) {
       if (h == 'y' || h == 'Y' ) {
         w = pow(x, x_pow) * w;
-        if (x_pow < 0) {
+        /* if (x_pow < 0) {
           recover = repeat("X",-x_pow) + recover;
         } else {
           recover = repeat("x",x_pow) + recover;
-        }
+        }*/
         x_pow = 0;
       } else {
         w = pow(y, y_pow) * w;
-        if (y_pow < 0) {
+        /* if (y_pow < 0) {
           recover = repeat("Y",-y_pow) + recover;
         } else {
           recover = repeat("y",y_pow) + recover;
-        }
+        }*/
         y_pow = 0;
       }
     }
@@ -62,19 +62,19 @@ SL2<T> construct_word(std::string word, const Params<T>& params)
   // Only one of these should be true
   if (x_pow != 0) { 
     w = pow(x, x_pow) * w;
-    if (x_pow < 0) {
+    /* if (x_pow < 0) {
       recover = repeat("X",-x_pow) + recover;
     } else {
       recover = repeat("x",x_pow) + recover;
-    }
+    }*/
   }
   if (y_pow != 0) { 
     w = pow(y, y_pow) * w;
-    if (y_pow < 0) {
+    /* if (y_pow < 0) {
       recover = repeat("Y",-y_pow) + recover;
     } else {
       recover = repeat("y",y_pow) + recover;
-    }
+    }*/
   }
   // fprintf(stderr, "Original %s vs %s\n", word.c_str(), recover.c_str());
 	return w;

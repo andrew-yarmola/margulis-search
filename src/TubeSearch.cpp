@@ -23,7 +23,7 @@ namespace TubeSearchImpl {
 		Word second;
 		double ortho_dist_LB;
 		double ortho_dist_UB;
-    double jorgensen;
+    double jorgensen_ww;
     double jorgensen_xw1 = 100000000000;
     double jorgensen_xw2 = 100000000000;
     double jorgensen_yw1 = 100000000000;
@@ -41,7 +41,7 @@ namespace TubeSearchImpl {
       if (a.ortho_dist_UB > 0 && b.ortho_dist_UB > 0) {
 			  return a.ortho_dist_UB < b.ortho_dist_UB;
       } else {
-        return a.jorgensen > b.jorgensen;
+        return a.jorgensen_ww > b.jorgensen_ww;
       }
 		}
 	};
@@ -122,26 +122,26 @@ namespace TubeSearchImpl {
       ortho_dist_LB = e_re_perp_LB(first.matrix, second.matrix);  
       ortho_dist_UB = e_re_perp_UB(first.matrix, second.matrix);  
     }
-    jorgensen = jorgensen_UB(first.matrix, second.matrix);
+    jorgensen_ww = absUB(jorgensen(first.matrix, second.matrix));
    
     if (y_power(first.name) > 0) { 
-      jorgensen_xw1 = jorgensen_xw_UB(first.matrix, params);
-      jorgensen_w1x = jorgensen_wx_UB(first.matrix, params);
+      jorgensen_xw1 = absUB(jorgensen_xw(first.matrix, params));
+      jorgensen_w1x = absUB(jorgensen_wx(first.matrix, params));
     }
     if (y_power(second.name) > 0) { 
-      jorgensen_xw2 = jorgensen_xw_UB(second.matrix, params);
-      jorgensen_w2x = jorgensen_wx_UB(second.matrix, params);
+      jorgensen_xw2 = absUB(jorgensen_xw(second.matrix, params));
+      jorgensen_w2x = absUB(jorgensen_wx(second.matrix, params));
     }
     if (x_power(first.name) > 0) { 
-    jorgensen_yw1 = jorgensen_yw_UB(first.matrix, params);
-    jorgensen_w1y = jorgensen_wy_UB(first.matrix, params);
+    jorgensen_yw1 = absUB(jorgensen_yw(first.matrix, params));
+    jorgensen_w1y = absUB(jorgensen_wy(first.matrix, params));
     }
     if (x_power(second.name) > 0) { 
-      jorgensen_yw2 = jorgensen_yw_UB(second.matrix, params);
-      jorgensen_w2y = jorgensen_wy_UB(second.matrix, params);
+      jorgensen_yw2 = absUB(jorgensen_yw(second.matrix, params));
+      jorgensen_w2y = absUB(jorgensen_wy(second.matrix, params));
     }
     fprintf(stderr, "Built pair (%s,%s) with ortho (%f,%f) and jorgensen:\nw1w2 %f\nxw1 %f\nxw2 %f\nyw1 %f\nyw2 %f\nw1x %f\nw2x %f\nw1y %f\nw2y %f\n",
-      first.name.c_str(), second.name.c_str(), ortho_dist_LB,  ortho_dist_UB, jorgensen,
+      first.name.c_str(), second.name.c_str(), ortho_dist_LB,  ortho_dist_UB, jorgensen_ww,
       jorgensen_xw1, jorgensen_xw2, jorgensen_yw1, jorgensen_yw2,  
       jorgensen_w1x, jorgensen_w2x, jorgensen_w1y, jorgensen_w2y);
   }
@@ -171,8 +171,8 @@ namespace TubeSearchImpl {
 //    fprintf(stderr,"Trying to print\n");
 //    fprintf(stderr, "First word %s, Second word %s\n", it->name.c_str(), word.name.c_str());
 		  WordPair pair(*it, word, params);
-      if (pair.jorgensen < 2) {
-        fprintf(stderr,"pushWordPair(%s,%s) with jorgensen %f\n", pair.first.name.c_str(), pair.second.name.c_str(), pair.jorgensen);
+      if (pair.jorgensen_ww < 2) {
+        fprintf(stderr,"pushWordPair(%s,%s) with jorgensen %f\n", pair.first.name.c_str(), pair.second.name.c_str(), pair.jorgensen_ww);
 				pairs.push(pair);
       }
       if (pair.jorgensen_w1x < 2 || pair.jorgensen_xw1 < 2) {
@@ -228,7 +228,7 @@ namespace TubeSearchImpl {
       pushWord(smallest.first * inverse(smallest.second));
 //      fprintf(stderr, "adding %s\n", (smallest.first*inverse(smallest.second)).name.c_str());
       pushWord(smallest.first * smallest.second);
-      if (smallest.ortho_dist_UB < exp_re_perp || smallest.ortho_dist_LB > 1000000 || smallest.jorgensen < 1 ||
+      if (smallest.ortho_dist_UB < exp_re_perp || smallest.ortho_dist_LB > 1000000 || smallest.jorgensen_ww < 1 ||
           smallest.jorgensen_xw1 < 1 || smallest.jorgensen_xw2 < 1 || smallest.jorgensen_yw1 < 1 || smallest.jorgensen_yw2 < 1 ||  
           smallest.jorgensen_w1x < 1 || smallest.jorgensen_w2x < 1 || smallest.jorgensen_w1y < 1 || smallest.jorgensen_w2y < 1 ) {
 //        fprintf(stderr, "Pair (%s,%s) with ortho (%f,%f) and jorgensen:\nw1w2 %f\nxw1 %f\nxw2 %f\nyw1 %f\nyw2 %f\nw1x %f\nw2x %f\nw1y %f\nw2y %f\n",

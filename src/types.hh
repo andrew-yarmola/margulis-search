@@ -92,29 +92,34 @@ template<typename T> struct Params {
   T cosf;
   T sintx2;
   T sinty2;
-  T coshdx; // dereived parameter
-  T coshdy; // dereived parameter
-  T sinf; // dereived parameter
-  T costx2; // dereived parameter
-  T costy2; // dereived parameter
+  T coshdx; // derived parameter
+  T coshdy; // derived parameter
+  T sinf; // derived parameter
+  T costx2; // derived parameter
+  T costy2; // derived parameter
   T costx; // derived parameter
   T costy; // derived parameter
   T coshlx; // derived parameter
   T coshly; // derived parameter
+  T cosh2dx; // derived parameter
+  T cosh2dy; // derived parameter
+  T coshdxdy; // derived parameter
+  T sinhdxdy; // derived parameter
   T coshlx2; // derived parameter
   T sinhlx2; // derived parameter
   T coshly2; // derived parameter
   T sinhly2; // derived parameter
-  T coshLx2; // dereived parameter
-  T sinhLx2; // dereived parameter
-  T coshLy2; // dereived parameter
-  T sinhLy2; // dereived parameter
-  T expdx; // dereived parameter
-  T expmdx; // dereived parameter
-  T expdy; // dereived parameter
-  T expmdy; // dereived parameter
-  T expif; // dereived parameter
-  T expmif; // dereived parameter
+  T coshLx2; // derived parameter
+  T sinhLx2; // derived parameter
+  T coshLy2; // derived parameter
+  T sinhLy2; // derived parameter
+  T sinhperp; //derived parameter
+  T expdx; // derived parameter
+  T expmdx; // derived parameter
+  T expdy; // derived parameter
+  T expmdy; // derived parameter
+  T expif; // derived parameter
+  T expmif; // derived parameter
 };
 
 template<typename T>
@@ -124,6 +129,12 @@ void fill_derived(Params<T>& p) {
 
   p.coshdx = sqrt(p.sinhdx * p.sinhdx + one);  
   p.coshdy = sqrt(p.sinhdy * p.sinhdy + one);  
+
+  p.cosh2dx = (p.sinhdx * p.sinhdx) * 2 + one;
+  p.cosh2dy = (p.sinhdy * p.sinhdy) * 2 + one;
+
+  p.coshdxdy = p.coshdx * p.coshdy + p.sinhdx * p.sinhdy;
+  p.sinhdxdy = p.sinhdx * p.coshdy + p.coshdx * p.sinhdy;
 
   p.sinf = sqrt(one - p.cosf * p.cosf);
 
@@ -146,6 +157,8 @@ void fill_derived(Params<T>& p) {
   p.sinhLx2 = p.sinhlx2 * p.costx2 + i * (p.coshlx2 * p.sintx2); 
   p.coshLy2 = p.coshly2 * p.costy2 + i * (p.sinhly2 * p.sinty2); 
   p.sinhLy2 = p.sinhly2 * p.costy2 + i * (p.coshly2 * p.sinty2); 
+
+  p.sinhperp = p.sinhdxdy * p.cosf + (p.coshdxdy * p.sinf) * i;
 
   p.expdx = p.coshdx + p.sinhdx; 
   p.expmdx = p.coshdx - p.sinhdx;

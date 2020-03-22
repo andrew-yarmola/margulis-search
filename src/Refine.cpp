@@ -77,7 +77,6 @@ PartialTree readTree()
     if (isdigit(buf[0])) {
       t.testIndex = atoi(buf);
     } else {
-//    Add word pair as eliminator to test collection
       if (strchr("xXyY", buf[1]) != NULL) {
         t.testIndex = g_tests.add(string(buf));
       }
@@ -109,8 +108,8 @@ int treeSize(PartialTree& t) {
   return size;
 }
 
-double g_4_cosh_margulis_bound = 5.262;
-double g_exp_half_margulis_bound = 1.474; 
+double g_cosh_margulis_bound = 1.32;
+double g_sinh_d_bound = 1.474; 
 
 unordered_map<string, SL2<ACJ> > short_words_cache;
 

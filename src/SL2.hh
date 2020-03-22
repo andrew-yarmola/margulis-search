@@ -22,6 +22,11 @@ const SL2<T> inverse(const SL2<T> &M) {
 };
 
 template<typename T>
+const T dist(const SL2<T> &M1, const SL2<T> &M2) {
+  return abs(M1.a - M2.a) + abs(M1.b - M2.b) + abs(M1.c - M2.c) + abs(M1.d - M2.d); 
+};
+
+template<typename T>
 inline const SL2<T> pow(const SL2<T> &M, int n) {
   SL2<T> A; // identity
   if (n == 0) { return A; }

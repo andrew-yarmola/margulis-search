@@ -6,12 +6,14 @@
 #include "Box.h"
 #include "IsomH3.hh"
 #include "AJ.h"
+#include "roundoff.h"
 #include "types.hh"
 #include "TubeSearch.hh"
 #include "TestCollection.hh"
 
 #define ERR 0.000001
 #define CERR 0.00001
+#define DERR 0.00015
 #define AJERR 0.000835
 
 using namespace std;
@@ -30,6 +32,8 @@ int main(int argc,char**argv)
         fprintf(stderr,"Usage: %s census_csv_file\n", argv[0]);
         exit(1);
     }
+
+    initialize_roundoff();
 
     rapidcsv::Document doc(argv[1], rapidcsv::LabelParams(0,-1));
     const size_t row_count = doc.GetRowCount();
@@ -83,6 +87,34 @@ int main(int argc,char**argv)
           assert(absUB(center_pair.first - center.coshmu * 4) < CERR);
           assert(absUB(center_pair.second - center.expdx * center.expdx) < CERR);
 
+          // Test construct math
+          SL2<Complex> x_center = box.x_center();          
+          SL2<Complex> y_center = box.y_center();          
+          SL2<Complex> xy_center = construct_word("xy", center); 
+          SL2<Complex> xyx_center = construct_word("xyx", center); 
+          SL2<Complex> yxxYXy_center = construct_word("yxxYXy", center); 
+          assert(absUB(dist(xy_center, x_center * y_center)) < ERR);          
+          assert(absUB(dist(xyx_center, x_center * y_center * x_center)) < ERR);          
+          assert(absUB(dist(yxxYXy_center, y_center * x_center * x_center * inverse(y_center) * inverse(x_center) * y_center)) < ERR);          
+
+          // Test Jorgensen
+          Complex j_ww_xy_center = jorgensen(x_center, y_center);
+          Complex j_ww_yx_center = jorgensen(y_center, x_center);
+          Complex j_xw_xy_center = jorgensen_xw(y_center, center);
+          Complex j_wx_yx_center = jorgensen_wx(y_center, center);
+          Complex j_wy_xy_center = jorgensen_wy(x_center, center);
+          Complex j_yw_yx_center = jorgensen_yw(x_center, center);
+          Complex j_xy_center = jorgensen_xy(center);
+          Complex j_yx_center = jorgensen_yx(center);
+          assert(absUB(j_ww_xy_center - j_xy_center) < ERR); 
+          assert(absUB(j_xw_xy_center - j_xy_center) < ERR); 
+          assert(absUB(j_wy_xy_center - j_xy_center) < ERR); 
+          assert(absUB(j_ww_yx_center - j_yx_center) < ERR); 
+          assert(absUB(j_wx_yx_center - j_yx_center) < ERR); 
+          assert(absUB(j_yw_yx_center - j_yx_center) < ERR); 
+          assert(absLB(j_xy_center) >= 1.0); 
+          assert(absLB(j_yx_center) >= 1.0); 
+
           // Cover testing
           assert(absUB(cover.sinhdx - sinhdx) < ERR);
           assert(absUB(cover.sinhdy - sinhdy) < ERR);
@@ -101,10 +133,48 @@ int main(int argc,char**argv)
           assert(absUB(cover_pair.first - cover.coshmu * 4) < AJERR);
           assert(absUB(cover_pair.second - cover.expdx * cover.expdx) < AJERR);
 
+          // Test construct math
+          SL2<AJ> x_cover = box.x_cover();          
+          SL2<AJ> y_cover = box.y_cover();          
+          SL2<AJ> xy_cover = construct_word("xy", cover); 
+          SL2<AJ> xyx_cover = construct_word("xyx", cover); 
+          SL2<AJ> yxxYXy_cover = construct_word("yxxYXy", cover); 
+          assert(absUB(dist(xy_cover, x_cover * y_cover)) < ERR);          
+          assert(absUB(dist(xyx_cover, x_cover * y_cover * x_cover)) < ERR);          
+          assert(absUB(dist(yxxYXy_cover, y_cover * x_cover * x_cover * inverse(y_cover) * inverse(x_cover) * y_cover)) < ERR);          
+
+          // Test Jorgensen
+          AJ j_ww_xy_cover = jorgensen(x_cover, y_cover);
+          AJ j_ww_yx_cover = jorgensen(y_cover, x_cover);
+          AJ j_xw_xy_cover = jorgensen_xw(y_cover, cover);
+          AJ j_wx_yx_cover = jorgensen_wx(y_cover, cover);
+          AJ j_wy_xy_cover = jorgensen_wy(x_cover, cover);
+          AJ j_yw_yx_cover = jorgensen_yw(x_cover, cover);
+          AJ j_xy_cover = jorgensen_xy(cover);
+          AJ j_yx_cover = jorgensen_yx(cover);
+          // print_type("j_ww_xy_cover:", j_ww_yx_cover);
+          // print_type("j_xy_cover:", j_yx_cover);
+          // print_type("diffr:", j_ww_yx_cover - j_yx_cover);
+          assert(absUB(j_ww_xy_cover - j_xy_cover) < DERR); 
+          assert(absUB(j_xw_xy_cover - j_xy_cover) < DERR); 
+          assert(absUB(j_wy_xy_cover - j_xy_cover) < DERR); 
+          assert(absUB(j_ww_yx_cover - j_yx_cover) < DERR); 
+          assert(absUB(j_wx_yx_cover - j_yx_cover) < DERR); 
+          assert(absUB(j_yw_yx_cover - j_yx_cover) < DERR); 
+          assert(absLB(j_xy_cover) >= 1.0); 
+          assert(absLB(j_yx_cover) >= 1.0); 
+  
         }
     }
 
+    if(!roundoff_ok()){
+        printf("Underflow may have occurred\n");
+        exit(1);
+    }
+
     printf("PASSED\n");
+
+}
 
 /*
     char where[MAX_DEPTH];
@@ -146,4 +216,3 @@ int main(int argc,char**argv)
 //  printf("4 cosh(margulis) between %f (%f) and %f (%f)\n", lb_lb.first, lb_up.first, up_up.first, up_lb.first);
 //  printf("exp(2t) between %f (%f) and %f (%f)\n", lb_lb.second, up_lb.second, up_up.second, lb_up.second);
 */
-}

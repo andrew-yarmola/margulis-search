@@ -10,12 +10,6 @@
 #include "assert.h"
 
 template<typename T>
-const T apply_mobius(const SL2<T>& w, const T& z) {
-  // TODO: check if we care about division by zero
-  return (w.a * z + w.b)/(w.c * z + w.d);
-}
-
-template<typename T>
 const T four_cosh_re_length(const SL2<T>& w) {
   T tr = w.a + w.d;
   return abs_sqrd(tr) + abs(tr*tr - 4);
@@ -25,7 +19,7 @@ template<typename T>
 const T norm_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
   T tr1 = w1.a + w1.d;
   T tr2 = w2.a + w2.d;
-  return (tr1 * tr1-4) * (tr2 * tr2-4);
+  return (tr1 * tr1 - 4) * (tr2 * tr2 - 4);
 }
 
 // TODO: Check that we do need the product of the square roots and
@@ -45,7 +39,7 @@ template<typename T>
 const T cosh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T td1 = w1.a - w1.d;
   T td2 = w2.a - w2.d;
-  return td1 * td2 + (w1.b * w2.c + w1.c * w2.b)*2;
+  return td1 * td2 + (w1.b * w2.c + w1.c * w2.b) * 2;
 }
 
 template<typename T>
@@ -316,6 +310,77 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
   std::pair<T,T> result(four_cosh_marg, exp_2_t);
 
   return result;
+}
+
+
+template<typename T>
+const T cosh_move_j(const SL2<T>& w) {
+    T q = abs_sqrd(w.c) + abs_sqrd(w.d);
+    T z = w.a * conj(w.c) + w.b * conj(w.d);
+    return (abs_sqrd(z) + (q - 1) * (q - 1))/(q * 2) + 1; 
+}
+
+// We compute |tr(w1)^2 - 4| + |tr(w1 w2 W1 W2) - 2|
+// with optimzation for x and y specifically
+template<typename T>
+const T jorgensen(const SL2<T>& w1, const SL2<T>& w2) {
+  SL2<T> W1 = inverse(w1); 
+  SL2<T> W2 = inverse(w2);
+  SL2<T> C = w1*w2*W1*W2;
+  T tr1 = w1.a + w1.d; 
+  T tr2 = C.a + C.d; 
+  return abs(tr1*tr1 - 4) + abs(tr2 - 2);
+}
+
+// Eliminate bad boxes that can't generate non-elementay groups
+template<typename T>
+const T jorgensen_xy(const Params<T>& p) {
+  T z = p.sinhLy2 * p.sinhperp; 
+  return (abs_sqrd(z) + 1) * abs_sqrd(p.sinhLx2) * 4;
+}
+
+// Eliminate bad boxes that can't generate non-elementay groups
+template<typename T>
+const T jorgensen_yx(const Params<T>& p) {
+  T z = p.sinhLx2 * p.sinhperp; 
+  return (abs_sqrd(z) + 1) * abs_sqrd(p.sinhLy2) * 4;
+}
+
+template<typename T>
+const T jorgensen_xw(const SL2<T>& w, const Params<T>& p) {
+  T shLx2 = p.sinhLx2;
+  T td = w.a - w.d;
+  T z = w.b * p.expdx - w.c * p.expmdx;
+  return (abs(td * td - z * z) + 4) * abs_sqrd(shLx2);
+}
+
+template<typename T>
+const T jorgensen_wx(const SL2<T>& w, const Params<T>& p) {
+  T shLx2 = p.sinhLx2;
+  T tr = w.a + w.d;
+  T td = w.a - w.d;
+  T z = w.b * p.expdx - w.c * p.expmdx;
+  return abs(tr * tr - 4) + abs(td * td - z * z) * abs_sqrd(shLx2);
+}
+
+template<typename T>
+const T jorgensen_yw(const SL2<T>& w, const Params<T>& p) {
+  T shLy2 = p.sinhLy2;
+  T td = w.a - w.d;
+  T z = w.c * (p.expdy * p.expif) - w.b * (p.expmdy * p.expmif);
+  return (abs(td * td - z * z) + 4) * abs_sqrd(shLy2);
+}
+
+template<typename T>
+const T jorgensen_wy(const SL2<T>& w, const Params<T>& p) {
+  T shLy2 = p.sinhLy2;
+  T tr = w.a + w.d;
+  T td = w.a - w.d;
+  T z = w.c * (p.expdy * p.expif) - w.b * (p.expmdy * p.expmif);
+  return abs(tr * tr - 4) + abs(td * td - z * z) * abs_sqrd(shLy2);
+}
+
+#endif // __IsomH3_h
 
 //  printf("###################################\n");
 //  print_type("4 cosh(margulis) :", four_cosh_marg);
@@ -336,7 +401,6 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
 //    result.second = absLB(exp_2_t);
 //  }
 //  return result;
-} 
 
 /*
 #define MAX_LOOPS 10000
@@ -394,67 +458,3 @@ const float_pair four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upp
 }
 */
 
-
-template<typename T>
-const T cosh_move_j(const SL2<T>& w) {
-    T q = abs_sqrd(w.c) + abs_sqrd(w.d);
-    T z = w.a * conj(w.c) + w.b * conj(w.d);
-    return (abs_sqrd(z) + (q-1)*(q-1))/(q*2) + 1; 
-}
-
-// We only care about upper bounds on the Jorgenesen inequality. That is,
-// If over a box |tr(w1)^2 - 4| + |tr(w1 w2 W1 W2) - 2| < 1, then one of the
-// words must be the identity or the box contains no discrete subgroups
-template<typename T>
-const double jorgensen_UB(const SL2<T>& w1, const SL2<T>& w2) {
-  SL2<T> W1 = inverse(w1); 
-  SL2<T> W2 = inverse(w2);
-  SL2<T> C = w1*w2*W1*W2;
-  T tr1 = w1.a + w1.d; 
-  T tr2 = C.a + C.d; 
-  return (1+EPS)*(absUB(tr1*tr1 - 4) + absUB(tr2 - 2));
-}
-
-template<typename T>
-const double jorgensen_xw_UB(const SL2<T>& w, const Params<T>& params) {
-  T shLx2 = params.sinhLx2;
-  T sh2bc = shLx2 * shLx2 * w.b * w.c; 
-  return 4*((1+EPS)*(absUB(shLx2*shLx2) + absUB(sh2bc)));
-}
-
-template<typename T>
-const double jorgensen_wx_UB(const SL2<T>& w, const Params<T>& params) {
-  T shLx2 = params.sinhLx2;
-  T sh2bc = shLx2 * shLx2 * w.b * w.c; 
-  T tr = w.a + w.d;
-  return (1+EPS)*(absUB(tr*tr - 4) + 4*absUB(sh2bc));
-}
-
-template<typename T>
-const double jorgensen_yw_UB(const SL2<T>& w, const Params<T>& params) {
-  // Note: this seems too complecated #FIXME
-  T shLy2 = params.sinhLy2;
-  return 10000;
-//  T sinhP = params.sinhP;
-//  T coshP = params.coshP;
-//  T z = w.a * w.d;
-//  T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
-//  T g = z*4 + f*sinhP*sinhP + (w.d - w.a)*(w.b - w.c)*sinhP*coshP*2 - 4;
-//  return (1+EPS)*(4*absUB(shLy2*shLy2) + absUB(shLy2*shLy2*g));
-}
-
-template<typename T>
-const double jorgensen_wy_UB(const SL2<T>& w, const Params<T>& params) {
-  // Note: this seems too complecated #FIXME
-  T shD2 = params.sinhLy2;
-  return 10000;
-//  T sinhP = params.sinhP;
-//  T coshP = params.coshP;
-//  T z = w.a * w.d;
-//  T f = z*4 - w.a*w.a - w.b*w.b - w.c*w.c - w.d*w.d - 2;
-//  T g = z*4 + f*sinhP*sinhP + (w.d - w.a)*(w.b - w.c)*sinhP*coshP*2 - 4;
-//  T tr = w.a + w.d;
-//  return (1+EPS)*(absUB(tr*tr - 4) + absUB(shD2*shD2*g));
-}
-
-#endif // __IsomH3_h
