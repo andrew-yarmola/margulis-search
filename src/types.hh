@@ -120,6 +120,8 @@ template<typename T> struct Params {
   T expmdy; // derived parameter
   T expif; // derived parameter
   T expmif; // derived parameter
+  T expdyf; // derived parameter
+  T expmdyf; // derived parameter
 };
 
 template<typename T>
@@ -167,6 +169,9 @@ void fill_derived(Params<T>& p) {
 
   p.expif = p.cosf + i * p.sinf;
   p.expmif = p.cosf - i * p.sinf;
+
+  p.expdyf = p.expdy * p.expif;
+  p.expmdyf = p.expmdy * p.expmif;
 }
 
 template<typename T>

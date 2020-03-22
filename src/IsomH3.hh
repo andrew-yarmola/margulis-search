@@ -350,7 +350,7 @@ template<typename T>
 const T jorgensen_xw(const SL2<T>& w, const Params<T>& p) {
   T shLx2 = p.sinhLx2;
   T td = w.a - w.d;
-  T z = w.b * p.expdx - w.c * p.expmdx;
+  T z = w.c * p.expmdx - w.b * p.expdx;
   return (abs(td * td - z * z) + 4) * abs_sqrd(shLx2);
 }
 
@@ -359,7 +359,7 @@ const T jorgensen_wx(const SL2<T>& w, const Params<T>& p) {
   T shLx2 = p.sinhLx2;
   T tr = w.a + w.d;
   T td = w.a - w.d;
-  T z = w.b * p.expdx - w.c * p.expmdx;
+  T z = w.c * p.expmdx - w.b * p.expdx;
   return abs(tr * tr - 4) + abs(td * td - z * z) * abs_sqrd(shLx2);
 }
 
@@ -367,7 +367,7 @@ template<typename T>
 const T jorgensen_yw(const SL2<T>& w, const Params<T>& p) {
   T shLy2 = p.sinhLy2;
   T td = w.a - w.d;
-  T z = w.c * (p.expdy * p.expif) - w.b * (p.expmdy * p.expmif);
+  T z = w.c * p.expdyf - w.b * p.expmdyf;
   return (abs(td * td - z * z) + 4) * abs_sqrd(shLy2);
 }
 
@@ -376,8 +376,44 @@ const T jorgensen_wy(const SL2<T>& w, const Params<T>& p) {
   T shLy2 = p.sinhLy2;
   T tr = w.a + w.d;
   T td = w.a - w.d;
-  T z = w.c * (p.expdy * p.expif) - w.b * (p.expmdy * p.expmif);
+  T z = w.c * p.expdyf - w.b * p.expmdyf;
   return abs(tr * tr - 4) + abs(td * td - z * z) * abs_sqrd(shLy2);
+}
+
+// Distance between axis(x) and w(axis(x)) 
+template<typename T>
+const T four_cosh_dist_ax_wax(const SL2<T>& w, const Params<T>& p) {
+  T td = w.a - w.d;
+  T zm = w.c * p.expmdx - w.b * p.expdx;
+  // formula by using crossratios
+  T four_sinh_sq_perp2 = td * td - zm * zm;  
+  return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
+}
+
+// Distance between axis(y) and w(axis(y)) 
+template<typename T>
+const T four_cosh_dist_ay_way(const SL2<T>& w, const Params<T>& p) {
+  T td = w.a - w.d;
+  T zm = w.c * p.expdyf - w.b * p.expmdyf;
+  // formula by using crossratios
+  T four_sinh_sq_perp2 = td * td - zm * zm;  
+  return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
+}
+
+// Distance between axis(x) and w(axis(y)) 
+template<typename T>
+const T four_cosh_dist_ax_way(const SL2<T>& w, const Params<T>& p) {
+  T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
+        ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
+  return  abs(z - 2) + abs(z + 2);
+}
+
+// Distance between axis(y) and w(axis(x)) 
+template<typename T>
+const T four_cosh_dist_ay_wax(const SL2<T>& w, const Params<T>& p) {
+  T z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx) * p.expmdyf +
+        ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
+  return  abs(z - 2) + abs(z + 2);
 }
 
 #endif // __IsomH3_h

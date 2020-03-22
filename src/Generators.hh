@@ -14,8 +14,8 @@ SL2<T> construct_x(const Params<T>& params) {
 
 template<typename T>
 SL2<T> construct_y(const Params<T>& params) {
-	return SL2<T>(params.coshLy2, (params.expdy * params.expif) * params.sinhLy2,
-               (params.expmdy * params.expmif) * params.sinhLy2, params.coshLy2);
+	return SL2<T>(params.coshLy2, params.expdyf * params.sinhLy2,
+                params.expmdyf * params.sinhLy2, params.coshLy2);
 };
 
 template<typename T>

@@ -13,7 +13,8 @@
 
 #define ERR 0.000001
 #define CERR 0.00001
-#define DERR 0.00015
+#define DERR 0.00003
+#define FERR 0.00015
 #define AJERR 0.000835
 
 using namespace std;
@@ -69,7 +70,8 @@ int main(int argc,char**argv)
           */
 
           // printf("%s\n", name.c_str());
-          // Center testing
+
+          // ***** Center testing *****
           assert(absUB(center.sinhdx - sinhdx) < ERR);
           assert(absUB(center.sinhdy - sinhdy) < ERR);
           assert(absUB(center.coshmu - coshmu) < ERR);
@@ -115,7 +117,48 @@ int main(int argc,char**argv)
           assert(absLB(j_xy_center) >= 1.0); 
           assert(absLB(j_yx_center) >= 1.0); 
 
-          // Cover testing
+          // Test moving axes
+          SL2<Complex> I_center;
+          Complex no_move_center_ax_v1 = four_cosh_dist_ax_wax(I_center, center);
+          Complex no_move_center_ay_v1 = four_cosh_dist_ay_way(I_center, center);
+          Complex no_move_center_ax_v2 = four_cosh_dist_ax_wax(x_center, center);
+          Complex no_move_center_ay_v2 = four_cosh_dist_ay_way(y_center, center);
+          Complex ax_ay_dist_center_v1 = four_cosh_dist_ax_way(I_center, center);
+          Complex ax_ay_dist_center_v2 = four_cosh_dist_ay_wax(I_center, center);
+          Complex ax_ay_dist_center_v3 = four_cosh_dist_ay_wax(x_center, center);
+          Complex ax_ay_dist_center_v4 = four_cosh_dist_ax_way(y_center, center);
+          Complex ax_xay_dist_center = four_cosh_dist_ax_way(x_center, center);
+          Complex ay_yax_dist_center = four_cosh_dist_ay_wax(y_center, center);
+          Complex ax_yax_dist_center = four_cosh_dist_ax_wax(y_center, center);
+          Complex ay_xay_dist_center = four_cosh_dist_ay_way(x_center, center);
+
+          assert(absUB(no_move_center_ax_v1 - 4) < ERR);
+          assert(absUB(no_move_center_ay_v1 - 4) < ERR);
+          assert(absUB(no_move_center_ax_v2 - 4) < ERR);
+          assert(absUB(no_move_center_ay_v2 - 4) < ERR);
+          assert(absUB(ax_ay_dist_center_v1 - center.coshdxdy * 4) < ERR);
+          assert(absUB(ax_ay_dist_center_v2 - center.coshdxdy * 4) < ERR);
+          assert(absUB(ax_ay_dist_center_v3 - center.coshdxdy * 4) < ERR);
+          assert(absUB(ax_ay_dist_center_v4 - center.coshdxdy * 4) < ERR);
+
+          // print_type("ax_xay_dist_center", ax_xay_dist_center);
+          // print_type("center.coshdxdy * 4", center.coshdxdy * 4);
+          // print_type("diff", ax_xay_dist_center - center.coshdxdy * 4);
+          assert(absUB(ax_xay_dist_center - center.coshdxdy * 4) < ERR);
+          // print_type("ay_yax_dist_center", ay_yax_dist_center);
+          // print_type("center.coshdxdy * 4", center.coshdxdy * 4);
+          // print_type("diff", ay_yax_dist_center - center.coshdxdy * 4);
+          assert(absUB(ay_yax_dist_center - center.coshdxdy * 4) < ERR);
+          // print_type("ax_yax_dist_center", ax_yax_dist_center);
+          // print_type("center.cosh2dx * 4", center.cosh2dx * 4);
+          // print_type("diff", ax_yax_dist_center - center.cosh2dx * 4);
+          assert(absLB(ax_yax_dist_center - center.cosh2dx * 4) > ERR);
+          // print_type("ay_xay_dist_center", ay_xay_dist_center);
+          // print_type("center.cosh2dy * 4", center.cosh2dy * 4);
+          // print_type("diff", ay_xay_dist_center - center.cosh2dy * 4);
+          assert(absLB(ay_xay_dist_center - center.cosh2dy * 4) > ERR);
+
+          // ***** Cover testing *****
           assert(absUB(cover.sinhdx - sinhdx) < ERR);
           assert(absUB(cover.sinhdy - sinhdy) < ERR);
           assert(absUB(cover.coshmu - coshmu) < ERR);
@@ -155,15 +198,67 @@ int main(int argc,char**argv)
           // print_type("j_ww_xy_cover:", j_ww_yx_cover);
           // print_type("j_xy_cover:", j_yx_cover);
           // print_type("diffr:", j_ww_yx_cover - j_yx_cover);
-          assert(absUB(j_ww_xy_cover - j_xy_cover) < DERR); 
-          assert(absUB(j_xw_xy_cover - j_xy_cover) < DERR); 
-          assert(absUB(j_wy_xy_cover - j_xy_cover) < DERR); 
-          assert(absUB(j_ww_yx_cover - j_yx_cover) < DERR); 
-          assert(absUB(j_wx_yx_cover - j_yx_cover) < DERR); 
-          assert(absUB(j_yw_yx_cover - j_yx_cover) < DERR); 
+          assert(absUB(j_ww_xy_cover - j_xy_cover) < FERR); 
+          assert(absUB(j_xw_xy_cover - j_xy_cover) < FERR); 
+          assert(absUB(j_wy_xy_cover - j_xy_cover) < FERR); 
+          assert(absUB(j_ww_yx_cover - j_yx_cover) < FERR); 
+          assert(absUB(j_wx_yx_cover - j_yx_cover) < FERR); 
+          assert(absUB(j_yw_yx_cover - j_yx_cover) < FERR); 
           assert(absLB(j_xy_cover) >= 1.0); 
           assert(absLB(j_yx_cover) >= 1.0); 
   
+          // Test moving axes
+          SL2<AJ> I_cover;
+          AJ no_move_cover_ax_v1 = four_cosh_dist_ax_wax(I_cover, cover);
+          AJ no_move_cover_ay_v1 = four_cosh_dist_ay_way(I_cover, cover);
+          AJ no_move_cover_ax_v2 = four_cosh_dist_ax_wax(x_cover, cover);
+          AJ no_move_cover_ay_v2 = four_cosh_dist_ay_way(y_cover, cover);
+          AJ ax_ay_dist_cover_v1 = four_cosh_dist_ax_way(I_cover, cover);
+          AJ ax_ay_dist_cover_v2 = four_cosh_dist_ay_wax(I_cover, cover);
+          AJ ax_ay_dist_cover_v3 = four_cosh_dist_ay_wax(x_cover, cover);
+          AJ ax_ay_dist_cover_v4 = four_cosh_dist_ax_way(y_cover, cover);
+          AJ ax_xay_dist_cover = four_cosh_dist_ax_way(x_cover, cover);
+          AJ ay_yax_dist_cover = four_cosh_dist_ay_wax(y_cover, cover);
+          AJ ax_yax_dist_cover = four_cosh_dist_ax_wax(y_cover, cover);
+          AJ ay_xay_dist_cover = four_cosh_dist_ay_way(x_cover, cover);
+
+          assert(absUB(no_move_cover_ax_v1 - 4) < ERR);
+          assert(absUB(no_move_cover_ay_v1 - 4) < ERR);
+          assert(absUB(no_move_cover_ax_v2 - 4) < ERR);
+          assert(absUB(no_move_cover_ay_v2 - 4) < ERR);
+          // print_type("ax_ay_dist_cover_v1", ax_ay_dist_cover_v1);
+          // print_type("cover.coshdxdy * 4", cover.coshdxdy * 4);
+          // print_type("diff", ax_ay_dist_cover_v1 - cover.coshdxdy * 4);
+          assert(absUB(ax_ay_dist_cover_v1 - cover.coshdxdy * 4) < DERR);
+          // print_type("ax_ay_dist_cover_v2", ax_ay_dist_cover_v2);
+          // print_type("cover.coshdxdy * 4", cover.coshdxdy * 4);
+          // print_type("diff", ax_ay_dist_cover_v2 - cover.coshdxdy * 4);
+          assert(absUB(ax_ay_dist_cover_v2 - cover.coshdxdy * 4) < DERR);
+          // print_type("ax_ay_dist_cover_v3", ax_ay_dist_cover_v3);
+          // print_type("cover.coshdxdy * 4", cover.coshdxdy * 4);
+          // print_type("diff", ax_ay_dist_cover_v3 - cover.coshdxdy * 4);
+          assert(absUB(ax_ay_dist_cover_v3 - cover.coshdxdy * 4) < DERR);
+          // print_type("ax_ay_dist_cover_v4", ax_ay_dist_cover_v4);
+          // print_type("cover.coshdxdy * 4", cover.coshdxdy * 4);
+          // print_type("diff", ax_ay_dist_cover_v4 - cover.coshdxdy * 4);
+          assert(absUB(ax_ay_dist_cover_v4 - cover.coshdxdy * 4) < DERR);
+
+          // print_type("ax_xay_dist_cover", ax_xay_dist_cover);
+          // print_type("cover.coshdxdy * 4", cover.coshdxdy * 4);
+          // print_type("diff", ax_xay_dist_cover - cover.coshdxdy * 4);
+          assert(absUB(ax_xay_dist_cover - cover.coshdxdy * 4) < DERR);
+          // print_type("ay_yax_dist_cover", ay_yax_dist_cover);
+          // print_type("cover.coshdxdy * 4", cover.coshdxdy * 4);
+          // print_type("diff", ay_yax_dist_cover - cover.coshdxdy * 4);
+          assert(absUB(ay_yax_dist_cover - cover.coshdxdy * 4) < DERR);
+          // print_type("ax_yax_dist_cover", ax_yax_dist_cover);
+          // print_type("cover.cosh2dx * 4", cover.cosh2dx * 4);
+          // print_type("diff", ax_yax_dist_cover - cover.cosh2dx * 4);
+          assert(absLB(ax_yax_dist_cover - cover.cosh2dx * 4) > ERR);
+          // print_type("ay_xay_dist_cover", ay_xay_dist_cover);
+          // print_type("cover.cosh2dy * 4", cover.cosh2dy * 4);
+          // print_type("diff", ay_xay_dist_cover - cover.cosh2dy * 4);
+          assert(absLB(ay_xay_dist_cover - cover.cosh2dy * 4) > ERR);
         }
     }
 
