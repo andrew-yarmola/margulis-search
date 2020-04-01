@@ -258,14 +258,14 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
   versions.push_back(y1 + ((x1-y1)*(e_2_re_perp_n-y2_sqrd) - sh_2_re_perp_n*((x1-y1) -
               sqrt((x1-y1)*(x1-y1) + ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd))))/((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd));
 
-  std::sort(versions.begin(), versions.end(), comp_type<T>);
-
-  /*
+  /* 
   print_type("4cosh(margulis) v1:", versions[0]);
   print_type("4cosh(margulis) v2:", versions[1]);
   print_type("4cosh(margulis) v3:", versions[2]);
   print_type("4cosh(margulis) v4:", versions[3]);
   */
+
+  std::sort(versions.begin(), versions.end(), sort_comp<T>);
 
   T four_cosh_marg = versions[0];
 

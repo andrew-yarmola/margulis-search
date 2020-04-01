@@ -27,6 +27,9 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
     if (y_power(pair.first) > 0) {
       if (inside_var_nbd_x(w1, box.center())) return variety_center;
       if (tubes_intersect_x(w1, box.x_center(), box.y_center(), box.center())) return bad_tubes_center;
+    } else {
+
+
     }
     if (y_power(pair.second) > 0) {
       if (inside_var_nbd_x(w2, box.center())) return variety_center;

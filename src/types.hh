@@ -175,13 +175,16 @@ void fill_derived(Params<T>& p) {
 }
 
 template<typename T>
+double re_center(T& x); 
+
+template<typename T>
 void print_type(T& x); 
 
 template<typename T>
 void print_center(const T& x); 
 
 template<typename T>
-bool comp_type(T& a, T& b); 
+bool sort_comp(T& a, T& b); 
 
 template<typename T>
 void print_type(const char desc[], const T& x) {

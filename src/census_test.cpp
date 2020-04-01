@@ -50,8 +50,8 @@ int main(int argc,char**argv)
 
         Complex Lx = parse_complex(doc.GetCell<string>("x", i)); 
         Complex Ly = parse_complex(doc.GetCell<string>("y", i)); 
-        Lx = shift_imag_around_zero(Lx);
-        Ly = shift_imag_around_zero(Ly);
+        // Lx = shift_imag_around_zero(Lx);
+        // Ly = shift_imag_around_zero(Ly);
 
         vector<string> box_codes;
         split_string(codes, "\"[',] ", box_codes);
@@ -60,13 +60,20 @@ int main(int argc,char**argv)
           Box box = get_box(box_code);
           Params<Complex> center = box.center();
           Params<AJ> cover = box.cover();
-          /* printf("%s %f %f %f %f %f %f %s\n", name.c_str(), sinhdx, sinhdy, coshmu, cosf, sintx2, sinty2, box_code.c_str());
+          /*
+          printf("%s %f %f %f %f %f %f %s\n", name.c_str(), sinhdx, sinhdy, coshmu, cosf, sintx2, sinty2, box_code.c_str());
           printf("Box: %s", box.desc().c_str());
           printf("Manifold %s\n", name.c_str());
           printf("Lx: %f + i %f\n", Lx.real(), Lx.imag());
           Complex sinhLx2 = sinh(Lx/2);
+          Complex coshLx2 = cosh(Lx/2);
           printf("sinhLx2: %f + i %f\n", sinhLx2.real(), sinhLx2.imag());
+          printf("coshLx2: %f + i %f\n", coshLx2.real(), coshLx2.imag());
+          printf("center coshlx: %f + i %f\n", center.coshlx.real(), center.coshlx.imag());
+          printf("center sinhlx2: %f + i %f\n", center.sinhlx2.real(), center.sinhlx2.imag());
+          printf("center coshlx2: %f + i %f\n", center.coshlx2.real(), center.coshlx2.imag());
           printf("center sinhLx2: %f + i %f\n", center.sinhLx2.real(), center.sinhLx2.imag());
+          printf("center coshLx2: %f + i %f\n", center.coshLx2.real(), center.coshLx2.imag());
           */
 
           // printf("%s\n", name.c_str());
@@ -90,11 +97,11 @@ int main(int argc,char**argv)
           assert(absUB(center_pair.second - center.expdx * center.expdx) < CERR);
 
           // Test construct math
-          SL2<Complex> x_center = box.x_center();          
-          SL2<Complex> y_center = box.y_center();          
-          SL2<Complex> xy_center = construct_word("xy", center); 
-          SL2<Complex> xyx_center = construct_word("xyx", center); 
-          SL2<Complex> yxxYXy_center = construct_word("yxxYXy", center); 
+          const SL2<Complex> x_center = box.x_center();          
+          const SL2<Complex> y_center = box.y_center();          
+          const SL2<Complex> xy_center = construct_word("xy", center); 
+          const SL2<Complex> xyx_center = construct_word("xyx", center); 
+          const SL2<Complex> yxxYXy_center = construct_word("yxxYXy", center); 
           assert(absUB(dist(xy_center, x_center * y_center)) < ERR);          
           assert(absUB(dist(xyx_center, x_center * y_center * x_center)) < ERR);          
           assert(absUB(dist(yxxYXy_center, y_center * x_center * x_center * inverse(y_center) * inverse(x_center) * y_center)) < ERR);          
@@ -118,7 +125,7 @@ int main(int argc,char**argv)
           assert(absLB(j_yx_center) >= 1.0); 
 
           // Test moving axes
-          SL2<Complex> I_center;
+          const SL2<Complex> I_center;
           Complex no_move_center_ax_v1 = four_cosh_dist_ax_wax(I_center, center);
           Complex no_move_center_ay_v1 = four_cosh_dist_ay_way(I_center, center);
           Complex no_move_center_ax_v2 = four_cosh_dist_ax_wax(x_center, center);
@@ -158,6 +165,32 @@ int main(int argc,char**argv)
           // print_type("diff", ay_xay_dist_center - center.cosh2dy * 4);
           assert(absLB(ay_xay_dist_center - center.cosh2dy * 4) > ERR);
 
+          // TestCollection boolean verification
+          const SL2<Complex> xxXYy_center = construct_word("xxXYy", center); 
+          const SL2<Complex> yxXYy_center = construct_word("yxXYy", center); 
+          assert(inside_var_nbd(x_center * inverse(x_center), x_center) == true);
+          assert(inside_var_nbd(y_center * inverse(y_center), y_center) == true);
+          assert(inside_var_nbd(x_center, y_center) == false);
+          assert(inside_var_nbd(x_center, yxxYXy_center) == false);
+          assert(inside_var_nbd_ne(x_center, y_center) == false);
+          assert(inside_var_nbd_ne(x_center, yxxYXy_center) == false);
+          assert(cant_fix_x_axis(x_center, center) == false);
+          assert(cant_fix_x_axis(y_center, center) == true );
+          assert(cant_fix_y_axis(y_center, center) == false);
+          assert(cant_fix_y_axis(x_center, center) == true );
+          assert(must_fix_x_axis(x_center, center) == true);
+          assert(must_fix_x_axis(y_center, center) == false );
+          assert(must_fix_y_axis(y_center, center) == true);
+          assert(must_fix_y_axis(x_center, center) == false);
+          assert(inside_var_nbd_x(x_center, center) == true);
+          assert(inside_var_nbd_x(y_center, center) == false);
+          assert(inside_var_nbd_x(xxXYy_center, center) == true);
+          assert(inside_var_nbd_x(yxXYy_center, center) == false);
+          assert(inside_var_nbd_y(y_center, center) == true);
+          assert(inside_var_nbd_y(x_center, center) == false);
+          assert(inside_var_nbd_y(yxXYy_center, center) == true);
+          assert(inside_var_nbd_y(xxXYy_center, center) == false);
+
           // ***** Cover testing *****
           assert(absUB(cover.sinhdx - sinhdx) < ERR);
           assert(absUB(cover.sinhdy - sinhdy) < ERR);
@@ -177,11 +210,11 @@ int main(int argc,char**argv)
           assert(absUB(cover_pair.second - cover.expdx * cover.expdx) < AJERR);
 
           // Test construct math
-          SL2<AJ> x_cover = box.x_cover();          
-          SL2<AJ> y_cover = box.y_cover();          
-          SL2<AJ> xy_cover = construct_word("xy", cover); 
-          SL2<AJ> xyx_cover = construct_word("xyx", cover); 
-          SL2<AJ> yxxYXy_cover = construct_word("yxxYXy", cover); 
+          const SL2<AJ> x_cover = box.x_cover();          
+          const SL2<AJ> y_cover = box.y_cover();          
+          const SL2<AJ> xy_cover = construct_word("xy", cover); 
+          const SL2<AJ> xyx_cover = construct_word("xyx", cover); 
+          const SL2<AJ> yxxYXy_cover = construct_word("yxxYXy", cover); 
           assert(absUB(dist(xy_cover, x_cover * y_cover)) < ERR);          
           assert(absUB(dist(xyx_cover, x_cover * y_cover * x_cover)) < ERR);          
           assert(absUB(dist(yxxYXy_cover, y_cover * x_cover * x_cover * inverse(y_cover) * inverse(x_cover) * y_cover)) < ERR);          
@@ -208,7 +241,7 @@ int main(int argc,char**argv)
           assert(absLB(j_yx_cover) >= 1.0); 
   
           // Test moving axes
-          SL2<AJ> I_cover;
+          const SL2<AJ> I_cover;
           AJ no_move_cover_ax_v1 = four_cosh_dist_ax_wax(I_cover, cover);
           AJ no_move_cover_ay_v1 = four_cosh_dist_ay_way(I_cover, cover);
           AJ no_move_cover_ax_v2 = four_cosh_dist_ax_wax(x_cover, cover);
@@ -259,6 +292,32 @@ int main(int argc,char**argv)
           // print_type("cover.cosh2dy * 4", cover.cosh2dy * 4);
           // print_type("diff", ay_xay_dist_cover - cover.cosh2dy * 4);
           assert(absLB(ay_xay_dist_cover - cover.cosh2dy * 4) > ERR);
+
+          // TestCollection boolean verification
+          const SL2<AJ> xxXYy_cover = construct_word("xxXYy", cover); 
+          const SL2<AJ> yxXYy_cover = construct_word("yxXYy", cover); 
+          assert(inside_var_nbd(x_cover * inverse(x_cover), x_cover) == true);
+          assert(inside_var_nbd(y_cover * inverse(y_cover), y_cover) == true);
+          assert(inside_var_nbd(x_cover, y_cover) == false);
+          assert(inside_var_nbd(x_cover, yxxYXy_cover) == false);
+          assert(inside_var_nbd_ne(x_cover, y_cover) == false);
+          assert(inside_var_nbd_ne(x_cover, yxxYXy_cover) == false);
+          assert(cant_fix_x_axis(x_cover, cover) == false);
+          assert(cant_fix_x_axis(y_cover, cover) == true );
+          assert(cant_fix_y_axis(y_cover, cover) == false);
+          assert(cant_fix_y_axis(x_cover, cover) == true );
+          assert(must_fix_x_axis(x_cover, cover) == true);
+          assert(must_fix_x_axis(y_cover, cover) == false );
+          assert(must_fix_y_axis(y_cover, cover) == true);
+          assert(must_fix_y_axis(x_cover, cover) == false);
+          assert(inside_var_nbd_x(x_cover, cover) == true);
+          assert(inside_var_nbd_x(y_cover, cover) == false);
+          assert(inside_var_nbd_x(xxXYy_cover, cover) == true);
+          assert(inside_var_nbd_x(yxXYy_cover, cover) == false);
+          assert(inside_var_nbd_y(y_cover, cover) == true);
+          assert(inside_var_nbd_y(x_cover, cover) == false);
+          assert(inside_var_nbd_y(yxXYy_cover, cover) == true);
+          assert(inside_var_nbd_y(xxXYy_cover, cover) == false);
         }
     }
 
@@ -270,44 +329,3 @@ int main(int argc,char**argv)
     printf("PASSED\n");
 
 }
-
-/*
-    char where[MAX_DEPTH];
-    size_t depth = 0;
-    while (argv[1][depth] != '\0') {
-        if (argv[1][depth] != '0' && argv[1][depth] != '1'){
-            fprintf(stderr,"bad position %s\n",argv[1]);
-            exit(2);
-        }
-        where[depth] = argv[1][depth];
-        depth++;
-    }
-    where[depth] = '\0';
-
-	Box box;
-	for (char* dir = (char *) &where; *dir; ++dir) {
-		if (*dir == '0') {
-			box = box.child(0);
-		} else if (*dir == '1') {
-			box = box.child(1);
-		}
-	}
-
-
-  SL2<AJ> x = box.x_cover(); 
-  SL2<AJ> y = box.y_cover();
-//  printf("x is :\n");
-//  print_SL2(x);
-//  printf("y is :\n");
-//  print_SL2(y);
-//  SL2<Complex> c_x = construct_x(box.center());
-//  SL2<Complex> c_y = construct_y(box.center());
-
-//  float_pair up_up = four_cosh_margulis(x,y,true,true);
-//  float_pair up_lb = four_cosh_margulis(x,y,true,false);
-//  float_pair lb_up = four_cosh_margulis(x,y,false,true);
-//  float_pair lb_lb = four_cosh_margulis(x,y,false,false);
-
-//  printf("4 cosh(margulis) between %f (%f) and %f (%f)\n", lb_lb.first, lb_up.first, up_up.first, up_lb.first);
-//  printf("exp(2t) between %f (%f) and %f (%f)\n", lb_lb.second, up_lb.second, up_up.second, lb_up.second);
-*/

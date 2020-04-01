@@ -17,6 +17,11 @@ abdUB: %f\n", x.f.re, x.f.im,
 }
 
 template<>
+double re_center<AJ>(AJ& z) {
+  return z.f.re; 
+}
+
+template<>
 void print_type<AJ>(AJ& x) {
   print_type((const AJ) x);
 }
@@ -26,19 +31,14 @@ void print_center<const AJ>(const AJ& x) {
 	printf("f: %f + %f I\nabsLB: %f, abdUB: %f\n", x.f.re, x.f.im, absLB(x), absUB(x));
 }
 
-//template<>
-//void print_center<AJ>(AJ& x) {
-//  print_center((const AJ) x);
-//}
-
 template<>
-bool comp_type<const AJ>(const AJ& a, const AJ& b) {
+bool sort_comp<const AJ>(const AJ& a, const AJ& b) {
   return a.e < b.e;
 }
 
 template<>
-bool comp_type<AJ>(AJ& a, AJ& b) {
-  return comp_type((const AJ) a, (const AJ) b);
+bool sort_comp<AJ>(AJ& a, AJ& b) {
+  return sort_comp((const AJ) a, (const AJ) b);
 }
 
 const AJ operator*(const AJ&x,const AJ&y) {

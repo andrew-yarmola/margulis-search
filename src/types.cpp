@@ -83,6 +83,11 @@ bool x_power_sort(string a, string b) { return x_power(a) < x_power(b); }
 bool y_power_sort(string a, string b) { return y_power(a) < y_power(b); }
 
 template<>
+double re_center<Complex>(Complex& x) {
+  return x.real();
+}
+
+template<>
 void print_type<const Complex>(const Complex& x) {
   printf("%f + %f I\n", x.real(), x.imag());
 }
@@ -98,11 +103,11 @@ void print_center<Complex>(const Complex& x) {
 }
 
 template<>
-bool comp_type<const Complex>(const Complex& a, const Complex& b) {
+bool sort_comp<const Complex>(const Complex& a, const Complex& b) {
   return absUB(a) < absUB(b);
 }
 
 template<>
-bool comp_type<Complex>(Complex& a, Complex& b) {
-  return comp_type((const Complex) a, (const Complex) b);
+bool sort_comp<Complex>(Complex& a, Complex& b) {
+  return sort_comp((const Complex) a, (const Complex) b);
 }
