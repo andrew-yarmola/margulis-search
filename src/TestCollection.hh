@@ -17,7 +17,7 @@ typedef enum _box_state
   killed_y_tube_dist = 7, // w(axis(y)) closer to axis(y) than 2dy but further than 0 (i.e. w not y^k)
   killed_x_tube_not_power = 8, // w(axis(x)) closer to axis(x) than 2dx and provably w not x^k // FIXME need to be non-cyclic
   killed_y_tube_not_power = 9, // w(axis(y)) closer to axis(y) than 2dy and provably w not y^k // FIXME need to be non-cyclic
-  killed_move = 10, // w(1j) moved less than marg
+  killed_move = 10, // w(1j) moved less than marg, note power not produces by word search
   killed_marg = 11, // w1 and w2 have (simple) margulis less than mu TODO should we do powers?
   variety_nbd_x = 12, // w and x fail Jorgensen 
   variety_nbd_y = 13, // w and y fail Jorgensen
@@ -159,20 +159,45 @@ inline bool margulis_smaller_than_xy(const SL2<T>& w1, const SL2<T>& w2, const P
 }
 
 template<typename T>
-inline bool non_cylic_power_x(const SL2<T>& w, const Params<T>& p) {
+inline bool non_cylic_power_x(const SL2<T>& w, const Box& b) {
   // Assume word fixes the same axis as x, so it must live in a cyclic group with x.
   // Here we check that this is impossible in this box. Must use margulis
   // number to check cut off for roots of x
-  // TODO
+  SL2<T> commutator;
+  if (std::is_same<T, Complex>::value) {
+    commutator = b.x_center() * w * inverse(w * b.x_center());
+  } else if (std::is_same<T, AJ>::value) {
+    commutator = b.x_cover() * w * inverse(w * b.x_cover());
+  } else {
+    fprintf(stderr, "Unknown type in non_cylic_power_x\n");
+    return false;
+  }
+  if (not_idenity(commutator)) {
+    return true;
+  }
+  // TODO Test powers when coshmu > coshsdx + sinhsdx
   return false; 
 }
 
 template<typename T>
-inline bool non_cylic_power_y(const SL2<T>& w, const Params<T>& p) {
+inline bool non_cylic_power_y(const SL2<T>& w, const Box& b) {
   // Assume word fixes the same axis as y, so it must live in a cyclic group with y.
   // Here we check that this is impossible in this box. Must use margulis
   // number to check cut off for roots of y
   // TODO
+  SL2<T> commutator;
+  if (std::is_same<T, Complex>::value) {
+    commutator = b.y_center() * w * inverse(w * b.y_center());
+  } else if (std::is_same<T, AJ>::value) {
+    commutator = b.y_cover() * w * inverse(w * b.y_cover());
+  } else {
+    fprintf(stderr, "Unknown type in non_cylic_power_x\n");
+    return false;
+  }
+  if (not_idenity(commutator)) {
+    return true;
+  }
+  // TODO Test powers when coshmu > coshsdx + sinhsdx
   return false; 
 }
 

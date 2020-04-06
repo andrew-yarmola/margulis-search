@@ -60,7 +60,7 @@ void CanonicalName::initImpl()
 		cache[implName] = impl;
 		impl->initSubstitutions();
 		for (vector<string>::iterator it = relators.begin(); it != relators.end(); ++it) {
-			impl->addRelatorInternal(*it);
+			impl->add_relator_internal(*it);
 		}
 	}
 }
@@ -74,7 +74,7 @@ void CanonicalName::initSubstitutions()
 	substitutions.push_back(Substitution("Yy", ""));
 }
 
-void CanonicalName::addSubstitution(string& a, string& b)
+void CanonicalName::add_substitution(string& a, string& b)
 {
 	//fprintf(stderr, "addSub(%s,%s)\n", a.c_str(), b.c_str());
 	string ac = reduce(a);
@@ -109,14 +109,14 @@ void CanonicalName::addSubstitution(string& a, string& b)
   return;
 }
 
-void CanonicalName::addRelator(string relator)
+void CanonicalName::add_relator(string relator)
 {
 	relators.push_back(relator);
 }
 
-void CanonicalName::addRelatorInternal(string relator)
+void CanonicalName::add_relator_internal(string relator)
 {
-	//fprintf(stderr, "addRelatorInternal(%s)\n", relator.c_str());
+	//fprintf(stderr, "add_relator_internal(%s)\n", relator.c_str());
 	string rr(relator + relator);
 	string::size_type l = relator.size();
 	string::size_type sl;
@@ -125,7 +125,7 @@ void CanonicalName::addRelatorInternal(string relator)
 		for (sl = 1; sl < l; ++sl) {
 			string a(rr.substr(pos, sl));
 			string b(inverse(rr.substr(pos+sl, l-sl)));
-			addSubstitution(a, b);
+			add_substitution(a, b);
 		}
 	}
 }
@@ -154,7 +154,7 @@ string CanonicalName::reduce(string s)
 	return s;
 }
 
-string CanonicalName::getCanonicalName(string s)
+string CanonicalName::get_canonical_name(string s)
 {
 	if (!impl) {
 		initImpl();

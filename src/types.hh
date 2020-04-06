@@ -92,6 +92,10 @@ template<typename T> struct Params {
   T cosf;
   T sintx2;
   T sinty2;
+  T sinhsdx; // derived parameter
+  T sinhsdy; // derived parameter
+  T coshsdx; // derived parameter
+  T coshsdy; // derived parameter
   T coshdx; // derived parameter
   T coshdy; // derived parameter
   T sinf; // derived parameter
@@ -129,11 +133,15 @@ void fill_derived(Params<T>& p) {
   T one = T(1);
   T i = eye(one); // HACK
 
-  p.coshdx = sqrt(p.sinhdx * p.sinhdx + one);  
-  p.coshdy = sqrt(p.sinhdy * p.sinhdy + one);  
+  p.sinhsdx = p.sinhdx * p.sinhdx;
+  p.sinhsdy = p.sinhdy * p.sinhdy;
+  p.coshsdx = p.sinhdx * p.sinhdx + one;
+  p.coshsdy = p.sinhdy * p.sinhdy + one;
+  p.coshdx = sqrt(p.coshsdx);  
+  p.coshdy = sqrt(p.coshsdy);
 
-  p.cosh2dx = (p.sinhdx * p.sinhdx) * 2 + one;
-  p.cosh2dy = (p.sinhdy * p.sinhdy) * 2 + one;
+  p.cosh2dx = p.sinhsdx * 2 + one;
+  p.cosh2dy = p.sinhsdy * 2 + one;
 
   p.coshdxdy = p.coshdx * p.coshdy + p.sinhdx * p.sinhdy;
   p.sinhdxdy = p.sinhdx * p.coshdy + p.coshdx * p.sinhdy;
@@ -147,8 +155,8 @@ void fill_derived(Params<T>& p) {
   p.costy = one - (p.sinty2 * p.sinty2) * 2;
 
   // main formula relating margulis, real length, twist, and distance to axis
-  p.coshlx = (p.coshmu + p.costx*(p.sinhdx * p.sinhdx))/(p.coshdx * p.coshdx);
-  p.coshly = (p.coshmu + p.costy*(p.sinhdy * p.sinhdy))/(p.coshdy * p.coshdy);
+  p.coshlx = (p.coshmu + p.costx * p.sinhsdx) / p.coshsdx;
+  p.coshly = (p.coshmu + p.costy * p.sinhsdy) / p.coshsdy;
 
   p.coshlx2 = sqrt((p.coshlx + one) / 2); 
   p.sinhlx2 = sqrt((p.coshlx - one) / 2);

@@ -312,7 +312,6 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
   return result;
 }
 
-
 template<typename T>
 const T cosh_move_j(const SL2<T>& w) {
     T q = abs_sqrd(w.c) + abs_sqrd(w.d);

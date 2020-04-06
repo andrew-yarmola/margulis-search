@@ -15,13 +15,13 @@ class CanonicalName {
 public:
 	CanonicalName();
 	std::string inverse(std::string name);
-	void addRelator(std::string relator);
-	std::string getCanonicalName(std::string name);
+	void add_relator(std::string relator);
+	std::string get_canonical_name(std::string name);
 	
 private:
-	void addSubstitution(std::string& a, std::string& b);
+	void add_substitution(std::string& a, std::string& b);
 	std::string reduce(std::string s);
-	void addRelatorInternal(std::string relator);
+	void add_relator_internal(std::string relator);
 	void initImpl();
 	void initSubstitutions();
 	struct Substitution {
