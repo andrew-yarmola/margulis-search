@@ -2,7 +2,8 @@
 #define __types_h
 #include <complex>
 #include <vector>
-#include <string>
+#include <string.h>
+#include <algorithm>
 
 typedef std::complex<double> Complex;
 typedef std::pair<double, double> float_pair;
@@ -193,7 +194,7 @@ template<typename T>
 void print_center(const T& x); 
 
 template<typename T>
-bool sort_comp(T& a, T& b); 
+bool sort_comp(const T& a, const T& b); 
 
 template<typename T>
 inline bool strictly_pos(const T& diff) {

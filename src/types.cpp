@@ -98,11 +98,7 @@ void print_center<Complex>(const Complex& x) {
 }
 
 template<>
-bool sort_comp<const Complex>(const Complex& a, const Complex& b) {
+bool sort_comp<Complex>(const Complex& a, const Complex& b) {
   return absUB(a) < absUB(b);
 }
 
-template<>
-bool sort_comp<Complex>(Complex& a, Complex& b) {
-  return sort_comp((const Complex) a, (const Complex) b);
-}

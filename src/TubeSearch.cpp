@@ -1,7 +1,6 @@
 #include <list>
 #include <map>
 #include <queue>
-#include <algorithm>
 #include "TubeSearch.hh"
 #include "CanonicalName.hh"
 #include "IsomH3.hh"

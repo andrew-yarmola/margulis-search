@@ -27,13 +27,8 @@ void print_center<const AJ>(const AJ& x) {
 }
 
 template<>
-bool sort_comp<const AJ>(const AJ& a, const AJ& b) {
+bool sort_comp<AJ>(const AJ& a, const AJ& b) {
   return a.e < b.e;
-}
-
-template<>
-bool sort_comp<AJ>(AJ& a, AJ& b) {
-  return sort_comp((const AJ) a, (const AJ) b);
 }
 
 const AJ operator*(const AJ&x,const AJ&y) {

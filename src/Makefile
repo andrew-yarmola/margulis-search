@@ -4,11 +4,11 @@ TESTOBJS= test.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalN
 CENSUSTESTOBJS= census_test.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o ImpossibleRelations.o QuasiRelators.o
 PLAYOBJS= playground.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
 TREECATOBJS= treecat.o
-CPLUSPLUS= clang++
-CC= clang++
+CPLUSPLUS= g++
+CC= g++
 
 #COPTS=-g3 -std=c++11 -stdlib=libc++
-COPTS=-O3 -std=c++14 -stdlib=libc++
+COPTS=-O3 -std=c++1y
 
 .cpp.o:
 	$(CPLUSPLUS) $(COPTS) $(CCFLAGS) -c ${@:o=cpp}
