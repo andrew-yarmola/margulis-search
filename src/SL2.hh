@@ -55,6 +55,11 @@ void print_SL2(const SL2<T>& x) {
   print_type("d =", x.d);
 }
 
+template<typename T>
+const SL2<T> operator-(const SL2<T> &x) {
+  return SL2<T>(-x.a, -x.b, -x.c, -x.d);
+}
+
 #endif
 
 /* Don't need and not in SL2 

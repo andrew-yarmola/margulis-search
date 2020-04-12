@@ -19,6 +19,10 @@
 
 using namespace std;
 
+double g_cosh_marg_upper_bound = 1.3175;
+double g_cosh_marg_lower_bound = 1.0052;
+double g_sinh_d_bound = 1.474; 
+
 const XComplex to_XComplex(const Complex& z) {
     return XComplex(z.real(), z.imag());
 }
@@ -107,12 +111,17 @@ int main(int argc,char**argv)
           assert(absUB(dist(yxxYXy_center, y_center * x_center * x_center * inverse(y_center) * inverse(x_center) * y_center)) < ERR);          
 
           // Test Jorgensen
+          SL2<Complex> c_id; 
           Complex j_ww_xy_center = jorgensen(x_center, y_center);
           Complex j_ww_yx_center = jorgensen(y_center, x_center);
           Complex j_xw_xy_center = jorgensen_xw(y_center, center);
           Complex j_wx_yx_center = jorgensen_wx(y_center, center);
+          Complex j_wx_ix_center = jorgensen_wx(c_id, center);
+          Complex j_wx_mix_center = jorgensen_wx(-c_id, center);
           Complex j_wy_xy_center = jorgensen_wy(x_center, center);
           Complex j_yw_yx_center = jorgensen_yw(x_center, center);
+          Complex j_wy_iy_center = jorgensen_wy(c_id, center);
+          Complex j_wy_miy_center = jorgensen_wy(-c_id, center);
           Complex j_xy_center = jorgensen_xy(center);
           Complex j_yx_center = jorgensen_yx(center);
           assert(absUB(j_ww_xy_center - j_xy_center) < ERR); 
@@ -123,6 +132,10 @@ int main(int argc,char**argv)
           assert(absUB(j_yw_yx_center - j_yx_center) < ERR); 
           assert(absLB(j_xy_center) >= 1.0); 
           assert(absLB(j_yx_center) >= 1.0); 
+          assert(absUB(j_wx_ix_center) < 1);
+          assert(absUB(j_wx_mix_center) < 1);
+          assert(absUB(j_wy_iy_center) < 1);
+          assert(absUB(j_wy_miy_center) < 1);
 
           // Test moving axes
           const SL2<Complex> I_center;
@@ -220,12 +233,17 @@ int main(int argc,char**argv)
           assert(absUB(dist(yxxYXy_cover, y_cover * x_cover * x_cover * inverse(y_cover) * inverse(x_cover) * y_cover)) < ERR);          
 
           // Test Jorgensen
+          SL2<AJ> aj_id; 
           AJ j_ww_xy_cover = jorgensen(x_cover, y_cover);
           AJ j_ww_yx_cover = jorgensen(y_cover, x_cover);
           AJ j_xw_xy_cover = jorgensen_xw(y_cover, cover);
           AJ j_wx_yx_cover = jorgensen_wx(y_cover, cover);
+          AJ j_wx_ix_cover = jorgensen_wx(aj_id, cover);
+          AJ j_wx_mix_cover = jorgensen_wx(-aj_id, cover);
           AJ j_wy_xy_cover = jorgensen_wy(x_cover, cover);
           AJ j_yw_yx_cover = jorgensen_yw(x_cover, cover);
+          AJ j_wy_iy_cover = jorgensen_wy(aj_id, cover);
+          AJ j_wy_miy_cover = jorgensen_wy(-aj_id, cover);
           AJ j_xy_cover = jorgensen_xy(cover);
           AJ j_yx_cover = jorgensen_yx(cover);
           // print_type("j_ww_xy_cover:", j_ww_yx_cover);
@@ -239,6 +257,10 @@ int main(int argc,char**argv)
           assert(absUB(j_yw_yx_cover - j_yx_cover) < FERR); 
           assert(absLB(j_xy_cover) >= 1.0); 
           assert(absLB(j_yx_cover) >= 1.0); 
+          assert(absUB(j_wx_ix_cover) < 1);
+          assert(absUB(j_wx_mix_cover) < 1);
+          assert(absUB(j_wy_iy_cover) < 1);
+          assert(absUB(j_wy_miy_cover) < 1);
   
           // Test moving axes
           const SL2<AJ> I_cover;
@@ -318,7 +340,20 @@ int main(int argc,char**argv)
           assert(inside_var_nbd_y(x_cover, cover) == false);
           assert(inside_var_nbd_y(yxXYy_cover, cover) == true);
           assert(inside_var_nbd_y(xxXYy_cover, cover) == false);
+
+          // TubeSearch Test
+//          if (i < 20 && i > 10) {
+            vector<string> empty;
+            vector<word_pair> found = find_pairs(center, empty, 1, 40, empty);
+            printf("Word pairs found at index %zu:\n", i);
+            for (auto pair : found) {
+              printf("    %s, %s\n", pair.first.c_str(), pair.second.c_str());
+            }
+//          }
         }
+//        if (i > 20) {
+//          break;
+//        }
     }
 
     if(!roundoff_ok()){

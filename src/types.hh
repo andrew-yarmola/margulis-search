@@ -182,8 +182,9 @@ void fill_derived(Params<T>& p) {
   p.expmdyf = p.expmdy * p.expmif;
 }
 
-template<typename T>
-double re_center(T& x); 
+inline double re_center(const Complex& x) {
+  return x.real();
+}
 
 template<typename T>
 void print_type(T& x); 
@@ -193,6 +194,11 @@ void print_center(const T& x);
 
 template<typename T>
 bool sort_comp(T& a, T& b); 
+
+template<typename T>
+inline bool strictly_pos(const T& diff) {
+  return absLB(diff) > 0 && re_center(diff) > 0;
+}
 
 template<typename T>
 void print_type(const char desc[], const T& x) {

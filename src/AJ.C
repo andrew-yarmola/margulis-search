@@ -17,11 +17,6 @@ abdUB: %f\n", x.f.re, x.f.im,
 }
 
 template<>
-double re_center<AJ>(AJ& z) {
-  return z.f.re; 
-}
-
-template<>
 void print_type<AJ>(AJ& x) {
   print_type((const AJ) x);
 }

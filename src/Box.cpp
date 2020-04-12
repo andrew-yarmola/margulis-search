@@ -19,9 +19,6 @@ Box::Box() {
 	pos = 0;
   compute_center_and_size();
 	compute_cover();
-//  compute_nearer();
-//	compute_further();
-//	compute_greater();
 }
 
 Box Box::child(int dir) const
@@ -39,9 +36,6 @@ Box Box::child(int dir) const
 
   child.compute_center_and_size();
 	child.compute_cover();
-//  child.compute_nearer();
-//	child.compute_further();
-//	child.compute_greater();
 	return child;
 }
 
@@ -85,10 +79,6 @@ std::string Box::desc() {
   Complex c_cosf   = _center.cosf;
   Complex c_sintx2 = _center.sintx2;
   Complex c_sinty2 = _center.sinty2; 
-//  Complex c_coshLx2 = _center.coshLx2;
-//  Complex c_sinhLx2 = _center.sinhLx2;
-//  Complex c_coshLy2 = _center.coshLy2;
-//  Complex c_sinhLy2 = _center.sinhLy2;
 
   char _desc[10000];
   sprintf(_desc, "%s\n", name.c_str());
@@ -212,113 +202,3 @@ void Box::compute_cover()
   _y_cover = construct_y(_cover); 
 }
 
-/*
-void Box::compute_nearer()
-{
-	double m[6];
-	for (int i = 0; i < 6; ++i) {
-        m[i] = 0; // inconclusive cases
-        if (center_digits[i] > 0 && // center is positive 
-            center_digits[i] > size_digits[i] &&  // true diff is positive
-            box_center[i]    > box_size[i]) { // machine diff is >= 0
-            // Want lower bound on true_center - true_size.  Assume no overflow or underflow 
-            // Note, sign(center_digits) == sign(box_center), unless box_center == 0. Also, box_size is always >= 0. 
-            // GMT paper page 419 of Annals gives with true arithmetic
-            //      box_center - box_size <= true_center - true_size
-            // Now, in machine arthimetric, by IEEE, if 
-            //      box_center > box_size then box_center (-) box_size >= 0.
-            // Lemma 7 gives,
-            //      (1-EPS)(*)( box_center (-) box_size ) <= box_center - box_size <= true_center - box_size. 
-            m[i] = (1-EPS)*(box_center[i] - box_size[i]);
-        } else if (center_digits[i] < 0 && // center is negative
-                   center_digits[i] < -size_digits[i] && // true sum is negative
-                   box_center[i]    < -box_size[i]) {  // machine sum is negative
-            // Want upper bound on true_center - true_size.  Assume no overflow or underflow
-            // Note, sign(center_digits) == sign(box_center), unless box_center == 0. Also, box_size is always >= 0. 
-            // GMT paper page 419 of Annals gives with true arithmetic
-            //      true_center + true_size <= box_center + box_size
-            // Now, in machine arthimetric, by IEEE, if 
-            //      -box_center > box_size then (-box_center) (-) box_size >= 0.
-            // Lemma 7 gives,
-            //      (1-EPS)(*)( (-box_center) (-) box_size ) <= -box_center - box_size <= -true_center - true_size.
-            // So,
-            //      -((1-EPS)(*)( (-box_center) (-) box_size )) >= true_center + true_size.
-            // Note, negation is exact for machine numbers
-            m[i] = -((1-EPS)*((-box_center[i]) - box_size[i]));
-        }
-	}
-	
-	_nearer.sinhP  = Complex(m[3], m[0]);
-	_nearer.sinhD2 = Complex(m[4], m[1]);
-	_nearer.sinhL2 = Complex(m[5], m[2]);
-}
-
-void Box::compute_further()
-{
-	double m[6];
-	for (int i = 0; i < 6; ++i) {
-        m[i] = 0; // inconclusive cases
-		if (center_digits[i] > -size_digits[i]) { // true sum is positive 
-            // Want upper bound of true_center + true_size. Assume no overflow or underflow
-            // Note, sign(center_digits) == sign(box_center), unless box_center == 0. Also, box_size is always >= 0. 
-            // GMT paper page 419 of Annals gives with true arithmetic
-            //      true_center + true_size <= box_center + box_size
-            // By IEEE (+) and (-) resepct <= and >=, so box_center (+) box_size >=0 and
-            // Lemma 7 for floating point arithmetic gives and upper bound
-            //      (1+EPS)(*)(box_center (+) box_size) >= box_center + box_size >= true_center + true_size
-		    m[i] = (1+EPS)*(box_center[i] + box_size[i]);
-        } else { // true sum is <= 0
-            // Want lower bound of true_center - true_size. Assume no overflow or underflow
-            // Note, sign(center_digits) == sign(box_center), unless box_center == 0 
-            // GMT paper page 419 of Annals gives with true arithmetic
-            //      box_center - box_size <= true_center - true_size
-            // By IEEE, (+) and (-) respects <= and >=, and negation is exact.
-            // Thus, (-box_center) (+) box_size >=0 and Lemma 7 for floating point arithmetic gives
-            //        (1+EPS)(*)( (-box_center) (+) box_size) ) >= (-box_center) + box_size
-            // So,
-            //      -((1+EPS)(*)( (-box_center) (+) box_size) ))<= box_center - box_size <= true_center - true_size
-            m[i] = -((1+EPS)*((-box_center[i]) + box_size[i]));
-        }
-	}
-	
-	_further.sinhP  = Complex(m[3], m[0]);
-	_further.sinhD2 = Complex(m[4], m[1]);
-	_further.sinhL2 = Complex(m[5], m[2]);
-}
-
-void Box::compute_greater()
-{
-	double m[6];
-	for (int i = 0; i < 6; ++i) {
-        m[i] = 0; // inconclusive cases
-		if (center_digits[i] > -size_digits[i]) { // true sum is positive
-            // Want upper bound of true_center + true_size. Assume no overflow or underflow
-            // Note, sign(center_digits) == sign(box_center), unless box_center == 0. Also, box_size is always >= 0. 
-            // GMT paper page 419 of Annals gives with true arithmetic
-            //      true_center + true_size <= box_center + box_size.
-            // Notice that box_center + box_size >= true_center + true_size > 0.
-            // By IEEE, box_center (+) box_size >=0, as it's guanrateed to evaluate to nearest representable.
-            // Lemma 7 for floating point arithmetic gives and upper bound
-            //      (1+EPS)(*)(box_center (+) box_size) >= box_center + box_size >= true_center + true_size
-		    m[i] = (1+EPS)*(box_center[i] + box_size[i]);
-        } else if (center_digits[i] < -size_digits[i] && // true sum is negative
-                   box_center[i]    < -box_size[i]) { // machine sum is <= 0
-            // Want upper bound of true_center + true_size. Assume no overflow or underflow
-            // Note, sign(center_digits) == sign(box_center), unless box_center == 0. Also, box_size is always >= 0. 
-            // GMT paper page 419 of Annals gives with true arithmetic
-            //      true_center + true_size <= box_center + box_size.
-            // Notice that box_center + box_size < 0.
-            // By IEEE, box_center (+) box_size <= 0, as it's guanrateed to evaluate to nearest representable.
-            // Lemma 7 for floating point arithmetic gives a bound
-            //      (1-EPS)(*)| box_center (+) box_size | < | box_center + box_size |
-            // So,
-            //      -((1-EPS)(*)(-(box_center (+) box_size))) >= box_center + box_size >= true_center + true_size
-            m[i] = -((1-EPS)*(-(box_center[i] + box_size[i])));
-        }
-	}
-	
-	_greater.sinhP  = Complex(m[3], m[0]);
-	_greater.sinhD2 = Complex(m[4], m[1]);
-	_greater.sinhL2 = Complex(m[5], m[2]);
-}
-*/

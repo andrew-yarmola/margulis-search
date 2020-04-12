@@ -1,3 +1,8 @@
+
+inline double re_center(const AJ& z) {
+  return z.f.re; 
+}
+
 inline const AJ operator-(const AJ&x) {
 
 	return AJ(-x.f,-x.z0,-x.z1,-x.z2,-x.w0,-x.w1,-x.w2,x.e);

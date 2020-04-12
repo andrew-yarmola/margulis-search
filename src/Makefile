@@ -1,6 +1,7 @@
-REFINEOBJS= Refine.o TubeSearch.o TestCollection.o Box.o ImpossibleRelations.o AJ.o SL2C.o SL2AJ.o Complex.o types.o roundoff.o CanonicalName.o QuasiRelators.o
+#REFINEOBJS= Refine.o TubeSearch.o TestCollection.o Box.o ImpossibleRelations.o AJ.o SL2C.o SL2AJ.o Complex.o types.o roundoff.o CanonicalName.o QuasiRelators.o
+REFINEOBJS= Refine.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o ImpossibleRelations.o QuasiRelators.o
 TESTOBJS= test.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
-CENSUSTESTOBJS= census_test.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
+CENSUSTESTOBJS= census_test.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o ImpossibleRelations.o QuasiRelators.o
 PLAYOBJS= playground.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
 TREECATOBJS= treecat.o
 CPLUSPLUS= clang++

@@ -410,7 +410,7 @@ const T four_cosh_dist_ax_way(const SL2<T>& w, const Params<T>& p) {
 // Distance between axis(y) and w(axis(x)) 
 template<typename T>
 const T four_cosh_dist_ay_wax(const SL2<T>& w, const Params<T>& p) {
-  T z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx) * p.expmdyf +
+  T z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
         ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
   return  abs(z - 2) + abs(z + 2);
 }

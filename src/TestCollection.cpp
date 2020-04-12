@@ -7,74 +7,156 @@
 using namespace std;
 // using namespace __gnu_cxx;
 
-extern double g_4_cosh_margulis_bound;
-extern double g_exp_half_margulis_bound; 
+extern double g_cosh_marg_upper_bound;
+extern double g_cosh_marg_lower_bound;
+extern double g_sinh_d_bound; 
 
 int num_bound_tests = 3;
 
 int TestCollection::size()
 {
-	return num_bound_tests + pairVector.size();
+	return num_bound_tests + pair_vector.size();
 }
 
 box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
 {
-    fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
-    // we can assume that words pairs use canonical names
-    SL2<Complex> w1 = construct_word(pair.first, box.center());
-    SL2<Complex> w2 = construct_word(pair.second, box.center());
-
-    if (y_power(pair.first) > 0) {
-      if (inside_var_nbd_x(w1, box.center())) return variety_center;
-      if (tubes_intersect_x(w1, box.x_center(), box.y_center(), box.center())) return bad_tubes_center;
-    } else {
-
-
+//  fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
+  // we can assume that words pairs use canonical names
+  Params<Complex> p = box.center();
+  if (pair.second.length() == 0) {
+    SL2<Complex> w = construct_word(pair.first, p);
+    if (move_less_than_marg(w, p)) {
+      return bad_move_center;
     }
-    if (y_power(pair.second) > 0) {
-      if (inside_var_nbd_x(w2, box.center())) return variety_center;
-      if (tubes_intersect_x(w2, box.x_center(), box.y_center(), box.center())) return bad_tubes_center;
+    if (moves_y_axis_too_close_to_x(w,p)) {
+      return y_hits_x_center;
     }
-    if (x_power(pair.first) > 0) {
-      if (inside_var_nbd_y(w2, box.center())) return variety_center;
-      if (tubes_intersect_y(w1, box.x_center(), box.y_center(), box.center())) return bad_tubes_center;
+    if (moves_x_axis_too_close_to_y(w,p)) {
+      return x_hits_y_center;
     }
-    if (x_power(pair.second) > 0) {
-      if (inside_var_nbd_y(w2, box.center())) return variety_center;
-      if (tubes_intersect_y(w2, box.x_center(), box.y_center(), box.center())) return bad_tubes_center;
+    if (inside_var_nbd_x(w, p)) {
+      if (cant_fix_x_axis(w,p)) {
+        return bad_x_tube_center;
+      } else if (non_cylic_power(w, box.x_center())) {
+        return bad_lox_x_center;
+      } else {
+        return var_x_center;
+      }
     }
-
-    if (margulis_smaller_than_xy(w1, w2, box.x_center(), box.y_center())) return bad_margulis_center;
-    return open;
+    if (inside_var_nbd_y(w, p)) {
+      if (cant_fix_y_axis(w,p)) {
+        return bad_y_tube_center;
+      } else if (non_cylic_power(w, box.y_center())) {
+        return bad_lox_y_center;
+      } else {
+        return var_y_center;
+      }
+    }
+//    if (must_fix_x_axis(w,p)) {
+//      if (cant_fix_x_axis(w,p)) {
+//        return bad_x_tube_center;
+//      } else if (non_cylic_power(w, box.x_center())) {
+//        return bad_lox_x_center;
+//      }
+//    }
+//    if (must_fix_y_axis(w,p)) {
+//      if (cant_fix_y_axis(w,p)) {
+//        return bad_y_tube_center;
+//      } else if (non_cylic_power(w, box.y_center())) {
+//        return bad_lox_y_center;
+//      }
+//    }
+  } else {
+    SL2<Complex> w1 = construct_word(pair.first, p);
+    SL2<Complex> w2 = construct_word(pair.second,p);
+    if (margulis_smaller_than_xy(w1, w2, p)) {
+      return bad_marg_center;
+    }
+    if (inside_var_nbd(w1, w2)) {
+      return variety_center;
+    }
+  }
+  return open;
 }
 
 box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& aux_word,
                                        vector<string>& new_qrs, unordered_map< string,SL2<AJ> >& words_cache)
 {
-    fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
+//    fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
     // we can assume that words pairs use canonical names
-    SL2<AJ> w1 = construct_word(pair.first, box.cover());
-    SL2<AJ> w2 = construct_word(pair.second, box.cover());
-
-    if (y_power(pair.first) > 0) {
-      if (inside_var_nbd_x(w1, box.cover())) return variety_nbd;
-      if (tubes_intersect_x(w1, box.x_cover(), box.y_cover(), box.cover())) return killed_bad_tubes;
+  Params<AJ> p = box.cover();
+  if (pair.second.length() == 0) {
+    SL2<AJ> w = construct_word(pair.first, p);
+    if (move_less_than_marg(w, p)) {
+      return killed_move;
     }
-    if (y_power(pair.second) > 0) {
-      if (inside_var_nbd_x(w2, box.cover())) return variety_nbd;
-      if (tubes_intersect_x(w2, box.x_cover(), box.y_cover(), box.cover())) return killed_bad_tubes;
+    if (moves_y_axis_too_close_to_x(w,p)) {
+      return killed_y_hits_x;
     }
-    if (x_power(pair.first) > 0) {
-      if (inside_var_nbd_y(w2, box.cover())) return variety_nbd;
-      if (tubes_intersect_y(w1, box.x_cover(), box.y_cover(), box.cover())) return killed_bad_tubes;
+    if (moves_x_axis_too_close_to_y(w,p)) {
+      return killed_x_hits_y;
     }
-    if (x_power(pair.second) > 0) {
-      if (inside_var_nbd_y(w2, box.cover())) return variety_nbd;
-      if (tubes_intersect_y(w2, box.x_cover(), box.y_cover(), box.cover())) return killed_bad_tubes;
+    if (inside_var_nbd_x(w, p)) {
+      if (cant_fix_x_axis(w,p)) {
+        return killed_x_tube;
+      } else if (non_cylic_power(w, box.x_cover())) {
+        return killed_lox_not_x_power;
+      } else {
+//        printf("x:\n");
+//        print_SL2(box.x_cover());
+//        printf("y:\n");
+//        print_SL2(box.y_cover());
+//        printf("w:\n");
+//        print_SL2(w);
+        return variety_nbd_x;
+      }
     }
-
-    if (margulis_smaller_than_xy(w1, w2, box.x_cover(), box.y_cover())) return killed_margulis;
-    return open;
+    if (inside_var_nbd_y(w, p)) {
+      if (cant_fix_y_axis(w,p)) {
+        return killed_y_tube;
+      } else if (non_cylic_power(w, box.y_cover())) {
+        return killed_lox_not_y_power;
+      } else {
+//        printf("y:\n");
+//        print_SL2(box.y_cover());
+//        printf("x:\n");
+//        print_SL2(box.x_cover());
+//        printf("w:\n");
+//        print_SL2(w);
+        return variety_nbd_y;
+      }
+    }
+//    if (must_fix_x_axis(w,p)) {
+//      if (cant_fix_x_axis(w,p)) {
+//        return killed_x_tube;
+//      } else if (non_cylic_power(w, box.x_cover())) {
+//        return killed_lox_not_x_power;
+//      } else {
+//        new_qrs.push_back(pair.first);
+//        return open_with_qr;
+//      }
+//    }
+//    if (must_fix_y_axis(w,p)) {
+//      if (cant_fix_y_axis(w,p)) {
+//        return killed_y_tube;
+//      } else if (non_cylic_power(w, box.y_cover())) {
+//        return killed_lox_not_y_power;
+//      } else {
+//        new_qrs.push_back(pair.first);
+//        return open_with_qr;
+//      }
+//    }
+  } else {
+    SL2<AJ> w1 = construct_word(pair.first, p);
+    SL2<AJ> w2 = construct_word(pair.second,p);
+    if (margulis_smaller_than_xy(w1, w2, p)) {
+      return killed_marg;
+    }
+    if (inside_var_nbd(w1, w2)) {
+      return variety_nbd;
+    }
+  }
+  return open;
 }
 
 box_state check_bounds_center(bool result) {
@@ -87,56 +169,63 @@ box_state check_bounds(bool result) {
     else return open;
 }
 
-box_state TestCollection::evaluateCenter(int index, Box& box)
+box_state TestCollection::evaluate_center(int index, Box& box)
 {
-  fprintf(stderr, "Evaluating center test index %d\n", index);
+//  fprintf(stderr, "Evaluating center test index %d\n", index);
 	Params<Complex> center = box.center();
 	switch(index) {
-		case 0:	{ // re_length of both geodesics is short enough
-      return check_bounds_center(g_exp_half_margulis_bound <= absLB(center.coshL2 + center.sinhL2));
+		case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
+      return check_bounds_center(absUB(center.coshmu) < g_cosh_marg_lower_bound ||
+                                 absLB(center.coshmu) > g_cosh_marg_upper_bound ||
+                                 strictly_pos(-center.coshmu));
     } 
-		case 1: {
-      return check_bounds_center(g_exp_half_margulis_bound <= absLB(center.coshD2 + center.sinhD2));
+		case 1: { //
+      return check_bounds_center(absLB(center.sinhdx) > g_sinh_d_bound || strictly_pos(-center.sinhdx) ||
+                                 absLB(center.sinhdy) > g_sinh_d_bound || strictly_pos(-center.sinhdy));
     }
-		case 2: {
-      return check_bounds_center(margulis_larger_than_cutoff(box.x_center(), box.y_center(), g_4_cosh_margulis_bound));
+		case 2: { // sin/cos bounds between -1 and 1
+      return check_bounds_center(absLB(center.cosf) > 1 || absLB(center.sintx2) > 1 || absLB(center.sinty2) > 1);
     }
 		default:
-			return evaluate_approx(pairVector[index - num_bound_tests], box);
+			return evaluate_approx(pair_vector[index - num_bound_tests], box);
 	}
 }
 
-box_state TestCollection::evaluateBox(int index, Box& box, string& aux_word, vector<string>& new_qrs, unordered_map< string,SL2<AJ> >& words_cache)
+box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, vector<string>& new_qrs, unordered_map< string,SL2<AJ> >& words_cache)
 {
-  fprintf(stderr, "Evaluating box test index %d\n", index);
+//  fprintf(stderr, "Evaluating box test index %d\n", index);
 	Params<AJ> cover = box.cover();
 	switch(index) {
-		case 0:	{ // re_length of both geodesics is short enough
-      return check_bounds(g_exp_half_margulis_bound <= absLB(cover.coshL2 + cover.sinhL2)); 
+		case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
+      return check_bounds(absUB(cover.coshmu) < g_cosh_marg_lower_bound ||
+                                 absLB(cover.coshmu) > g_cosh_marg_upper_bound ||
+                                 strictly_pos(-cover.coshmu));
     } 
-		case 1: {
-      return check_bounds(g_exp_half_margulis_bound <= absLB(cover.coshD2 + cover.sinhD2));
+		case 1: { //
+      return check_bounds(absLB(cover.sinhdx) > g_sinh_d_bound || strictly_pos(-cover.sinhdx) ||
+                                 absLB(cover.sinhdy) > g_sinh_d_bound || strictly_pos(-cover.sinhdy));
     }
-		case 2: {
-      return check_bounds(margulis_larger_than_cutoff(box.x_cover(), box.y_cover(), g_4_cosh_margulis_bound));
+		case 2: { // sin/cos bounds between -1 and 1
+      return check_bounds(absLB(cover.cosf) > 1 || absLB(cover.sintx2) > 1 || absLB(cover.sinty2) > 1);
     }
 		default:
-			return evaluate_AJ(pairVector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);
+			return evaluate_AJ(pair_vector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);
 	}
 }
 
 // Returns the index number for the first basic 2 tests
 // or the quasi-relator if the index is 2 or above
-const char* TestCollection::getName(int index)
+const string TestCollection::get_name(int index)
 {
 	static char buf[500];
 	if (index < num_bound_tests) {
-		sprintf(buf, "%d", index);
+    return to_string(index);
+		// sprintf(buf, "%d", index);
 	} else {
-    word_pair p = pairVector[index - num_bound_tests];
-		sprintf(buf, "(%s,%s)", p.first.c_str(), p.second.c_str());
+    word_pair p = pair_vector[index - num_bound_tests];
+    return "(" + p.first + "," + p.second + ")";
+//		sprintf(buf, "(%s,%s)", p.first.c_str(), p.second.c_str());
 	}
-  return buf;
 }
 
 int TestCollection::add(string buf)
@@ -145,6 +234,7 @@ int TestCollection::add(string buf)
   size_t comma = buf.find(',');   
   string first;
   string second;
+  fprintf(stderr, "Adding test: %s\n", buf.c_str());
   if (start != string::npos) {
     size_t end = comma;
     first = buf.substr(start + 1, end - start - 1);
@@ -161,13 +251,14 @@ int TestCollection::add(string buf)
   return add(p);
 }
 
-int TestCollection::add(const word_pair& p) { 
-  map< word_pair,int >::iterator it = pairIndex.find(p);
-  if (it == pairIndex.end()) {
-//  fprintf(stderr, "adding %lu=%s\n", pairVector.size(), word.c_str());
-    pairIndex[p] = pairVector.size();
-    pairVector.push_back(p);
-    return pairVector.size() + num_bound_tests - 1;
+int TestCollection::add(word_pair p) { 
+  map< word_pair,int >::iterator it = pair_index.find(p);
+  if (it == pair_index.end()) {
+//  fprintf(stderr, "adding %lu=%s\n", pair_vector.size(), word.c_str());
+    fprintf(stderr, "Adding test: (%s,%s)\n", p.first.c_str(), p.second.c_str());
+    pair_index[p] = pair_vector.size();
+    pair_vector.push_back(p);
+    return pair_vector.size() + num_bound_tests - 1;
   } else {
     return it->second + num_bound_tests;
   }
@@ -185,237 +276,8 @@ void TestCollection::load(const char* fileName)
 	}
 }
 
-void TestCollection::loadImpossibleRelations(const char* fileName)
+void TestCollection::load_impossible_relations(const char* file_name)
 {
-	impossible = ImpossibleRelations::create(fileName);
+	impossible = ImpossibleRelations::create(file_name);
 }
 
-//box_state TestCollection::evaluate_AJ(string word, Params<AJ>& params, string& aux_word, vector<string>& new_qrs,
-//                                       unordered_map<int,AJ>& para_cache, unordered_map<string,SL2AJ>& words_cache)
-//{
-//    box_state state = open;
-//    bool found_qrs = false;
-//    aux_word.assign(word);
-//    int g_len = g_length(word);
-//    double one = 1; // Exact
-//	  SL2AJ w = construct_word(word, params, para_cache, words_cache);
-//
-//    if (g_len <= g_max_g_len && inside_var_nbd(w)) return variety_nbd;
-//
-//	if (large_horoball(w,params)) {
-//
-//        if (not_para_fix_inf(w)) {
-//
-//			return killed_no_parabolics;
-//
-//		} else {
-//
-//			vector<string> mandatory;
-//			bool isImpossible = impossible->isAlwaysImpossible(word, mandatory);
-//
-//			if (isImpossible) return killed_parabolics_impossible;
-//            else if (mandatory.size() > 0) {
-//                for (vector<string>::iterator it = mandatory.begin(); it != mandatory.end(); ++it) {
-//                    SL2AJ w_sub = construct_word(*it, params, para_cache, words_cache);
-//                    if (not_para_fix_inf(w_sub)) {
-//                        aux_word.assign(*it);
-//                        return killed_elliptic;
-//                    }
-//                }
-//            }
-//   
-//            // Look for lattice points. We guess at the center
-//            // No reason to look for a unique lattice point if w.b has large size
-//            AJ L = params.lattice;
-//            if (absLB(L) > 2*w.b.size) {
-//                XComplex cL = L.f;
-//                XComplex cT = (absUB((w.d.f - one).z) < 2 || absUB((w.a.f - one).z) < 2) ? w.b.f : -w.b.f;
-//                // XComplex cT = (w.b.f/w.d.f).z;
-//                // We expect T to be near the lattice point M_pow + N_pow*L
-//                int N_pow = (int) floor(cT.im / cL.im);
-//                int M_pow = (int) floor((cT - (cL * N_pow).z).z.re);
-//                // We look over 16 nearby lattice points
-//                int s[4] = {0,-1,1,2};
-//                SL2AJ w_k;
-//                AJ T;
-//                pair<unordered_map<int,AJ>::iterator,bool> lookup_para;
-//                int N, M;
-//                for (int i = 0; i < 4; ++i) {
-//                    N = N_pow + s[i];
-//                    for (int j = 0; j < 4; ++j) {
-//                        state = open;
-//                        M = M_pow + s[j];
-//                        if (i == 0 && j == 0) {
-//                            w_k = w;
-//                        } else {
-//                            if (abs(M) > 1024 || abs(N) > 1024) { fprintf(stderr, "Error constructing word: huge translation\n"); }
-//                            lookup_para = para_cache.emplace(4096*M+N, AJ());
-//                            if (lookup_para.second) {
-//                                T = params.lattice*double(N) + double(M);
-//                                swap(lookup_para.first->second, T);
-//                            }
-//                            // Shift to "0"
-//                            w_k = SL2AJ(w.a - lookup_para.first->second * w.c, w.b - lookup_para.first->second * w.d, w.c, w.d); // Cheaper multiplying
-//                            // What if we now have a variety word?
-//                            if (g_len <= g_max_g_len && inside_var_nbd(w_k)) { // TODO: Test with constucted word!
-//                                state = variety_nbd;
-//                                break;
-//                            }
-//                            if (not_para_fix_inf(w_k)) {
-//                                state = killed_no_parabolics;
-//                                break;
-//                            }
-//                            if (absUB(w_k.b) < 1) {
-//                                isImpossible = impossible->isImpossible(word, M, N, mandatory);
-//                                if (isImpossible) {
-//                                    state = killed_identity_impossible;
-//                                    break;
-//                                }
-//                                // Mandaotry includes list of things that must be parabolic. If they are not parabolic
-//                                // anywhere in the box, we can kill the box
-//                                for (vector<string>::iterator it = mandatory.begin(); it != mandatory.end(); ++it) {
-//                                    SL2AJ w_sub = construct_word(*it, params, para_cache, words_cache);
-//                                    if (not_para_fix_inf(w_sub)) {
-//                                        aux_word.assign(*it);
-//                                        return killed_elliptic;
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        if (absUB(w_k.b) < 1 && absLB(w_k.b) > 0) {
-//    //                        string word_k = shifted_word(word, - M, - N);
-//    //                        fprintf(stderr, "Killed by Failed qr %s\n", word_k.c_str());
-//    //                        SL2AJ new_w_k = construct_word(word_k, params);
-//    //                        SL2AJ gah_k = constructT(params, - M, - N) * w;
-//    //                        fprintf(stderr," absLB(b) = %f\n absLB(c) = %f\n absLB(a-1) = %f\n absLB(d-1) = %f\n absLB(a+1) = %f\n absLB(d+1) = %f\n",
-//    //                                        absLB(w_k.b), absLB(w_k.c), absLB(w_k.a - 1.), absLB(w_k.d - 1.), absLB(w_k.a + 1.), absLB(w_k.d + 1.));
-//    //                        fprintf(stderr," absLB(b) = %f\n absLB(c) = %f\n absLB(a-1) = %f\n absLB(d-1) = %f\n absLB(a+1) = %f\n absLB(d+1) = %f\n",
-//    //                                        absLB(new_w_k.b), absLB(new_w_k.c), absLB(new_w_k.a - 1.), absLB(new_w_k.d - 1.), absLB(new_w_k.a + 1.), absLB(new_w_k.d + 1.));
-//    //                        fprintf(stderr," absLB(b) = %f\n absLB(c) = %f\n absLB(a-1) = %f\n absLB(d-1) = %f\n absLB(a+1) = %f\n absLB(d+1) = %f\n",
-//    //                                        absLB(gah_k.b), absLB(gah_k.c), absLB(gah_k.a - 1.), absLB(gah_k.d - 1.), absLB(gah_k.a + 1.), absLB(gah_k.d + 1.));
-//                            state = killed_failed_qr;
-//                            break;
-//                        }
-//                        if (only_bad_parabolics(w_k, params)) { // TODO: Test with constucted word!
-//                            // w_k is a bad parabolic
-//                            state = killed_bad_parabolic;
-//                            break;
-//                        }
-//                        if (absUB(w_k.b) < 1) {
-//                            // If nothing has worked, at least add w as a quasi relator
-//                            state = open_with_qr;
-//                            found_qrs = true;
-//                            new_qrs.push_back(shifted_word(word, - M, - N));
-//    //                        string word_k = shifted_word(word, - M, - N);
-//    //                        SL2AJ new_w_k = construct_word(word_k, params);
-//    //                        fprintf(stderr,"Horo Ratio for new QR is %f\n", absUB(w_k.c / params.loxodromic_sqrt));
-//    //                        fprintf(stderr,"Reconstucted horo ratio for QR is %f\n", absUB(new_w_k.c / params.loxodromic_sqrt));
-//                        }
-//                    }
-//                }
-//                if (state != open && state != open_with_qr) {
-//                    aux_word.assign(shifted_word(word, - M, - N));
-//                    return state;
-//                }
-//            }
-//        }
-//    }
-//    if (found_qrs) return open_with_qr; 
-//    return open;
-//}
-
-
-//int g_maxWordLength = 2;
-//void TestCollection::enumerate(const char* w)
-//{
-//	static vector<int> maxP;
-//	if (!*w && !maxP.empty())
-//		return;
-//	int pCount=0, lCount=0;
-//	while (*w) {
-//		if (*w == 'g' || *w == 'G')
-//			++lCount;
-//		else
-//			++pCount;
-//		++w;
-//	}
-//	if (lCount == 0) lCount = 1;
-//	if (lCount >= maxP.size()) {
-//		maxP.resize(lCount+1, -1);
-//	}
-//	if (pCount <= maxP[lCount]) {
-//		return;
-//	}
-//	
-//	if (lCount + pCount > g_maxWordLength)
-//		g_maxWordLength = lCount + pCount;
-//	
-//	maxP[lCount] = pCount;
-//	
-//	if (pCount > 2)
-//		pCount = 2;
-//	if (lCount > 2)
-//		lCount = 2;
-////	printf("ENUMERATING %d,%d\n", pCount, lCount);
-////	enumerateTails("", pCount, lCount);
-//}
-//
-//void TestCollection::enumerateTails(string s, int pCount, int lCount)
-//{
-//	if (pCount < -1 || lCount < -1 || (pCount == -1 && lCount == -1))
-//		return;
-//	const char* p = "Gg";
-//	if (s.size() > 0) {
-//		char last = s[s.size()-1];
-//		switch(last) {
-//			case 'G': p = "GMmNn"; break;
-//			case 'g': p = "gMmNn"; break;
-//			case 'M': p = "GgMNn"; break;
-//			case 'm': p = "GgmNn"; break;
-//			case 'N': p = "GgN"; break;
-//			case 'n': p = "Ggn"; break;
-//		}
-//	}
-//	for (; *p; ++p) {
-//		string n = s;
-//		n.append(1, *p);
-//		if (*p == 'g' || *p == 'G') {
-//			add(n);
-//			enumerateTails(n, pCount, lCount-1);
-//		} else {
-//			enumerateTails(n, pCount-1, lCount);
-//		}
-//	}
-//}
-//
-//string checkPower(string word, int x, int y)
-//{
-//	char buf[200];
-//	char *bp = buf;
-//	if (abs(x) > 10 || abs(y) > 10)
-//		return "";
-//	while (x > 0) { *bp++ = 'm'; --x; }
-//	while (x < 0) { *bp++ = 'M'; ++x; }
-//	while (y > 0) { *bp++ = 'n'; --y; }
-//	while (y < 0) { *bp++ = 'N'; ++y; }
-//	strcpy(bp, word.c_str());
-//	int l = strlen(buf);
-//	for (int n = 2; n+n <= l; ++n) {
-//		int k;
-//		for ( k = 1; k*n < l; ++k) ;
-//		if (k*n == l) {
-//			for (--k; k > 0; --k) {
-//				if (strncmp(buf, buf+k*n, n))
-//					break;
-//			}
-//			if (k == 0) {
-////				fprintf(stderr, "id %s x%d\n", buf, n);
-//				g_testCollectionFullWord = buf;
-//				buf[n] = '\0';
-//				return buf;
-//			}
-//		}
-//	}
-////	fprintf(stderr, "fullWord = %s\n", buf);
-//	return "";
-//}

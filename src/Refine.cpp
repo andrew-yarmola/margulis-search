@@ -19,14 +19,14 @@ struct Options {
   box_name(""), // Binary representation of box
   words_file("words"), // Previously generated words
   powers_file("null"), // Output from power parabolic.pl
-  max_depth(18), // Maximum depth for a file
+  max_depth(24), // Maximum depth for a file
   truncate_depth(6), 
   invent_depth(12),
   max_size(1000000),
   improve_tree(false),
   word_search_depth(-1),
   fill_holes(false),
-  max_word_length(20) {}
+  max_word_length(40) {}
   const char* box_name;
   const char* words_file;
   const char* powers_file;
@@ -46,18 +46,18 @@ typedef vector< vector< box_state > > TestHistory;
 static int g_boxesVisited = 0;
 
 struct PartialTree {
-  PartialTree() : lChild(NULL), rChild(NULL), testIndex(-1), testResult(open), aux_word(), qr_desc() {}
-  PartialTree *lChild;
-  PartialTree *rChild;
-  int testIndex;
-  box_state testResult;
+  PartialTree() : l_child(NULL), r_child(NULL), test_index(-1), test_result(open), aux_word(), qr_desc() {}
+  PartialTree *l_child;
+  PartialTree *r_child;
+  int test_index;
+  box_state test_result;
   string aux_word;
   string qr_desc;
 };
 
 // Consume tree from stdin. The tree must be
 // provided in pre-order depth-first traversal.
-PartialTree readTree()
+PartialTree read_tree()
 {
   PartialTree t;
   char buf[1000];
@@ -69,264 +69,296 @@ PartialTree readTree()
   if (buf[n-1] == '\n')
     buf[n-1] = '\0';
   if (buf[0] == 'X') {
-    t.lChild = new PartialTree(readTree());
-    t.rChild = new PartialTree(readTree());
+    t.l_child = new PartialTree(read_tree());
+    t.r_child = new PartialTree(read_tree());
   } else if (strstr(buf, "HOLE") != NULL) {
-    t.testIndex = -2;
+    t.test_index = -2;
   } else {
     if (isdigit(buf[0])) {
-      t.testIndex = atoi(buf);
+      t.test_index = atoi(buf);
     } else {
-      if (strchr("xXyY", buf[1]) != NULL) {
-        t.testIndex = g_tests.add(string(buf));
+      if (strchr("xXyY", buf[2]) != NULL) {
+        t.test_index = g_tests.add(string(buf));
       }
     }
   }
   return t;
 }
 
-void truncateTree(PartialTree& t)
+void truncate_tree(PartialTree& t)
 {
-  if (t.lChild) {
-    truncateTree(*t.lChild);
-    delete t.lChild;
-    t.lChild = 0;
+  if (t.l_child) {
+    truncate_tree(*t.l_child);
+    delete t.l_child;
+    t.l_child = 0;
   }
-  if (t.rChild) {
-    truncateTree(*t.rChild);
-    delete t.rChild;
-    t.rChild = 0;
+  if (t.r_child) {
+    truncate_tree(*t.r_child);
+    delete t.r_child;
+    t.r_child = 0;
   }
 }
 
-int treeSize(PartialTree& t) {
+int tree_size(PartialTree& t) {
   int size = 1;
-  if (t.lChild)
-    size += treeSize(*t.lChild);
-  if (t.rChild)
-    size += treeSize(*t.rChild);
+  if (t.l_child)
+    size += tree_size(*t.l_child);
+  if (t.r_child)
+    size += tree_size(*t.r_child);
   return size;
 }
 
-double g_cosh_margulis_bound = 1.32;
+double g_cosh_marg_upper_bound = 1.3175;
+double g_cosh_marg_lower_bound = 1.0052;
 double g_sinh_d_bound = 1.474; 
 
-unordered_map<string, SL2<ACJ> > short_words_cache;
+unordered_map<string, SL2<AJ> > short_words_cache;
 
-bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, vector< Box >& place, int newDepth, int& searchedDepth)
+bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, vector< Box >& place, int newDepth, int& searched_depth)
 {
   //fprintf(stderr, "rr: %s depth %d placeSize %lu\n", box.name.c_str(), depth, place.size());
   place.push_back(box);
-  int oldTestIndex = t.testIndex;
+  int old_test_index = t.test_index;
   vector<string> new_qrs;
   short_words_cache.clear();
 
   string aux_word;
-  if (t.testIndex >= 0) {
-    fprintf(stderr, "********************************* Validation *********************************\n");
-    fprintf(stderr, "%s", box.desc().c_str());
-    box_state result = g_tests.evaluateBox(t.testIndex, box, aux_word, new_qrs, short_words_cache);
+  if (t.test_index >= 0) {
+//    fprintf(stderr, "********************************* Validation *********************************\n");
+//    fprintf(stderr, "%s", box.desc().c_str());
+    box_state result = g_tests.evaluate_box(t.test_index, box, aux_word, new_qrs, short_words_cache);
     if (result != open && result != open_with_qr) {
       t.aux_word.assign(aux_word);
-      t.testResult = result;
-      fprintf(stderr, "Eliminated %s with test %s with result %d\n", box.name.c_str(), g_tests.getName(t.testIndex), result);
-      fprintf(stderr, "********************************* End Validation *********************************\n");
+      t.test_result = result;
+//      fprintf(stderr, "Eliminated %s with test %s with result %d\n", box.name.c_str(), g_tests.get_name(t.test_index), result);
+//      fprintf(stderr, "********************************* End Validation *********************************\n");
       return true;
     } else if (result == open_with_qr) {
-      fprintf(stderr,"Retested %d, new qrs len %lu\n", result, new_qrs.size());
+//      fprintf(stderr,"Retested %d, new qrs len %lu\n", result, new_qrs.size());
       for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {
-        fprintf(stderr, "New QR is %s\n", (*it).c_str());
-        box.qr.getName(*it); // Also adds qr to the box's list
+        fprintf(stderr, "new quasirelator %s\n", (*it).c_str());
+        box.qr.get_name(*it); // Also adds qr to the box's list
       }
       t.qr_desc = box.qr.min_pow_desc();
     } else { 
-      fprintf(stderr, "FAILED to eliminate %s with test %s with result %d\n", box.name.c_str(), g_tests.getName(t.testIndex), result);
+      fprintf(stderr, "FAILED to eliminate %s with test %s with result %d\n", box.name.c_str(), g_tests.get_name(t.test_index).c_str(), result);
     }
-    fprintf(stderr, "********************************* End Validation *********************************\n");
+//    fprintf(stderr, "********************************* End Validation *********************************\n");
   }
 
-  if (t.testIndex == -2 && !g_options.fill_holes) {
+  if (t.test_index == -2 && !g_options.fill_holes) {
     return true;
   }
 
   // Check if the box is now small enough that some former qrs actually kill it
-  Params<ACJ> cover = box.cover();
-  vector<string> quasiRelators = box.qr.wordClasses();
-  for (vector<string>::iterator it = quasiRelators.begin(); it != quasiRelators.end(); ++it) {
+  Params<AJ> p = box.cover();
+  vector<string> quasi_relators = box.qr.word_classes();
+  for (vector<string>::iterator it = quasi_relators.begin(); it != quasi_relators.end(); ++it) {
     // So not idenity and absUB(w.b) < 1
-    SL2<ACJ> w = construct_word(*it, cover, short_words_cache); 
-    if (not_identity(w)) {
-//    fprintf(stderr, "Failed qr %s at %s\n", (*it).c_str(), box.name.c_str());
-//    fprintf(stderr," absLB(b) = %f\n absLB(c) = %f\n absLB(a-1) = %f\n absLB(d-1) = %f\n absLB(a+1) = %f\n absLB(d+1) = %f\n",
-//                     absLB(w.b), absLB(w.c), absLB(w.a - 1.), absLB(w.d - 1.), absLB(w.a + 1.), absLB(w.d + 1.));
+    SL2<AJ> w = construct_word(*it, p, short_words_cache); 
+    if ((must_fix_x_axis(w,p) && (cant_fix_x_axis(w,p) || non_cylic_power(w, box.x_cover()))) ||
+        (must_fix_y_axis(w,p) && (cant_fix_y_axis(w,p) || non_cylic_power(w, box.y_cover()))))
+    {
+      fprintf(stderr, "killed by failed quasirelator %s at %s\n", (*it).c_str(), box.name.c_str());
       t.aux_word.assign(*it);
-      t.testResult = killed_failed_qr;
+      t.test_result = killed_failed_qr;
       return true;
     }
   }
 
-  if (g_options.improve_tree || !t.lChild) {
+  if (g_options.improve_tree || !t.l_child) {
     for (int i = 0; i < g_tests.size(); ++i) {
       vector<box_state>& th = history[i];
       while (th.size() <= depth && (th.size() < depth-6 || th.empty() || th.back() == open)) {
-        fprintf(stderr, "********************************* Center Test *********************************\n");
-        fprintf(stderr, "%s", box.desc().c_str());
-        box_state result = g_tests.evaluateCenter(i, place[th.size()]);
-        fprintf(stderr, "********************************* End Center Test *********************************\n");
+//        fprintf(stderr, "********************************* Center Test *********************************\n");
+//        fprintf(stderr, "%s", box.desc().c_str());
+        box_state result = g_tests.evaluate_center(i, place[th.size()]);
+//        fprintf(stderr, "********************************* End Center Test *********************************\n");
         th.push_back(result);
       }
       if (th.back() != open) {
         new_qrs.clear();
-        fprintf(stderr, "********************************* Evaluate *********************************\n");
-        fprintf(stderr, "%s", box.desc().c_str());
-        box_state result = g_tests.evaluateBox(i, box, aux_word, new_qrs, short_words_cache);
-        fprintf(stderr, "********************************* End Evaluate *********************************\n");
+//        fprintf(stderr, "********************************* Evaluate *********************************\n");
+//        fprintf(stderr, "%s", box.desc().c_str());
+        box_state result = g_tests.evaluate_box(i, box, aux_word, new_qrs, short_words_cache);
+//        fprintf(stderr, "********************************* End Evaluate *********************************\n");
 
         switch (result) {
-          case variety_nbd : 
-          case killed_bad_tubes :
-          case killed_margulis :
-          case killed_fake_elliptic :
-          case killed_only_elliptic :
-          case killed_failed_qr :
-          case killed_bounds : {
-            t.testIndex = i;
-            t.testResult = result;
+          case killed_bounds :
+          case killed_only_elliptic : //TODO 
+          case killed_x_hits_y :
+          case killed_y_hits_x :
+          case killed_x_tube :
+          case killed_y_tube :
+          case killed_lox_not_x_power : 
+          case killed_lox_not_y_power :
+          case killed_move :
+          case killed_marg :
+          case variety_nbd_x :
+          case variety_nbd_y :
+          case variety_nbd : { 
+            t.test_index = i;
+            t.test_result = result;
             return true;
           }
           case open_with_qr : {
 //          fprintf(stderr,"Result %d, new qrs len %d\n", result, new_qrs.size());
             for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {
 //            fprintf(stderr, "New QR is %s\n", (*it).c_str());
-              box.qr.getName(*it); // Also adds qr to the box's list
+              box.qr.get_name(*it); // Also adds qr to the box's list
             }
             t.qr_desc = box.qr.min_pow_desc();
             break;
+          }
+          default : {
+            continue;
           }
         }
       }
     }
   }
 
-  if (g_options.word_search_depth >= 0 && (g_options.improve_tree || !t.lChild)) {
-    while (depth - searchedDepth > g_options.word_search_depth) {
-      Box& searchPlace = place[++searchedDepth];
-      vector<word_pair> searchPairs = findPairs(searchPlace.center(), vector<string>(), 50, g_options.max_word_length, box.qr.wordClasses());
-      word_pair new_pair = searchPairs.back();
+  if (g_options.word_search_depth >= 0 && (g_options.improve_tree || !t.l_child)) {
+    while (depth - searched_depth > g_options.word_search_depth) {
+      Box& search_place = place[++searched_depth];
+      vector<word_pair> search_pairs = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
+      if (search_pairs.size() > 0) {
+        word_pair new_pair = search_pairs.back();
 
-      int old_size = g_tests.size();
-      int new_index = g_tests.add(new_pair);
-      history.resize(g_tests.size());
+        int old_size = g_tests.size();
+        int new_index = g_tests.add(new_pair);
+        history.resize(g_tests.size());
 
-      if (old_size < g_tests.size()) {
-        fprintf(stderr, "search (%s) found (%s,%s) at (%s)\n",
-                searchPlace.qr.desc().c_str(), new_pair.first.c_str(), new_pair.second.c_str(), searchPlace.name.c_str());
+        if (old_size < g_tests.size()) {
+          fprintf(stderr, "search (%s) found (%s,%s) at (%s)\n",
+                  search_place.qr.desc().c_str(), new_pair.first.c_str(), new_pair.second.c_str(), search_place.name.c_str());
 
-        new_qrs.clear();
-        box_state result = g_tests.evaluateBox(new_index, box, aux_word, new_qrs, short_words_cache);
+          new_qrs.clear();
+          box_state result = g_tests.evaluate_box(new_index, box, aux_word, new_qrs, short_words_cache);
 
-        switch (result) {
-          case variety_nbd : 
-          case killed_bad_tubes :
-          case killed_margulis :
-          case killed_fake_elliptic :
-          case killed_only_elliptic :
-          case killed_failed_qr :
-          case killed_bounds : {
-            t.testIndex = new_index;
-            t.testResult = result;
-            return true;
-          }
-          case open_with_qr : {
-//          fprintf(stderr,"Result %d, new qrs len %d\n", result, new_qrs.size());
-            for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {
-//           fprintf(stderr, "New QR is %s\n", (*it).c_str());
-              box.qr.getName(*it); // Also adds qr to the box's list
+          switch (result) {
+            case killed_bounds :
+            case killed_only_elliptic : //TODO 
+            case killed_x_hits_y :
+            case killed_y_hits_x :
+            case killed_x_tube :
+            case killed_y_tube :
+            case killed_lox_not_x_power : 
+            case killed_lox_not_y_power :
+            case killed_move :
+            case killed_marg :
+            case variety_nbd_x :
+            case variety_nbd_y :
+            case variety_nbd : { 
+              t.test_index = new_index;
+              t.test_result = result;
+              return true;
             }
-            t.qr_desc = box.qr.min_pow_desc();
-            break;
+            case open_with_qr : {
+  //          fprintf(stderr,"Result %d, new qrs len %d\n", result, new_qrs.size());
+              for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {
+  //            fprintf(stderr, "New QR is %s\n", (*it).c_str());
+                box.qr.get_name(*it); // Also adds qr to the box's list
+              }
+              t.qr_desc = box.qr.min_pow_desc();
+              break;
+            }
+            default : {
+              continue;
+            }
           }
         }
       }
     }
   }
 
-  t.testIndex = -1;
+  t.test_index = -1;
 
-  if (!t.lChild) {
+  if (!t.l_child) {
     if (depth >= g_options.max_depth || ++g_boxesVisited >= g_options.max_size || ++newDepth > g_options.invent_depth) {
 //    fprintf(stderr,"Deph %d, max depth %d, boxes_visited %d, max size %d, newDepth %d, invent depth %d\n", depth, g_options.max_depth, g_boxesVisited, g_options.max_size, newDepth, g_options.invent_depth);
       fprintf(stderr, "HOLE %s (%s)\n", box.name.c_str(), box.qr.desc().c_str());
       return false;
     }
-    t.lChild = new PartialTree();
-    t.rChild = new PartialTree();
+    t.l_child = new PartialTree();
+    t.r_child = new PartialTree();
   }
 
-  bool isComplete = true;
+  bool is_complete = true;
 
-  isComplete = refineRecursive(box.child(0), *t.lChild, depth+1, history, place, newDepth, searchedDepth) && isComplete;
+  is_complete = refine_recursive(box.child(0), *t.l_child, depth+1, history, place, newDepth, searched_depth) && is_complete;
   if (place.size() > depth+1)
     place.resize(depth+1);
   for (int i = 0; i < g_tests.size(); ++i) {
     if (history[i].size() > depth)
       history[i].resize(depth);
   }
-  if (searchedDepth > depth)
-    searchedDepth = depth;
-  if (isComplete || depth < g_options.truncate_depth)
-    isComplete = refineRecursive(box.child(1), *t.rChild, depth+1, history, place, newDepth, searchedDepth) && isComplete;
-  if (oldTestIndex >= 0 && t.testIndex != oldTestIndex) {
-    fprintf(stderr, "invalid box %s(%s) %d %s\n", g_tests.getName(oldTestIndex), box.name.c_str(),
-      treeSize(t), isComplete ? "Patched" : "Unpatched");
+  if (searched_depth > depth)
+    searched_depth = depth;
+  if (is_complete || depth < g_options.truncate_depth)
+    is_complete = refine_recursive(box.child(1), *t.r_child, depth+1, history, place, newDepth, searched_depth) && is_complete;
+  if (old_test_index >= 0 && t.test_index != old_test_index) {
+    fprintf(stderr, "invalid box %s(%s) %d %s\n", g_tests.get_name(old_test_index).c_str(), box.name.c_str(),
+      tree_size(t), is_complete ? "Patched" : "Unpatched");
   }
-  if (!isComplete && depth >= g_options.truncate_depth) {
-    truncateTree(t);
+  if (!is_complete && depth >= g_options.truncate_depth) {
+    truncate_tree(t);
   }
-  return isComplete;
+  return is_complete;
 }
 
-void refineTree(Box box, PartialTree& t)
+void refine_tree(Box box, PartialTree& t)
 {
   TestHistory history(g_tests.size());
   vector<Box> place;
-  int searchedDepth = 0;
-  refineRecursive(box, t, 0, history, place, 0, searchedDepth);
+  int searched_depth = 0;
+  refine_recursive(box, t, 0, history, place, 0, searched_depth);
 }
 
-void printTree(PartialTree& t)
+void print_tree(PartialTree& t)
 {
     char type = 'F';
-//  printf("%d\n", t.testResult);
-    switch (t.testResult) {
+//  printf("%d\n", t.test_result);
+    switch (t.test_result) {
       case open :
       case open_with_qr : {
-        if (t.lChild && t.rChild) {
+        if (t.l_child && t.r_child) {
           printf("X\n");
-          printTree(*t.lChild);
-          printTree(*t.rChild);
+          print_tree(*t.l_child);
+          print_tree(*t.r_child);
         } else {
           printf("HOLE (%s)\n", t.qr_desc.c_str());
         }
         return;
       }
       case killed_bounds : {
-        printf("%s\n", g_tests.getName(t.testIndex));
-          return;
-        }
-      case variety_nbd : type = 'V'; break;
-      case killed_bad_tubes : type = 'T'; break;
-      case killed_margulis : type = 'M'; break;
-      case killed_fake_elliptic : type = 'F'; break;
-      case killed_only_elliptic : type = 'E'; break;
-      case killed_failed_qr : type = 'Q'; break;
+        printf("%s\n", g_tests.get_name(t.test_index).c_str());
+        return;
+      }
+      case killed_failed_qr : {
+        printf("%c(%s,)\n", 'Q', t.aux_word.c_str());
+        return;
+      }
+      case killed_only_elliptic : type = 'E'; break; 
+      case killed_x_hits_y : type = 'a'; break;
+      case killed_y_hits_x : type = 'A'; break;
+      case killed_x_tube : type = 'x'; break;
+      case killed_y_tube : type = 'y'; break;
+      case killed_lox_not_x_power : type = 'p'; break; 
+      case killed_lox_not_y_power : type = 'P'; break;
+      case killed_move : type = 'm'; break;
+      case killed_marg : type = 'M'; break;
+      case variety_nbd_x : type = 'v'; break;
+      case variety_nbd_y : type = 'V'; break;
+      case variety_nbd : type = 'W'; break;
+      default : return;
     }
-    printf("%c%s\n", type, g_tests.getName(t.testIndex));
+    printf("%c%s\n", type, g_tests.get_name(t.test_index).c_str());
 }
 
 const char* g_programName;
 
-static struct option longOptions[] = {
+static struct option long_options[] = {
   {"box",  required_argument, NULL, 'b' },
   {"words", required_argument, NULL, 'w' },
   {"powers", required_argument, NULL, 'p'},
@@ -337,17 +369,15 @@ static struct option longOptions[] = {
   {"max_size", required_argument, NULL, 's' },
   {"word_search_depth", required_argument, NULL, 'B'},
   {"fill_holes", no_argument, NULL, 'f'},
-  {"max_4_cosh_margulis", required_argument, NULL, 'm'},
-  {"max_exp_half_margulis", required_argument, NULL, 'e'},
   {NULL, 0, NULL, 0}
 };
 
-static char optStr[1000] = "";
-void setOptStr() {
-  char* osp = optStr;
-  for (int i = 0; longOptions[i].name; ++i) {
-    *osp++ = longOptions[i].val;
-    if (longOptions[i].has_arg != no_argument)
+static char opt_str[1000] = "";
+void set_opt_str() {
+  char* osp = opt_str;
+  for (int i = 0; long_options[i].name; ++i) {
+    *osp++ = long_options[i].val;
+    if (long_options[i].has_arg != no_argument)
       *osp++ = ':';
   }
   *osp = '\0';
@@ -386,10 +416,10 @@ Options controlling tree manipulation:\n\
   [ --fill_holes ]\n\
     If set, attempt to patch holes in the input tree.\n\
 ";
-  fprintf(stderr, "Usage: %s %s\n\n%s", g_programName, optStr, longUsage);
+  fprintf(stderr, "Usage: %s %s\n\n%s", g_programName, opt_str, longUsage);
 }
 
-void loadWords(set<string>& s, const char* fileName)
+void load_words(set<string>& s, const char* fileName)
 {
   FILE* fp = fopen(fileName, "r");
   char buf[10000];
@@ -403,14 +433,14 @@ void loadWords(set<string>& s, const char* fileName)
 
 int main(int argc, char** argv)
 {
-  setOptStr();
+  set_opt_str();
   if (argc < 2) {
     usage();
     exit(1);
   }
 
   int ch;
-  while ((ch = getopt_long(argc, argv, optStr, longOptions, NULL)) != -1) {
+  while ((ch = getopt_long(argc, argv, opt_str, long_options, NULL)) != -1) {
     fprintf(stderr,"Arg %c, %s\n", ch, optarg);
     switch(ch) {
     case 'b': g_options.box_name = optarg; break;
@@ -423,8 +453,6 @@ int main(int argc, char** argv)
     case 's': g_options.max_size = atoi(optarg); break;
     case 'B': g_options.word_search_depth = atoi(optarg); break;
     case 'f': g_options.fill_holes = true; break;
-    case 'm': g_4_cosh_margulis_bound = atof(optarg); break;
-    case 'e': g_exp_half_margulis_bound = atof(optarg); break;
     }
   }
 
@@ -438,10 +466,10 @@ int main(int argc, char** argv)
   }
  
   g_tests.load(g_options.words_file);
-  g_tests.loadImpossibleRelations(g_options.powers_file);
+  g_tests.load_impossible_relations(g_options.powers_file);
 
-  PartialTree t = readTree();
-  refineTree(box, t);
-  printTree(t);
+  PartialTree t = read_tree();
+  refine_tree(box, t);
+  print_tree(t);
   fprintf(stderr, "%d nodes added\n", g_boxesVisited);
 }

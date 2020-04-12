@@ -10,27 +10,32 @@ typedef enum _box_state
 {
   killed_bounds = 1,
   // killed_powers = 2, // power of x ot y moves 1j less than mu (see killed_move)
-  killed_only_elliptic = 3, // var_nbd of w^k but w not id
-  killed_x_hits_y = 4, // w(axis(x)) closer to axis(y) than dx + dy
-  killed_y_hits_x = 5, // w(axis(y)) closer to axis(x) than dx + dy
-  killed_x_tube_dist = 6, // w(axis(x)) closer to axis(x) than 2dx but further than 0 (i.e. w not x^k)
-  killed_y_tube_dist = 7, // w(axis(y)) closer to axis(y) than 2dy but further than 0 (i.e. w not y^k)
-  killed_x_tube_not_power = 8, // w(axis(x)) closer to axis(x) than 2dx and provably w not x^k // FIXME need to be non-cyclic
-  killed_y_tube_not_power = 9, // w(axis(y)) closer to axis(y) than 2dy and provably w not y^k // FIXME need to be non-cyclic
-  killed_move = 10, // w(1j) moved less than marg, note power not produces by word search
-  killed_marg = 11, // w1 and w2 have (simple) margulis less than mu TODO should we do powers?
-  variety_nbd_x = 12, // w and x fail Jorgensen 
-  variety_nbd_y = 13, // w and y fail Jorgensen
-  variety_nbd = 14, // w1 and w2 fail Jorgensen and one is not parabolic
-  open_with_qr = 15,
-  out_of_bounds_center = 16,
-  variety_center = 17,
-  x_hits_y_center = 18,
-  y_hits_x_center = 19,
-  bad_x_tube_center = 20,
-  bad_y_tube_center = 21,
-  bad_move_center = 22,
-  bad_marg_center = 23,
+  killed_only_elliptic = 2, // var_nbd of w^k but w not id
+  killed_x_hits_y = 3, // w(axis(x)) closer to axis(y) than dx + dy
+  killed_y_hits_x = 4, // w(axis(y)) closer to axis(x) than dx + dy
+  killed_x_tube = 5, // w(axis(x)) closer to axis(x) than 2dx but further than 0 (i.e. w not x^k)
+  killed_y_tube = 6, // w(axis(y)) closer to axis(y) than 2dy but further than 0 (i.e. w not y^k)
+  killed_lox_not_x_power = 7, // w(axis(x)) closer to axis(x) than 2dx and provably w not x^k // FIXME need to be non-cyclic
+  killed_lox_not_y_power = 8, // w(axis(y)) closer to axis(y) than 2dy and provably w not y^k // FIXME need to be non-cyclic
+  killed_move = 9, // w(1j) moved less than marg, note power not produces by word search
+  killed_marg = 10, // w1 and w2 have (simple) margulis less than mu TODO should we do powers?
+  variety_nbd_x = 11, // w and x fail Jorgensen 
+  variety_nbd_y = 12, // w and y fail Jorgensen
+  variety_nbd = 13, // w1 and w2 fail Jorgensen and one is not parabolic
+  killed_failed_qr = 27,
+  open_with_qr = 14,
+  out_of_bounds_center = 15,
+  variety_center = 16,
+  var_x_center = 17,
+  var_y_center = 18,
+  x_hits_y_center = 19,
+  y_hits_x_center = 20,
+  bad_x_tube_center = 21,
+  bad_y_tube_center = 22,
+  bad_lox_x_center = 23,
+  bad_lox_y_center = 24,
+  bad_move_center = 25,
+  bad_marg_center = 26,
   open = -1
 } 
 box_state;
@@ -39,16 +44,16 @@ struct ImpossibleRelations;
 
 struct TestCollection {
 	int size();
-	box_state evaluateCenter(int index, Box& box);
-	box_state evaluateBox(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
-	const char* getName(int index);
-	int add(const word_pair& pair);
+	box_state evaluate_center(int index, Box& box);
+	box_state evaluate_box(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
+	const std::string get_name(int index);
+	int add(word_pair pair);
 	int add(std::string pair);
 	void load(const char* fileName);
-	void loadImpossibleRelations(const char* fileName);
+	void load_impossible_relations(const char* fileName);
 private:
-	std::map<word_pair, int> pairIndex;
-	std::vector<word_pair> pairVector;
+	std::map<word_pair, int> pair_index;
+	std::vector<word_pair> pair_vector;
 	box_state evaluate_approx(word_pair pair, const Box& params);
   box_state evaluate_AJ(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
   bool ready_for_elliptics_test(SL2<AJ>& w);
@@ -102,7 +107,7 @@ inline const bool must_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
   // print_type("diff:", diff);
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
-  return absLB(diff) > 0 && re_center(diff) > 0;
+  return strictly_pos(diff);
 }
 
 template<typename T>
@@ -116,7 +121,7 @@ inline const bool must_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
   T diff = p.cosh2dy * 4 - four_cosh_dist_ay_way(w, p);
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
-  return absLB(diff) > 0 && re_center(diff) > 0;
+  return strictly_pos(diff);
 }
 
 template<typename T>
@@ -139,7 +144,19 @@ inline const bool moves_y_axis_too_close_to_x(const SL2<T>& w, const Params<T>& 
   T diff = p.coshdxdy * 4 - four_cosh_dist_ax_way(w, p);
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
-  return absLB(diff) > 0 && re_center(diff) > 0;
+//  if (strictly_pos(diff)) {
+//    printf("SL2 of word:\n");
+//    print_SL2(w);
+//    print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+//    print_type("4coshd(dist(x-axis, w(x-axis))):", four_cosh_dist_ax_way(w, p)); 
+//    T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
+//          ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
+//    print_type("4 sinh^2(dist/2) + 2:", z);
+//    print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
+//    print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
+//    print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
+//  }
+  return strictly_pos(diff);
 }
 
 template<typename T>
@@ -147,7 +164,7 @@ inline const bool moves_x_axis_too_close_to_y(const SL2<T>& w, const Params<T>& 
   T diff = p.coshdxdy * 4 - four_cosh_dist_ay_wax(w, p);
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
-  return absLB(diff) > 0 && re_center(diff) > 0;
+  return strictly_pos(diff);
 }
 
 template<typename T>
@@ -155,46 +172,22 @@ inline bool margulis_smaller_than_xy(const SL2<T>& w1, const SL2<T>& w2, const P
   T diff = p.coshmu * 4 - four_cosh_margulis_simple(w1, w2).first;
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
-  return absLB(diff) > 0 && re_center(diff) > 0;
+  return strictly_pos(diff);
 }
 
 template<typename T>
-inline bool non_cylic_power_x(const SL2<T>& w, const Box& b) {
-  // Assume word fixes the same axis as x, so it must live in a cyclic group with x.
-  // Here we check that this is impossible in this box. Must use margulis
-  // number to check cut off for roots of x
-  SL2<T> commutator;
-  if (std::is_same<T, Complex>::value) {
-    commutator = b.x_center() * w * inverse(w * b.x_center());
-  } else if (std::is_same<T, AJ>::value) {
-    commutator = b.x_cover() * w * inverse(w * b.x_cover());
-  } else {
-    fprintf(stderr, "Unknown type in non_cylic_power_x\n");
-    return false;
-  }
-  if (not_idenity(commutator)) {
-    return true;
-  }
-  // TODO Test powers when coshmu > coshsdx + sinhsdx
-  return false; 
+inline bool move_less_than_marg(const SL2<T>& w, const Params<T>& p) {
+  T diff = p.coshmu - cosh_move_j(w);
+  return strictly_pos(diff); 
 }
 
 template<typename T>
-inline bool non_cylic_power_y(const SL2<T>& w, const Box& b) {
-  // Assume word fixes the same axis as y, so it must live in a cyclic group with y.
+inline bool non_cylic_power(const SL2<T>& w, const SL2<T>& x_or_y) {
+  // Assume word fixes the same axis as x or y, so it must live in a cyclic group with x or y.
   // Here we check that this is impossible in this box. Must use margulis
-  // number to check cut off for roots of y
-  // TODO
-  SL2<T> commutator;
-  if (std::is_same<T, Complex>::value) {
-    commutator = b.y_center() * w * inverse(w * b.y_center());
-  } else if (std::is_same<T, AJ>::value) {
-    commutator = b.y_cover() * w * inverse(w * b.y_cover());
-  } else {
-    fprintf(stderr, "Unknown type in non_cylic_power_x\n");
-    return false;
-  }
-  if (not_idenity(commutator)) {
+  // number to check cut off for roots of x or y
+  SL2<T> commutator = x_or_y * w * inverse(w * x_or_y);
+  if (not_identity(commutator)) {
     return true;
   }
   // TODO Test powers when coshmu > coshsdx + sinhsdx

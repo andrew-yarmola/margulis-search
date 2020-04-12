@@ -130,9 +130,12 @@ void CanonicalName::add_relator_internal(string relator)
 	}
 }
 
+#define MAX_LEN 200
+
 string CanonicalName::reduce(string s)
 {
 	set<string> visited;
+  string ms(s);
 	bool done = false;
 	while (!done) {
 		done = true;
@@ -141,11 +144,14 @@ string CanonicalName::reduce(string s)
 			string::size_type pos = s.find(it->s);
 			if (pos != string::npos) {
 				done = false;
-				//fprintf(stderr, "replacing in %s: %s -> %s\n", s.c_str(), it->s.c_str(), it->rep.c_str());
+				// fprintf(stderr, "replacing in %s: %s -> %s\n", s.c_str(), it->s.c_str(), it->rep.c_str());
 				s.replace(pos, it->s.length(), it->rep);
-				if (visited.find(s) != visited.end() || s.length() > 50) {
-					fprintf(stderr, "loop detected in canonical name reduce %s\n", s.c_str());
-					return s;
+        if (s.length() < ms.length()) {
+          ms = s;
+        }
+				if (visited.find(s) != visited.end() || s.length() > MAX_LEN) {
+					fprintf(stderr, "loop detected in canonical name reduce %s to %s\n", ms.c_str(), s.c_str());
+					return ms;
 				}
 				visited.insert(s);
 			}
