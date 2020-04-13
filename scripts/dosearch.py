@@ -199,7 +199,7 @@ if __name__ == '__main__' :
                         f = open(words_file, 'a')
                         for word in new_words:
                             print 'Adding word {0}'.format(word)
-                            f.write(word + '\n')
+                            f.write('(' + word + ')' + '\n')
                         f.close()
 
                     child_count -= 1
