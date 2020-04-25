@@ -81,15 +81,16 @@ int main(int argc,char**argv)
 		} else if (*dir == '1') {
 			box = box.child(1);
 		}
-	}
+  }
 
-  Params<AJ> params = box.cover();
-  AJ sinhP = params.sinhP;
-  AJ coshP = params.coshP;
+  //Params<AJ> params = box.cover();
+  //AJ sinhP = params.sinhP;
+  //AJ coshP = params.coshP;
 
   printf("Box: %s", box.desc().c_str());
 
-  SL2<AJ> x = construct_x(params);
+}
+  /*SL2<AJ> x = construct_x(params);
   SL2<AJ> y = construct_y(params);
   SL2<Complex> c_x = construct_x(box.center());
   SL2<Complex> c_y = construct_y(box.center());
@@ -136,4 +137,4 @@ int main(int argc,char**argv)
 //  for (it = pairs.begin(); it != pairs.end(); ++it) {
 //    printf("(%s, %s)\n", (*it).first.c_str(), (*it).second.c_str());
 //  }  
-}
+}*/

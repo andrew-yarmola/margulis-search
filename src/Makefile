@@ -7,8 +7,8 @@ TREECATOBJS= treecat.o
 CPLUSPLUS= g++
 CC= g++
 
-#COPTS=-g3 -std=c++11 -stdlib=libc++
-COPTS=-O3 -std=c++1y
+COPTS=-g -std=c++1y
+#COPTS=-O3 -std=c++1y
 
 .cpp.o:
 	$(CPLUSPLUS) $(COPTS) $(CCFLAGS) -c ${@:o=cpp}
@@ -22,11 +22,11 @@ test: $(TESTOBJS)
 censustest: $(CENSUSTESTOBJS)
 	$(CPLUSPLUS) $(COPTS) $(CENSUSTESTOBJS) $(LIBS) -lm -o census_test
 
-playground: $(TESTOBJS)
+playground: $(PLAYOBJS)
 	$(CPLUSPLUS) $(COPTS) $(PLAYOBJS) $(LIBS) -lm -o playground
 
 refine: $(REFINEOBJS)
 	$(CPLUSPLUS) $(COPTS) $(REFINEOBJS) $(LIBS) -lm -o ../bin/refine_marg
 
 treecat: $(TREECATOBJS)
-	$(CPLUSPLUS) $(COPTS) $(TREECATOBJS) -o ../bin/treecat
+	$(CPLUSPLUS) $(COPTS) $(TREECATOBJS) -o ../bin/treecat_new

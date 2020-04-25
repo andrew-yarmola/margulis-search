@@ -203,7 +203,7 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
     } 
 		case 1: { //
       return check_bounds(absLB(cover.sinhdx) > g_sinh_d_bound || strictly_pos(-cover.sinhdx) ||
-                                 absLB(cover.sinhdy) > g_sinh_d_bound || strictly_pos(-cover.sinhdy));
+                          absLB(cover.sinhdy) > g_sinh_d_bound || strictly_pos(-cover.sinhdy));
     }
 		case 2: { // sin/cos bounds between -1 and 1
       return check_bounds(absLB(cover.cosf) > 1 || absLB(cover.sintx2) > 1 || absLB(cover.sinty2) > 1);
@@ -234,7 +234,7 @@ int TestCollection::add(string buf)
   size_t comma = buf.find(',');   
   string first;
   string second;
-  fprintf(stderr, "Adding test: %s\n", buf.c_str());
+  // fprintf(stderr, "Adding test: %s\n", buf.c_str());
   if (start != string::npos) {
     size_t end = comma;
     first = buf.substr(start + 1, end - start - 1);
@@ -254,8 +254,7 @@ int TestCollection::add(string buf)
 int TestCollection::add(word_pair p) { 
   map< word_pair,int >::iterator it = pair_index.find(p);
   if (it == pair_index.end()) {
-//  fprintf(stderr, "adding %lu=%s\n", pair_vector.size(), word.c_str());
-    fprintf(stderr, "Adding test: (%s,%s)\n", p.first.c_str(), p.second.c_str());
+//    fprintf(stderr, "Adding test: (%s,%s)\n", p.first.c_str(), p.second.c_str());
     pair_index[p] = pair_vector.size();
     pair_vector.push_back(p);
     return pair_vector.size() + num_bound_tests - 1;
