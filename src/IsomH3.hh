@@ -10,6 +10,11 @@
 #include "assert.h"
 
 template<typename T>
+inline const T mobius(const SL2<T> &x, const T &p) {
+    return ((x.a * p) + x.b) / ((x.c * p) + x.d);
+}
+
+template<typename T>
 const T four_cosh_re_length(const SL2<T>& w) {
   T tr = w.a + w.d;
   return abs_sqrd(tr) + abs(tr*tr - 4);
@@ -317,6 +322,23 @@ const T cosh_move_j(const SL2<T>& w) {
     T q = abs_sqrd(w.c) + abs_sqrd(w.d);
     T z = w.a * conj(w.c) + w.b * conj(w.d);
     return (abs_sqrd(z) + (q - 1) * (q - 1))/(q * 2) + 1; 
+}
+
+// Exp of distance from ortho endpts to the special point on axis
+template<typename T>
+double exp_dist_to_ortho_x(const T& zm, const T& zp, const Params<T>& p) {
+  T one(1.0); 
+  T z = ((p.expdx * zm + one) * (p.expdx * zp + one))/
+        ((p.expdx * zm - one) * (p.expdx * zp - one));
+  return absUB(sqrt(z));
+}
+
+// Exp of distance from ortho endpts to the special point on axis
+template<typename T>
+double exp_dist_to_ortho_y(const T& zm, const T& zp, const Params<T>& p) {
+  T z = ((p.expdyf + zm) * (p.expdyf + zp))/
+        ((p.expdyf - zm) * (p.expdyf - zp));
+  return absUB(sqrt(z));
 }
 
 // We compute |tr(w1)^2 - 4| + |tr(w1 w2 W1 W2) - 2|

@@ -108,9 +108,11 @@ int tree_size(PartialTree& t) {
   return size;
 }
 
-double g_cosh_marg_upper_bound = 1.3175;
+// double g_cosh_marg_upper_bound = 1.3175;
+double g_cosh_marg_upper_bound = 1.0811;
 double g_cosh_marg_lower_bound = 1.0052;
-double g_sinh_d_bound = 1.474; 
+// double g_sinh_d_bound = 1.474; 
+double g_sinh_d_bound = 0.8; 
 
 unordered_map<string, SL2<AJ> > short_words_cache;
 
@@ -221,7 +223,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
   if (g_options.word_search_depth >= 0 && (g_options.improve_tree || !t.l_child)) {
     while (depth - searched_depth > g_options.word_search_depth) {
       Box& search_place = place[++searched_depth];
-      vector<word_pair> search_pairs = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
+      // vector<word_pair> search_pairs = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
+      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 2, 4, box.qr.word_classes(), map<string, int>());
+      fprintf(stderr, "Tube search ran at(%s\n", search_place.name.c_str());
       if (search_pairs.size() > 0) {
         word_pair new_pair = search_pairs.back();
 

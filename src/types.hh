@@ -127,6 +127,14 @@ template<typename T> struct Params {
   T expmif; // derived parameter
   T expdyf; // derived parameter
   T expmdyf; // derived parameter
+  T explx; // derived parameter
+  T expmlx; // derived parameter
+  T explx2; // derived parameter
+  T expmlx2; // derived parameter
+  T exply; // derived parameter
+  T expmly; // derived parameter
+  T exply2; // derived parameter
+  T expmly2; // derived parameter
 };
 
 template<typename T>
@@ -181,6 +189,16 @@ void fill_derived(Params<T>& p) {
 
   p.expdyf = p.expdy * p.expif;
   p.expmdyf = p.expmdy * p.expmif;
+
+  p.explx = p.coshlx + sqrt(p.coshlx * p.coshlx - one);
+  p.expmlx = p.coshlx - sqrt(p.coshlx * p.coshlx - one);
+  p.explx2 = p.coshlx2 + p.sinhlx2;
+  p.expmlx2 = p.coshlx2 - p.sinhlx2;
+
+  p.exply = p.coshly + sqrt(p.coshly * p.coshly - one);
+  p.expmly = p.coshly - sqrt(p.coshly * p.coshly - one);
+  p.exply2 = p.coshly2 + p.sinhly2;
+  p.expmly2 = p.coshly2 - p.sinhly2;
 }
 
 inline double re_center(const Complex& x) {

@@ -393,3 +393,170 @@ vector< word_pair > find_pairs(Params<Complex> center, vector<string> seed_words
   vector< word_pair > v(found_pairs.begin(), found_pairs.end());
 	return v;
 }
+
+typedef struct {
+    Complex p; // attracting
+    Complex m; // repelling
+    SL2<Complex> gamma;
+    string word;
+} axis; 
+
+//inline double sqnorm(const Complex &x) {
+//    return x.re * x.re + x.im * x.im;
+//}
+
+//inline const Complex conj(const Complex &x) {
+//    return Complex(x.re, -x.im);
+//}
+
+double cosh_re_orth_LB(const axis &u, const axis &v)
+{
+    Complex n1 = (u.p - v.m) * (u.m - v.p); 
+    Complex n2 = (u.m - v.m) * (u.p - v.p);
+    Complex d  = (u.m - u.p) * (v.m - v.p);
+    return (absLB(n1) + absLB(n2))/absUB(d);    
+}
+
+double g_cut_ratio = 3.0;
+double g_eps = pow(2,-100);
+
+string word_inverse(const string &word)
+{
+  string inv = word;
+  reverse(inv.begin(), inv.end());
+  for_each(inv.begin(), inv.end(), [](char & c){
+    c = islower(c) ? toupper(c) : tolower(c);
+  });
+  return inv;
+}
+
+inline void move(axis& a, const string& word, const SL2<Complex>& gamma) {
+  a.p = mobius(gamma, a.p);
+  a.m = mobius(gamma, a.m);
+  a.word = word + a.word;
+  a.gamma = gamma * a.gamma;
+}  
+
+#define MAX_SEEN_AGAIN 64
+#define MAX_SHIFT 10
+
+vector<string> find_words_tubes(const axis &to_move, bool x_is_fixed,
+               bool x_is_mover, const Params<Complex> &params,
+               double cosh_ortho_bound, int num_words, int max_levels,
+               const vector<string>& relators, const map<string, int>& seen)
+{
+    vector<string> new_words;
+    vector<axis> level_zero;
+    level_zero.push_back(to_move);
+    map< int, vector<axis> > axes;
+    axes[0] = level_zero;
+    // Generate new axes
+    int d = 0;
+    int seen_count = 0;
+    SL2<Complex> x = construct_x(params);
+    SL2<Complex> X = inverse(x);
+    SL2<Complex> y = construct_y(params);
+    SL2<Complex> Y = inverse(y);
+    SL2<Complex> shifter;
+    SL2<Complex> shifter_inv;
+    axis fixed;
+    string shift_word;
+    string shift_word_inv;
+    if (x_is_fixed) {
+      fixed.p =  params.expmdx;
+      fixed.m = -params.expmdx;
+      shifter = x;
+      shifter_inv = X;
+      shift_word = "x";
+      shift_word_inv = "X";
+    } else {
+      fixed.p =  params.expdyf;
+      fixed.m = -params.expdyf;
+      shifter = y;
+      shifter_inv = Y;
+      shift_word = "y";
+      shift_word_inv = "Y";
+    }
+    map< string, SL2<Complex> > valid;
+    while (d < max_levels) {
+        vector<axis> level;
+        axes[d+1] = level;
+        for (const auto &a : axes[d]) {
+            string first = a.word.substr(0,1);
+            if (x_is_mover) {
+              valid = {{"x", x}, {"X", X}};
+            } else {
+              valid = {{"y", y}, {"Y", Y}};
+            }
+            valid.erase(word_inverse(first));
+            // Apply X,x or Y,y if possible
+            for (const auto &h : valid) {
+                axis h_moved = a;
+                move(h_moved, h.first, h.second);
+                double c_re_orth = cosh_re_orth_LB(fixed, h_moved);
+                fprintf(stderr, "Axis with word %s has %f distance vs %f\n", h_moved.word.c_str(), c_re_orth, cosh_ortho_bound);
+                if (c_re_orth < 0.98 * cosh_ortho_bound) {
+                    if (find(relators.begin(), relators.end(), h_moved.word) == relators.end()) {
+                        if (seen.find(h_moved.word) == seen.end()) {
+                            fprintf(stderr, "Axis with word %s has %f distance vs %f\n", h_moved.word.c_str(), c_re_orth, cosh_ortho_bound);
+                            new_words.push_back(h_moved.word);
+                        } else {
+                            seen_count += 1;
+                        }
+                        if (new_words.size() >= num_words || seen_count > MAX_SEEN_AGAIN) {
+                            return new_words;
+                        }
+                    }
+                } else if (c_re_orth > 3 * cosh_ortho_bound) {
+                    continue;
+                } else  {
+                  axes[d+1].push_back(h_moved);
+                  axis shifted = h_moved;
+                  axis shifted_inv = h_moved;
+                  int shift_count = 0;
+                  while  (shift_count < MAX_SHIFT) {
+                    move(shifted, shift_word, shifter); 
+                    move(shifted_inv, shift_word_inv, shifter_inv); 
+                    axes[d+1].push_back(shifted);
+                    axes[d+1].push_back(shifted_inv);
+                    shift_count += 1 ;
+                  } 
+               }
+            }
+        }
+        d += 1;
+    }
+    return new_words;
+}
+
+
+vector< word_pair > find_words_v2(const Params<Complex>& params, int num_words, int max_move_len,
+                          const vector<string>& relators, const map<string, int>& seen)
+{
+    axis x_axis, y_axis;
+    x_axis.p = params.expmdx;
+    x_axis.m = -params.expmdx;
+    y_axis.p = params.expdyf;
+    y_axis.m = -params.expdyf;
+    vector<string> move_x_words = find_words_tubes(x_axis, true, false, params,
+                   absUB(params.cosh2dx), num_words, max_move_len, relators, seen);
+    vector<string> move_y_words = find_words_tubes(y_axis, false, true, params,
+                   absUB(params.cosh2dy), num_words, max_move_len, relators, seen);
+    vector<string> move_xy_words = find_words_tubes(y_axis, true, false, params,
+                   absUB(params.coshdxdy), num_words, max_move_len, relators, seen);
+    vector<string> move_yx_words = find_words_tubes(x_axis, false, true, params,
+                   absUB(params.coshdxdy), num_words, max_move_len, relators, seen);
+
+    set<string> new_words;
+    new_words.insert(move_x_words.begin(), move_x_words.end());
+    new_words.insert(move_y_words.begin(), move_y_words.end());
+    new_words.insert(move_xy_words.begin(), move_xy_words.end());
+    new_words.insert(move_yx_words.begin(), move_yx_words.end());
+    
+    vector<word_pair> result;
+    for (const auto &w : new_words) {
+      word_pair wp(w, "");
+      result.push_back(wp);
+    }    
+    return result;
+}
