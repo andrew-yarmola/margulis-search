@@ -44,47 +44,47 @@ inline T min_local(const T& x, const T& y) {
 } 
 
 /*
-* We will work with 6 real parameters and several derived parameters.
-* coshmu = cosh of margulis constat
-* sinhdx = sinh(d_x) where d_x is the hyperbolic distance from the margulis point to axis(x)
-* sinhdy = sinh(d_y) where d_y is the hyperbolic distance from the margulis point to axis(y)
-* cosf = cos(phi) where phi is the twist angle from the oriented axis(x) to axis(y)
-    note: we can assume 0 <= phi <= pi by using a reflection symmtery
-* sintx2 = sin(theta_x/2) where -pi <= theta_x <= pi is the loxodromic rotation angle of x
-* sinty2 = sin(theta_y/2) where -pi <= theta_y <= pi is the loxodromic rotation angle of y
-* 
-* The derived paramters are
-* coshdx = sqrt(1+sinh(d_x)^2)
-* coshdx = sqrt(1+sinh(d_y)^2)
-* sinf = sqrt(1-cos(phi)^2)
-* costx2 = sqrt(1-sin(t_x/2)^2)
-* costy2 = sqrt(1-sin(t_y/2)^2)
-*
-* costx = 1 - 2*sin(t_x/2)^2
-* costy = 1 - 2*sin(t_y/2)^2
-*
-* coshlx = (cosh(mu) + cos(tx)*sinh(dx)^2)/cosh(d2)^2
-* coshly = (cosh(mu) + cos(ty)*sinh(dy)^2)/cosh(d2)^2
-*
-* coshlx2 = sqrt((coshlx + 1)/2)
-* sinhlx2 = sqrt((coshlx - 1)/2)
-* coshly2 = sqrt((coshly + 1)/2)
-* sinhly2 = sqrt((coshly - 1)/2)
-*
-* With L = l_x + i theta_x and D = l_y + i theta_y
-* coshLx2 = cosh(L_x/2) = cosh(l_x/2)cos(theta_x/2) + i sinh(l_x/2)sin(theta_x/2)
-* sinhLx2 = sinh(L_x/2) = sinh(l_x/2)cos(theta_x/2) + i cosh(l_x/2)sin(theta_x/2)
-* coshLy2 = cosh(L_y/2) = cosh(l_y/2)cos(theta_y/2) + i sinh(l_y/2)sin(theta_y/2)
-* sinhLy2 = sinh(L_y/2) = sinh(l_y/2)cos(theta_y/2) + i cosh(l_y/2)sin(theta_y/2)
-* 
-* expdx = coshdx + sinhdx
-* expmdx = coshdx - sinhdx
-* expdy = coshdy + sinhdy
-* expmdy = coshdy - sinhdy
-* 
-* expif = cosf + i sinf
-* expmif = cosf - i sinf
-*/
+ * We will work with 6 real parameters and several derived parameters.
+ * coshmu = cosh of margulis constat
+ * sinhdx = sinh(d_x) where d_x is the hyperbolic distance from the margulis point to axis(x)
+ * sinhdy = sinh(d_y) where d_y is the hyperbolic distance from the margulis point to axis(y)
+ * cosf = cos(phi) where phi is the twist angle from the oriented axis(x) to axis(y)
+note: we can assume 0 <= phi <= pi by using a reflection symmtery
+ * sintx2 = sin(theta_x/2) where -pi <= theta_x <= pi is the loxodromic rotation angle of x
+ * sinty2 = sin(theta_y/2) where -pi <= theta_y <= pi is the loxodromic rotation angle of y
+ * 
+ * The derived paramters are
+ * coshdx = sqrt(1+sinh(d_x)^2)
+ * coshdx = sqrt(1+sinh(d_y)^2)
+ * sinf = sqrt(1-cos(phi)^2)
+ * costx2 = sqrt(1-sin(t_x/2)^2)
+ * costy2 = sqrt(1-sin(t_y/2)^2)
+ *
+ * costx = 1 - 2*sin(t_x/2)^2
+ * costy = 1 - 2*sin(t_y/2)^2
+ *
+ * coshlx = (cosh(mu) + cos(tx)*sinh(dx)^2)/cosh(d2)^2
+ * coshly = (cosh(mu) + cos(ty)*sinh(dy)^2)/cosh(d2)^2
+ *
+ * coshlx2 = sqrt((coshlx + 1)/2)
+ * sinhlx2 = sqrt((coshlx - 1)/2)
+ * coshly2 = sqrt((coshly + 1)/2)
+ * sinhly2 = sqrt((coshly - 1)/2)
+ *
+ * With L = l_x + i theta_x and D = l_y + i theta_y
+ * coshLx2 = cosh(L_x/2) = cosh(l_x/2)cos(theta_x/2) + i sinh(l_x/2)sin(theta_x/2)
+ * sinhLx2 = sinh(L_x/2) = sinh(l_x/2)cos(theta_x/2) + i cosh(l_x/2)sin(theta_x/2)
+ * coshLy2 = cosh(L_y/2) = cosh(l_y/2)cos(theta_y/2) + i sinh(l_y/2)sin(theta_y/2)
+ * sinhLy2 = sinh(L_y/2) = sinh(l_y/2)cos(theta_y/2) + i cosh(l_y/2)sin(theta_y/2)
+ * 
+ * expdx = coshdx + sinhdx
+ * expmdx = coshdx - sinhdx
+ * expdy = coshdy + sinhdy
+ * expmdy = coshdy - sinhdy
+ * 
+ * expif = cosf + i sinf
+ * expmif = cosf - i sinf
+ */
 
 template<typename T> struct Params {
   T coshmu;

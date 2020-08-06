@@ -11,7 +11,7 @@
 
 template<typename T>
 inline const T mobius(const SL2<T> &x, const T &p) {
-    return ((x.a * p) + x.b) / ((x.c * p) + x.d);
+  return ((x.a * p) + x.b) / ((x.c * p) + x.d);
 }
 
 template<typename T>
@@ -185,15 +185,15 @@ const double e_re_perp_LB(const SL2<T>& w1, const SL2<T>& w2) {
 template<typename T>
 const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w2) {
   /*
-  print_center("w1.a:", w1.a);
-  print_center("w1.b:", w1.b);
-  print_center("w1.c:", w1.c);
-  print_center("w1.d:", w1.d);
-  print_center("w2.a:", w2.a);
-  print_center("w2.b:", w2.b);
-  print_center("w2.c:", w2.c);
-  print_center("w2.d:", w2.d);
-  */
+     print_center("w1.a:", w1.a);
+     print_center("w1.b:", w1.b);
+     print_center("w1.c:", w1.c);
+     print_center("w1.d:", w1.d);
+     print_center("w2.a:", w2.a);
+     print_center("w2.b:", w2.b);
+     print_center("w2.c:", w2.c);
+     print_center("w2.d:", w2.d);
+   */
   // retuns 4 cosh( margulis ) and exp(2t) for w1,w2
   const T tr1 = w1.a + w1.d;
   const T tr2 = w2.a + w2.d;
@@ -213,62 +213,62 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
   const T sh_2_re_perp_n = sinh_2_re_perp_normed(w1,w2); 
 
   /*
-  printf("***********************************\n");
-  print_center("tr(w1):", tr1);
-  print_center("tr(w2):", tr2);
-  print_center("x1:", x1);
-  print_center("x2:", x2);
-  print_center("y1:", y1);
-  print_center("y2:", y2);
-  print_center("cosh(perp)sqrt((tr1^2-4)(tr2^2-4)):", cosh_perp_normed(w1,w2));
-  print_center("sinh(perp)sqrt((tr1^2-4)(tr2^2-4)):", sinh_perp_normed(w1,w2));
-  print_center("exp(2re(perp))x2y2:", e_2_re_perp_n);
-  print_center("exp(-2re(perp))x2y2:", e_m_2_re_perp_n);
-  print_center("cosh(2re(perp))x2y2:", ch_2_re_perp_n);
-  print_center("sinh(2re(perp))x2y2:", sh_2_re_perp_n);
-  printf("***********************************\n");
-  print_center("e_2_re_perp_n*y1 - x1*y2_sqrd:",e_2_re_perp_n*y1 - x1*y2_sqrd);
-  print_center("e_2_re_perp_n - y2_sqrd:", e_2_re_perp_n - y2_sqrd);
-  print_center("a/b:", (e_2_re_perp_n*y1 - x1*y2_sqrd)/(e_2_re_perp_n - y2_sqrd));
-  print_center("sinh(2re(perp))x2y2:", sh_2_re_perp_n);
-  print_center("(y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)):", (y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
-  print_center("a/b:", sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
-  print_center("x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))):", x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
-  print_center("x2_sqrd - e_m_2_re_perp_n:", x2_sqrd - e_m_2_re_perp_n);
-  print_center("a/b:", (x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))))/(x2_sqrd - e_m_2_re_perp_n));
-  printf("***********************************\n");
-  */
+     printf("***********************************\n");
+     print_center("tr(w1):", tr1);
+     print_center("tr(w2):", tr2);
+     print_center("x1:", x1);
+     print_center("x2:", x2);
+     print_center("y1:", y1);
+     print_center("y2:", y2);
+     print_center("cosh(perp)sqrt((tr1^2-4)(tr2^2-4)):", cosh_perp_normed(w1,w2));
+     print_center("sinh(perp)sqrt((tr1^2-4)(tr2^2-4)):", sinh_perp_normed(w1,w2));
+     print_center("exp(2re(perp))x2y2:", e_2_re_perp_n);
+     print_center("exp(-2re(perp))x2y2:", e_m_2_re_perp_n);
+     print_center("cosh(2re(perp))x2y2:", ch_2_re_perp_n);
+     print_center("sinh(2re(perp))x2y2:", sh_2_re_perp_n);
+     printf("***********************************\n");
+     print_center("e_2_re_perp_n*y1 - x1*y2_sqrd:",e_2_re_perp_n*y1 - x1*y2_sqrd);
+     print_center("e_2_re_perp_n - y2_sqrd:", e_2_re_perp_n - y2_sqrd);
+     print_center("a/b:", (e_2_re_perp_n*y1 - x1*y2_sqrd)/(e_2_re_perp_n - y2_sqrd));
+     print_center("sinh(2re(perp))x2y2:", sh_2_re_perp_n);
+     print_center("(y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)):", (y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
+     print_center("a/b:", sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
+     print_center("x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))):", x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
+     print_center("x2_sqrd - e_m_2_re_perp_n:", x2_sqrd - e_m_2_re_perp_n);
+     print_center("a/b:", (x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))))/(x2_sqrd - e_m_2_re_perp_n));
+     printf("***********************************\n");
+   */
 
   std::vector<T> versions;
   versions.push_back((e_2_re_perp_n*y1 - x1*y2_sqrd)/(e_2_re_perp_n - y2_sqrd) +
-             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
+      sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
 
   // swap x and y to hope for better error (formula is symmetric, but not in an obious way)
   versions.push_back((e_2_re_perp_n*x1 - y1*x2_sqrd)/(e_2_re_perp_n - x2_sqrd) +
-             sh_2_re_perp_n/((x1-y1)+sqrt((x1-y1)*(x1-y1) + ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd))));
-  
-// Alternate version where first denominator is scaled by e^(-2re(P))y2/x2. The current version should keep the denominator larger
-//  const T four_cosh_marg_v1_alt1 = (y1*x2_sqrd - x1*e_m_2_re_perp_n)/(x2_sqrd - e_m_2_re_perp_n) +
-//             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
+      sh_2_re_perp_n/((x1-y1)+sqrt((x1-y1)*(x1-y1) + ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd))));
 
-// Alternate version where we split off x1. The current version should keep error slightly smaller (since fewer additions)
-//  const T four_cosh_marg_v1_alt2 = (x1 + ((y1-x1)*x2_sqrd)/(x2_sqrd - e_m_2_re_perp_n)) +
-//             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
+  // Alternate version where first denominator is scaled by e^(-2re(P))y2/x2. The current version should keep the denominator larger
+  //  const T four_cosh_marg_v1_alt1 = (y1*x2_sqrd - x1*e_m_2_re_perp_n)/(x2_sqrd - e_m_2_re_perp_n) +
+  //             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
+
+  // Alternate version where we split off x1. The current version should keep error slightly smaller (since fewer additions)
+  //  const T four_cosh_marg_v1_alt2 = (x1 + ((y1-x1)*x2_sqrd)/(x2_sqrd - e_m_2_re_perp_n)) +
+  //             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
 
   // Collect everything as one fraction. Helps when re(P) is very close to zero 
   versions.push_back(x1 + ((y1-x1)*(e_2_re_perp_n-x2_sqrd) - sh_2_re_perp_n*((y1-x1) -
-              sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))))/((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd));
+          sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))))/((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd));
 
   // swap x and y to hope for better error (formula is symmetric, but not in an obious way)
   versions.push_back(y1 + ((x1-y1)*(e_2_re_perp_n-y2_sqrd) - sh_2_re_perp_n*((x1-y1) -
-              sqrt((x1-y1)*(x1-y1) + ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd))))/((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd));
+          sqrt((x1-y1)*(x1-y1) + ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd))))/((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd));
 
   /* 
-  print_type("4cosh(margulis) v1:", versions[0]);
-  print_type("4cosh(margulis) v2:", versions[1]);
-  print_type("4cosh(margulis) v3:", versions[2]);
-  print_type("4cosh(margulis) v4:", versions[3]);
-  */
+     print_type("4cosh(margulis) v1:", versions[0]);
+     print_type("4cosh(margulis) v2:", versions[1]);
+     print_type("4cosh(margulis) v3:", versions[2]);
+     print_type("4cosh(margulis) v4:", versions[3]);
+   */
 
   std::sort(versions.begin(), versions.end(), sort_comp<T>);
 
@@ -276,11 +276,11 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
 
   T exp_2_t = (x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))))/(x2_sqrd - e_m_2_re_perp_n);
   /*
-  print_center("exp(2re(perp)):", e_2_re_p);
-  print_center("exp(2t):", (const T) exp_2_t);
-  print_center("exp(2t) - exp(2re(perp)):", exp_2_t - e_2_re_p);
-  print_center("exp(2re(perp)) exp(2t):", e_2_re_p - exp_2_t);
-  */
+     print_center("exp(2re(perp)):", e_2_re_p);
+     print_center("exp(2t):", (const T) exp_2_t);
+     print_center("exp(2t) - exp(2re(perp)):", exp_2_t - e_2_re_p);
+     print_center("exp(2re(perp)) exp(2t):", e_2_re_p - exp_2_t);
+   */
 
   // if we realize the margulis number outside the ortho segement, it means it is on one of the end point
   const T one = T(1);
@@ -294,8 +294,8 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
     four_cosh_marg = max_local(four_cosh_marg, fc_marg_lb);
     exp_2_t = max_local(exp_2_t, one);
   } else if (absLB(exp_2_t) > absUB(e_2_re_p)) {
-      four_cosh_marg = y2 + y1;
-      exp_2_t = e_2_re_p;  
+    four_cosh_marg = y2 + y1;
+    exp_2_t = e_2_re_p;  
   } else if (absLB(exp_2_t - e_2_re_p) == 0) {
     four_cosh_marg = max_local(four_cosh_marg, fc_marg_lb);
     exp_2_t = min_local(exp_2_t, e_2_re_p);
@@ -319,9 +319,9 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
 
 template<typename T>
 const T cosh_move_j(const SL2<T>& w) {
-    T q = abs_sqrd(w.c) + abs_sqrd(w.d);
-    T z = w.a * conj(w.c) + w.b * conj(w.d);
-    return (abs_sqrd(z) + (q - 1) * (q - 1))/(q * 2) + 1; 
+  T q = abs_sqrd(w.c) + abs_sqrd(w.d);
+  T z = w.a * conj(w.c) + w.b * conj(w.d);
+  return (abs_sqrd(z) + (q - 1) * (q - 1))/(q * 2) + 1; 
 }
 
 // Exp of distance from ortho endpts to the special point on axis
@@ -329,7 +329,7 @@ template<typename T>
 double exp_dist_to_ortho_x(const T& zm, const T& zp, const Params<T>& p) {
   T one(1.0); 
   T z = ((p.expdx * zm + one) * (p.expdx * zp + one))/
-        ((p.expdx * zm - one) * (p.expdx * zp - one));
+    ((p.expdx * zm - one) * (p.expdx * zp - one));
   return absUB(sqrt(z));
 }
 
@@ -337,7 +337,7 @@ double exp_dist_to_ortho_x(const T& zm, const T& zp, const Params<T>& p) {
 template<typename T>
 double exp_dist_to_ortho_y(const T& zm, const T& zp, const Params<T>& p) {
   T z = ((p.expdyf + zm) * (p.expdyf + zp))/
-        ((p.expdyf - zm) * (p.expdyf - zp));
+    ((p.expdyf - zm) * (p.expdyf - zp));
   return absUB(sqrt(z));
 }
 
@@ -425,7 +425,7 @@ const T four_cosh_dist_ay_way(const SL2<T>& w, const Params<T>& p) {
 template<typename T>
 const T four_cosh_dist_ax_way(const SL2<T>& w, const Params<T>& p) {
   T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
-        ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
+    ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
   return  abs(z - 2) + abs(z + 2);
 }
 
@@ -433,7 +433,7 @@ const T four_cosh_dist_ax_way(const SL2<T>& w, const Params<T>& p) {
 template<typename T>
 const T four_cosh_dist_ay_wax(const SL2<T>& w, const Params<T>& p) {
   T z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
-        ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
+    ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
   return  abs(z - 2) + abs(z + 2);
 }
 
@@ -464,54 +464,54 @@ const T four_cosh_dist_ay_wax(const SL2<T>& w, const Params<T>& p) {
 
 template<typename T>
 const float_pair four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper_margulis, bool upper_t) {
-  // TODO Optimize for x and y as w1 (or w2)
-  T margulis = T() + pow(2,50);
-  T exp_2_t;
-  int n = 1;
-  SL2<T> A(w1);
-  // print_SL2(A);
-  printf("LB 4cosh(re(A)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
-  int loops = 0;
-  while (absLB(four_cosh_re_length(A)) < absUB(margulis)) {
-    int m = 1;
-    SL2<T> B(w2);
-    // print_SL2(B);
-    printf("LB 4cosh(re(B)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
-    while (absLB(four_cosh_re_length(B)) < absUB(margulis)) {
-      if (loops > MAX_LOOPS) { break; }
-      std::pair<T,T> m_pair = four_cosh_margulis_simple(A,B);
-      T margulis_new = m_pair.first;
-      T exp_2_t_new = m_pair.second;
-      printf("w1^%d and w2^%d give margulis = %f and exp(2t) = %f\n", n, m, absLB(margulis_new), absLB(exp_2_t_new)); 
-      if (absLB(margulis_new) == 0) {
-        fprintf(stderr, "Margulis LB is zero!\n");
-        print_type("Got:", (const T) margulis_new);
-      }
-      // We use LB for a partial ordering because we assume that size(margulis) is about the same for each comp
-      if (absLB(margulis_new) < absLB(margulis) || (absLB(margulis_new) == absLB(margulis) && absUB(margulis_new) < absUB(margulis))) {
-        margulis = margulis_new;
-        exp_2_t = exp_2_t_new;
-      }
+// TODO Optimize for x and y as w1 (or w2)
+T margulis = T() + pow(2,50);
+T exp_2_t;
+int n = 1;
+SL2<T> A(w1);
+// print_SL2(A);
+printf("LB 4cosh(re(A)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
+int loops = 0;
+while (absLB(four_cosh_re_length(A)) < absUB(margulis)) {
+int m = 1;
+SL2<T> B(w2);
+// print_SL2(B);
+printf("LB 4cosh(re(B)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
+while (absLB(four_cosh_re_length(B)) < absUB(margulis)) {
+if (loops > MAX_LOOPS) { break; }
+std::pair<T,T> m_pair = four_cosh_margulis_simple(A,B);
+T margulis_new = m_pair.first;
+T exp_2_t_new = m_pair.second;
+printf("w1^%d and w2^%d give margulis = %f and exp(2t) = %f\n", n, m, absLB(margulis_new), absLB(exp_2_t_new)); 
+if (absLB(margulis_new) == 0) {
+fprintf(stderr, "Margulis LB is zero!\n");
+print_type("Got:", (const T) margulis_new);
+}
+// We use LB for a partial ordering because we assume that size(margulis) is about the same for each comp
+if (absLB(margulis_new) < absLB(margulis) || (absLB(margulis_new) == absLB(margulis) && absUB(margulis_new) < absUB(margulis))) {
+margulis = margulis_new;
+exp_2_t = exp_2_t_new;
+}
 //      } else {
 //        double margulis_f = upper_margulis ? infinity() : 0.0;
 //        double exp_2_t_f = upper_t ? infinity() : 0.0;
 //        return float_pair(margulis_f, exp_2_t_f); 
 //      }
-      m += 1;
-      B = pow(w2, m); // reducing number of powers needed, might be better to just accumuate
-      loops += 1;
-      // print_SL2(B);
-      printf("LB 4cosh(re(B)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
-    }
-    if (loops > MAX_LOOPS) { break; }
-    n += 1;
-    A = pow(w1, n); // reducing the number of powers needed, might be better to just accumulate
-    // print_SL2(A);
-    printf("LB 4cosh(re(A)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
-  }
-  double margulis_f = upper_margulis ? absUB(margulis) : absLB(margulis);
-  double exp_2_t_f = upper_t ? absUB(exp_2_t) : absLB(exp_2_t);
-  return float_pair(margulis_f, exp_2_t_f); 
+m += 1;
+B = pow(w2, m); // reducing number of powers needed, might be better to just accumuate
+loops += 1;
+// print_SL2(B);
+printf("LB 4cosh(re(B)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
 }
-*/
+if (loops > MAX_LOOPS) { break; }
+n += 1;
+A = pow(w1, n); // reducing the number of powers needed, might be better to just accumulate
+// print_SL2(A);
+printf("LB 4cosh(re(A)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
+}
+double margulis_f = upper_margulis ? absUB(margulis) : absLB(margulis);
+double exp_2_t_f = upper_t ? absUB(exp_2_t) : absLB(exp_2_t);
+return float_pair(margulis_f, exp_2_t_f); 
+}
+ */
 

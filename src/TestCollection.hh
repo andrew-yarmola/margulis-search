@@ -194,3 +194,39 @@ inline bool non_cylic_power(const SL2<T>& w, const SL2<T>& x_or_y) {
   return false; 
 }
 
+// Meyerhoff K Test
+// We stop computing if we fail the test
+#define MAX_MEYER 8
+template<typename T>
+bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam_UB) {
+  // Assumed ch and cs are real valued jets
+  T ch_prev = T(1);
+  T cs_prev = T(1);
+  T ch = ch_o;
+  T cs = cs_o;
+  T temp, four_cosh_tube_diam_LB;
+  T meyer_k = T(1024); // arbitray large enough number
+  int count = 0;
+  while (absUB(ch * ch) < 2 && count < MAX_MEYER) {
+    temp = ch - cs; 
+    if (strictly_pos(meyer_k - temp)) {
+      meyer_k = temp;
+      // See Meyerhoff paper on volume lowerbounds for hyperbolic 3-manifolds
+      four_cosh_tube_diam_LB = sqrt(-(meyer_k * 32) + 16) / meyer_k;
+      if (strictly_pos(four_cosh_tube_diam_LB - four_cosh_tube_diam_UB)) {
+        return true; // box can be killed
+      }
+    } 
+    // Use Chebyshev recurrance relation
+    temp = (ch_o * 2) * ch - ch_prev;
+    ch_prev = ch;
+    ch = temp;  
+    T temp = (cs_o * 2) * cs - cs_prev;
+    cs_prev = cs;
+    cs = temp;
+    count +=1;
+  }
+  return false; // inconclusive
+}
+
+

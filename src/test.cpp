@@ -42,19 +42,14 @@ int main(int argc,char**argv)
 
   SL2<AJ> x = box.x_cover(); 
   SL2<AJ> y = box.y_cover();
-//  printf("x is :\n");
-//  print_SL2(x);
-//  printf("y is :\n");
-//  print_SL2(y);
-//  SL2<Complex> c_x = construct_x(box.center());
-//  SL2<Complex> c_y = construct_y(box.center());
+  printf("x is :\n");
+  print_SL2(x);
+  printf("y is :\n");
+  print_SL2(y);
 
-//  float_pair up_up = four_cosh_margulis(x,y,true,true);
-//  float_pair up_lb = four_cosh_margulis(x,y,true,false);
-//  float_pair lb_up = four_cosh_margulis(x,y,false,true);
-//  float_pair lb_lb = four_cosh_margulis(x,y,false,false);
+  pair<AJ, AJ> marg_pair = four_cosh_margulis_simple(x,y);  
 
-//  printf("4 cosh(margulis) between %f (%f) and %f (%f)\n", lb_lb.first, lb_up.first, up_up.first, up_lb.first);
-//  printf("exp(2t) between %f (%f) and %f (%f)\n", lb_lb.second, up_lb.second, up_up.second, lb_up.second);
+  printf("4 cosh(margulis) between %f and %f\n", absLB(marg_pair.first), absUB(marg_pair.first));
+  printf("exp(2t) between %f and %f\n", absLB(marg_pair.second), absUB(marg_pair.second));  
 
 }
