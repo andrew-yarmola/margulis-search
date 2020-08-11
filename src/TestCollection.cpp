@@ -190,7 +190,7 @@ box_state TestCollection::evaluate_center(int index, Box& box)
               return check_bounds_center(absLB(center.cosf) > 1 || absLB(center.sintx2) > 1 || absLB(center.sinty2) > 1);
             }
     case 3: { // check lengths are not negative 
-              return check_bounds_center(absUB(center.coshlx) < 1 || absLB(center.coshly) < 1);
+              return check_bounds_center(absUB(center.coshlx) < 1 || absUB(center.coshly) < 1);
             }
     case 4: { // Meyerhoff tube bound. Check if embeded tube radius is more than rad + marg/2 
               SL2<Complex> x = construct_x(center);
@@ -223,10 +223,10 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
               return check_bounds(absLB(cover.cosf) > 1 || absLB(cover.sintx2) > 1 || absLB(cover.sinty2) > 1);
             }
     case 3: { // check lengths are not negative 
-              return check_bounds(absUB(cover.coshlx) < 1 || absLB(cover.coshly) < 1);
+              return check_bounds(absUB(cover.coshlx) < 1 || absUB(cover.coshly) < 1);
             }
     case 4: { // Meyerhoff tube bound. Check if embeded tube radius is more than rad + marg/2 
-              fprintf(stderr, "%s", box.desc().c_str());
+              // fprintf(stderr, "%s", box.desc().c_str());
               SL2<AJ> x = construct_x(cover);
               SL2<AJ> y = construct_y(cover);
               AJ four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, cover);

@@ -7,8 +7,8 @@ TREECATOBJS= treecat.o
 CPLUSPLUS= g++
 CC= g++
 
-COPTS=-g -Wall -std=c++1y
-#COPTS=-O3 -std=c++1y
+#COPTS=-g -Wall -std=c++1y
+COPTS=-O3 -std=c++1y
 
 .cpp.o:
 	$(CPLUSPLUS) $(COPTS) $(CCFLAGS) -c ${@:o=cpp}
@@ -32,4 +32,4 @@ debug: $(REFINEOBJS)
 	$(CPLUSPLUS) $(COPTS) $(REFINEOBJS) $(LIBS) -lm -o ../bin/refine_marg_debug
 
 treecat: $(TREECATOBJS)
-	$(CPLUSPLUS) $(COPTS) $(TREECATOBJS) -o ../bin/treecat_new
+	$(CPLUSPLUS) $(COPTS) $(TREECATOBJS) -o ../bin/treecat

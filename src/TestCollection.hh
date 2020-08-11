@@ -215,7 +215,7 @@ bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam
       four_cosh_tube_diam_LB = sqrt(-(meyer_k * 32) + 16) / meyer_k;
       if (strictly_pos(four_cosh_tube_diam_LB - four_cosh_tube_diam_UB)) {
         if (debug) {
-          fprintf(stderr, "Meyery K %f with 4 cosh tube diam LB %f and UB %f\n",
+          fprintf(stderr, "Meyer k %f with 4 cosh tube diam LB %f and UB %f\n",
               absLB(meyer_k), absUB(four_cosh_tube_diam_LB), absLB(four_cosh_tube_diam_UB));
         }
         return true; // box can be killed

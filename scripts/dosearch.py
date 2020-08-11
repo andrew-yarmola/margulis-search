@@ -151,13 +151,14 @@ if __name__ == '__main__' :
     refine_run_count = 0
     child_count = 0
     wait_for_holes = False
+    failed_holes = set()
     while True:
         sleep(0.01) # We don't need to to run the main loop to death since we aren't using os.wait
         open_holes = holes - done
         if len(open_holes) == 0 and refine_run_count == 0 and len(done) == 0:
             best_hole = 'root'
         else : 
-            best_hole = '1'*200
+            best_hole = '1'*400
         for hole in open_holes:
             if len(hole) < len(best_hole) :
                 best_hole = hole    
@@ -195,6 +196,9 @@ if __name__ == '__main__' :
                     new_words = box_words - seen_words
                     seen_words |= new_words
 
+                    bad_holes = command_output('grep HOLE {0}/{1}.err | cut -d " " -f 2; exit 0'.format(dest_dir, done_hole)).rstrip().split('\n')
+                    failed_holes.update(bad_holes)
+
                     if len(new_words) > 0: 
                         f = open(words_file, 'a')
                         for word in new_words:
@@ -226,6 +230,10 @@ if __name__ == '__main__' :
         # If we make it here. We are running refine
         print 'Open hole count: {0}\n'.format(len(open_holes))
         print 'Best hole: {0}\n'.format(best_hole)
+        if len(failed_holes) > 0:
+          print 'Deepest failed hole: {}\n'.format(sorted(failed_holes, key=len)[-1])
+        else:
+          print 'Deepest failed hole: None\n'
 
         out = dest_dir + '/' + best_hole + '.out'
         err = dest_dir + '/' + best_hole + '.err'
@@ -265,3 +273,8 @@ if __name__ == '__main__' :
         refine_run_count += 1
         done.add(best_hole)
         active_pid_to_hole[pid] = best_hole
+        done_failed = set()
+        for h in failed_holes:
+          if h.startswith(best_hole):
+            done_failed.add(h)
+        failed_holes.difference_update(done_failed)
