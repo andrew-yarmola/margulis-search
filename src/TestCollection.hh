@@ -43,22 +43,22 @@ box_state;
 struct ImpossibleRelations;
 
 struct TestCollection {
-	int size();
-	box_state evaluate_center(int index, Box& box);
-	box_state evaluate_box(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
-	const std::string get_name(int index);
-	int add(word_pair pair);
-	int add(std::string pair);
-	void load(const char* fileName);
-	void load_impossible_relations(const char* fileName);
-private:
-	std::map<word_pair, int> pair_index;
-	std::vector<word_pair> pair_vector;
-	box_state evaluate_approx(word_pair pair, const Box& params);
+  int size();
+  box_state evaluate_center(int index, Box& box);
+  box_state evaluate_box(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
+  const std::string get_name(int index);
+  int add(word_pair pair);
+  int add(std::string pair);
+  void load(const char* fileName);
+  void load_impossible_relations(const char* fileName);
+  private:
+  std::map<word_pair, int> pair_index;
+  std::vector<word_pair> pair_vector;
+  box_state evaluate_approx(word_pair pair, const Box& params);
   box_state evaluate_AJ(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
   bool ready_for_elliptics_test(SL2<AJ>& w);
   bool only_elliptics(SL2<AJ>& w, Params<AJ>& params);
-	ImpossibleRelations *impossible;
+  ImpossibleRelations *impossible;
 };
 
 template<typename T>
@@ -77,19 +77,19 @@ inline const bool inside_var_nbd_ne(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 inline const bool not_parabolic(const SL2<T>& w) {
-    return absLB(w.a + w.d - 2) > 0 && absLB(w.a + w.d + 2) > 0;
+  return absLB(w.a + w.d - 2) > 0 && absLB(w.a + w.d + 2) > 0;
 }
 
 template<typename T>
 inline const bool not_elliptic_or_parabolic(const SL2<T>& w) {
-    T tr = w.a + w.d;
-    return absLB(tr) > 2 || absLB(tr - conj(tr)) > 0;
+  T tr = w.a + w.d;
+  return absLB(tr) > 2 || absLB(tr - conj(tr)) > 0;
 }
 
 template<typename T>
 inline const bool not_identity(const SL2<T>& w) {
-    return absLB(w.b) > 0 ||  absLB(w.c) > 0 ||
-         ((absLB(w.a-1) > 0 || absLB(w.d-1) > 0) && (absLB(w.a+1) > 0 || absLB(w.d+1) > 0));
+  return absLB(w.b) > 0 ||  absLB(w.c) > 0 ||
+    ((absLB(w.a-1) > 0 || absLB(w.d-1) > 0) && (absLB(w.a+1) > 0 || absLB(w.d+1) > 0));
 }
 
 template<typename T>
@@ -144,18 +144,18 @@ inline const bool moves_y_axis_too_close_to_x(const SL2<T>& w, const Params<T>& 
   T diff = p.coshdxdy * 4 - four_cosh_dist_ax_way(w, p);
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
-//  if (strictly_pos(diff)) {
-//    printf("SL2 of word:\n");
-//    print_SL2(w);
-//    print_type("4cosh(dx+dy):", p.coshdxdy * 4);
-//    print_type("4coshd(dist(x-axis, w(x-axis))):", four_cosh_dist_ax_way(w, p)); 
-//    T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
-//          ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
-//    print_type("4 sinh^2(dist/2) + 2:", z);
-//    print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
-//    print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
-//    print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
-//  }
+  //  if (strictly_pos(diff)) {
+  //    printf("SL2 of word:\n");
+  //    print_SL2(w);
+  //    print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+  //    print_type("4coshd(dist(x-axis, w(x-axis))):", four_cosh_dist_ax_way(w, p)); 
+  //    T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
+  //          ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
+  //    print_type("4 sinh^2(dist/2) + 2:", z);
+  //    print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
+  //    print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
+  //    print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
+  //  }
   return strictly_pos(diff);
 }
 
@@ -198,7 +198,7 @@ inline bool non_cylic_power(const SL2<T>& w, const SL2<T>& x_or_y) {
 // We stop computing if we fail the test
 #define MAX_MEYER 8
 template<typename T>
-bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam_UB) {
+bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam_UB, bool debug) {
   // Assumed ch and cs are real valued jets
   T ch_prev = T(1);
   T cs_prev = T(1);
@@ -209,11 +209,15 @@ bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam
   int count = 0;
   while (absUB(ch * ch) < 2 && count < MAX_MEYER) {
     temp = ch - cs; 
-    if (strictly_pos(meyer_k - temp)) {
+    if (strictly_pos(meyer_k - temp) && absUB((temp + 1) * (temp + 1)) < 2) {
       meyer_k = temp;
       // See Meyerhoff paper on volume lowerbounds for hyperbolic 3-manifolds
       four_cosh_tube_diam_LB = sqrt(-(meyer_k * 32) + 16) / meyer_k;
       if (strictly_pos(four_cosh_tube_diam_LB - four_cosh_tube_diam_UB)) {
+        if (debug) {
+          fprintf(stderr, "Meyery K %f with 4 cosh tube diam LB %f and UB %f\n",
+              absLB(meyer_k), absUB(four_cosh_tube_diam_LB), absLB(four_cosh_tube_diam_UB));
+        }
         return true; // box can be killed
       }
     } 

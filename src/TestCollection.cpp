@@ -197,8 +197,8 @@ box_state TestCollection::evaluate_center(int index, Box& box)
               SL2<Complex> y = construct_y(center);
               Complex four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, center);
               Complex four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, center);
-              return check_bounds_center(meyerhoff_k_test(center.coshlx, center.costx, four_cosh_x_tube_UB) || 
-                  meyerhoff_k_test(center.coshly, center.costy, four_cosh_y_tube_UB));
+              return check_bounds_center(meyerhoff_k_test(center.coshlx, center.costx, four_cosh_x_tube_UB, false) || 
+                  meyerhoff_k_test(center.coshly, center.costy, four_cosh_y_tube_UB, false));
             }
     default:
             return evaluate_approx(pair_vector[index - num_bound_tests], box);
@@ -226,12 +226,13 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
               return check_bounds(absUB(cover.coshlx) < 1 || absLB(cover.coshly) < 1);
             }
     case 4: { // Meyerhoff tube bound. Check if embeded tube radius is more than rad + marg/2 
+              fprintf(stderr, "%s", box.desc().c_str());
               SL2<AJ> x = construct_x(cover);
               SL2<AJ> y = construct_y(cover);
               AJ four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, cover);
               AJ four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, cover);
-              return check_bounds(meyerhoff_k_test(cover.coshlx, cover.costx, four_cosh_x_tube_UB) || 
-                  meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB));
+              return check_bounds(meyerhoff_k_test(cover.coshlx, cover.costx, four_cosh_x_tube_UB, true) || 
+                  meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB, true));
             }
     default:
             return evaluate_AJ(pair_vector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);

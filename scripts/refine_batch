@@ -1,0 +1,15 @@
+#!/bin/bash
+
+out_file=batch/boxes.out
+err_file=batch/boxes.err
+
+rm "$out_file"
+rm "$err_file"
+
+while read b
+do
+  echo "$b"
+  echo "$b" >> "$out_file"
+  echo "$b" >> "$err_file"
+  echo 0 | ../bin/refine_marg_debug --box "$b" --max_depth 150 --truncate_depth 6 --invent_depth 42 --max_size 3000000 --words ../words --word_search_depth 6 --powers none >> "$out_file" 2>> "$err_file"
+done
