@@ -102,9 +102,11 @@ inline const bool must_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
   // The "must" part is only valid for AJ tests
   T diff = p.cosh2dx * 4 - four_cosh_dist_ax_wax(w, p);
   // print_SL2(w);
-  // print_type("4 cosh 2 dx:", p.cosh2dx * 4);
-  // print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w, p));
-  // print_type("diff:", diff);
+  //if (strictly_pos(diff)) {
+  //  print_type("4 cosh 2 dx:", p.cosh2dx * 4);
+  //  print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w, p));
+  //  print_type("diff:", diff);
+  //}
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
   return strictly_pos(diff);

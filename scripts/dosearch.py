@@ -43,9 +43,11 @@ def add_words(words, fp):
                word[0] == 'X'    or\
                word[0] == 'H' : continue
             else:
-                if '(' in word :
+                if ',' in word :
+                    word = re.findall('\((.*?),.*\)', word)[-1]
+                elif '(' in word :
                     word = re.findall('\((.*?)\)', word)[-1]
-                    words.add(word)
+                words.add(word)
     except:
         print('Error loading words file {0}\n'.format(fp))
         # sys.exit(1)
@@ -80,9 +82,9 @@ if __name__ == '__main__' :
         sys.exit(2)
 
     # Executables
-    treecat = './treecat'
-    treeholes = './treecat --open_holes'
-    treecheck = './treecat --mark -s'
+    treecat = '/u/yarmola/margulis-search/bin/treecat'
+    treeholes = '/u/yarmola/margulis-search/bin/treecat --open_holes'
+    treecheck = '/u/yarmola/margulis-search/bin/treecat --mark -s'
     refine = './refine_marg'
 
     # Set up the rest of the arguments
@@ -243,7 +245,7 @@ if __name__ == '__main__' :
         else: 
             pid_word_search_depth = word_search_depth
 
-        treecat_command = '{0} {1} {2}'.format(treecat, src_dir, best_hole)
+        treecat_command = '{0} -r {1} {2}'.format(treecat, src_dir, best_hole)
         refine_command = refine + \
                     fill_holes + \
                     improve_tree + \

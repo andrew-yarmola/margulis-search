@@ -220,11 +220,12 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
   }
 
-  if (g_options.word_search_depth >= 0 && (g_options.improve_tree || !t.l_child)) {
+  if (g_options.word_search_depth >= 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 36) {
     while (depth - searched_depth > g_options.word_search_depth) {
       Box& search_place = place[++searched_depth];
       // vector<word_pair> search_pairs = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
-      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 2, 4, box.qr.word_classes(), map<string, int>());
+      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 1, 6, box.qr.word_classes(), map<string, int>());
+      //vector<word_pair> search_pairs;
       // fprintf(stderr, "Tube search ran at(%s\n", search_place.name.c_str());
       if (search_pairs.size() > 0) {
         word_pair new_pair = search_pairs.back();
@@ -472,6 +473,7 @@ int main(int argc, char** argv)
   g_tests.load(g_options.words_file);
   g_tests.load_impossible_relations(g_options.powers_file);
 
+  fprintf(stderr, "%s", box.desc().c_str());
   PartialTree t = read_tree();
   refine_tree(box, t);
   print_tree(t);

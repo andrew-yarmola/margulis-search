@@ -23,7 +23,8 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
   //  fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
   Params<Complex> p = box.center();
   if (pair.second.length() == 0) {
-    SL2<Complex> w = construct_word(pair.first, p);
+    string word = pair.first;
+    SL2<Complex> w = construct_word(word, p);
     if (not_identity(w)) {
       if (move_less_than_marg(w, p)) {
         return bad_move_center;
@@ -35,7 +36,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
         return x_hits_y_center;
       }
     }
-    if (inside_var_nbd_x(w, p)) {
+    if (y_power(word) > 0 && inside_var_nbd_x(w, p)) {
       if (cant_fix_x_axis(w,p)) {
         return bad_x_tube_center;
       } else if (non_cylic_power(w, box.x_center())) {
@@ -44,7 +45,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
         return var_x_center;
       }
     }
-    if (inside_var_nbd_y(w, p)) {
+    if (x_power(word) > 0 && inside_var_nbd_y(w, p)) {
       if (cant_fix_y_axis(w,p)) {
         return bad_y_tube_center;
       } else if (non_cylic_power(w, box.y_center())) {
@@ -86,7 +87,8 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
   //    fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
   Params<AJ> p = box.cover();
   if (pair.second.length() == 0) {
-    SL2<AJ> w = construct_word(pair.first, p);
+    string word = pair.first;
+    SL2<AJ> w = construct_word(word, p);
     if (not_identity(w)) {
       if (move_less_than_marg(w, p)) {
         return killed_move;
@@ -98,22 +100,23 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
         return killed_x_hits_y;
       }
     }
-    if (inside_var_nbd_x(w, p)) {
+    if (y_power(word) > 0 && inside_var_nbd_x(w, p)) {
       if (cant_fix_x_axis(w,p)) {
         return killed_x_tube;
       } else if (non_cylic_power(w, box.x_cover())) {
         return killed_lox_not_x_power;
       } else {
-        //        printf("x:\n");
-        //        print_SL2(box.x_cover());
-        //        printf("y:\n");
-        //        print_SL2(box.y_cover());
-        //        printf("w:\n");
-        //        print_SL2(w);
+            //printf("word: %s\n", pair.first.c_str());
+            //printf("x:\n");
+            //print_SL2(box.x_cover());
+            //printf("y:\n");
+            //print_SL2(box.y_cover());
+            //printf("w:\n");
+            //print_SL2(w);
         return variety_nbd_x;
       }
     }
-    if (inside_var_nbd_y(w, p)) {
+    if (x_power(word) > 0 && inside_var_nbd_y(w, p)) {
       if (cant_fix_y_axis(w,p)) {
         return killed_y_tube;
       } else if (non_cylic_power(w, box.y_cover())) {
