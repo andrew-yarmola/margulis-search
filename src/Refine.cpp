@@ -108,9 +108,10 @@ int tree_size(PartialTree& t) {
   return size;
 }
 
-double g_cosh_marg_upper_bound = 1.3175;
+//double g_cosh_marg_upper_bound = 1.3175;
 //double g_cosh_marg_upper_bound = 1.0811;
-double g_cosh_marg_lower_bound = 1.0052;
+double g_cosh_marg_upper_bound = 1.022;
+double g_cosh_marg_lower_bound = 1.0054;
 // double g_sinh_d_bound = 1.474; 
 double g_sinh_d_bound = 0.8; 
 

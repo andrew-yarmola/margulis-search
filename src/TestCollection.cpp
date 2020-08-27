@@ -234,8 +234,8 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
               SL2<AJ> y = construct_y(cover);
               AJ four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, cover);
               AJ four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, cover);
-              return check_bounds(meyerhoff_k_test(cover.coshlx, cover.costx, four_cosh_x_tube_UB, true) || 
-                  meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB, true));
+              return check_bounds(meyerhoff_k_test(cover.coshlx, cover.costx, four_cosh_x_tube_UB, false) || 
+                  meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB, false));
             }
     default:
             return evaluate_AJ(pair_vector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);
