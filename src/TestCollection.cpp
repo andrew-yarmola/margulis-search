@@ -266,6 +266,12 @@ int TestCollection::add(string buf)
   // fprintf(stderr, "Adding test: %s\n", buf.c_str());
   if (start != string::npos) {
     size_t end = comma;
+    if (comma == string::npos) {
+      end = buf.find(')');
+    }
+    if (end == string::npos) {
+      return -1;
+    }
     first = buf.substr(start + 1, end - start - 1);
   } else {
     return -1;

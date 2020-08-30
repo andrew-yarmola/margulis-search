@@ -89,6 +89,8 @@ int main(int argc,char**argv)
       assert(absUB(center.cosf - cosf) < ERR);
       assert(absUB(center.sintx2 - sintx2) < ERR);
       assert(absUB(center.sinty2 - sinty2) < ERR);
+      // printf("center coshLx2: %f + i %f vs true coshLx2: %f + i %f\n", center.coshLx2.real(), center.coshLx2.imag(),
+      //                                                            cosh(Lx/2).real(), cosh(Lx/2).imag());
       assert(absUB(center.coshLx2 - cosh(Lx/2)) < CERR);
       assert(absUB(center.coshLy2 - cosh(Ly/2)) < CERR);
 
@@ -187,9 +189,9 @@ int main(int argc,char**argv)
       assert(inside_var_nbd(x_center, yxxYXy_center) == false);
       assert(inside_var_nbd_ne(x_center, y_center) == false);
       assert(inside_var_nbd_ne(x_center, yxxYXy_center) == false);
-      assert(cant_fix_x_axis(x_center, center) == false);
+      assert(really_cant_fix_x_axis(x_center, center) == false);
       assert(cant_fix_x_axis(y_center, center) == true );
-      assert(cant_fix_y_axis(y_center, center) == false);
+      assert(really_cant_fix_y_axis(y_center, center) == false);
       assert(cant_fix_y_axis(x_center, center) == true );
       assert(must_fix_x_axis(x_center, center) == true);
       assert(must_fix_x_axis(y_center, center) == false );
@@ -342,7 +344,7 @@ int main(int argc,char**argv)
       assert(inside_var_nbd_y(xxXYy_cover, cover) == false);
 
       vector<string> empty;
-      vector<word_pair> found = find_words_v2(center, 1, 15, empty, map<string, int>());
+      vector<word_pair> found = find_words_v2(center, 1, 20, empty, map<string, int>());
       printf("Word pairs found at index %zu:\n", i);
       for (auto pair : found) {
         printf("    %s, %s\n", pair.first.c_str(), pair.second.c_str());

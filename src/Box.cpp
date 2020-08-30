@@ -144,8 +144,8 @@ void Box::compute_center_and_size()
         box_center[i] = scale[i]*center_digits[i];
         box_size[i]= (1+2*EPS)*(size_digits[i]*scale[i]+HALFEPS*fabs(center_digits[i]));
   }
-  _center.sinhdx = Complex(16 * box_center[0], 0);
-  _center.sinhdy = Complex(16 * box_center[1], 0);
+  _center.sinhdx = Complex(box_center[0], 0);
+  _center.sinhdy = Complex(box_center[1], 0);
   _center.coshmu = Complex(box_center[2], 0);
   _center.cosf = Complex(box_center[3], 0);
   _center.sintx2 = Complex(box_center[4], 0);
@@ -161,23 +161,22 @@ void Box::compute_cover()
 {
   // Let A = { (z0,z1,z2) \in C^3 | |zi| <= 1 }
   // Our parameters are functions on A with the following defintions
-  // sinh(d_x) = 16(s[0]re(z0) + c[0])
-  // sinh(d_y) = 16(s[1]im(z0) + c[1])
+  // sinh(d_x) = s[0]re(z0) + c[0]
+  // sinh(d_y) = s[1]im(z0) + c[1]
   // cosh(mu) = s[2]re[z1] + c[2]
   // cos(phi) = s[3]im[z1] + c[3]
   // sin(t_x/2) = s[4]re[z2] + c[4]
   // sin(t_y/2) = s[5]im[z2] + c[5]
 
-  // We need extra scaling as sinh(d_x) and sinh(d_y) get quit large
+  // Here, we have sinhdx(z0,z1,z2) = size * re(z0) + center and sinhdy(z0,z1,z2) = size * im(z0) + center
   // TODO: verify that this multiplication by powers of 2 is valid
-  // Here, we have sinhdx(z0,z1,z2) = 16(size * re(z0) + center)) and sinhdy(z0,z1,z2) = 16(size * im(z0) + center))
-  _cover.sinhdx = AJ(XComplex(16 * box_center[0], 0), 
-                     XComplex(8 * box_size[0], 0), 0, 0,
-                     XComplex(8 * box_size[0], 0), 0, 0);
+  _cover.sinhdx = AJ(XComplex(box_center[0], 0), 
+                     XComplex(box_size[0]/2, 0), 0, 0,
+                     XComplex(box_size[0]/2, 0), 0, 0);
   // Note: d(im(z0))/dz0 = - i / 2 and d(im(z0)/dconj(z0) = i/2
-  _cover.sinhdy = AJ(XComplex(16 * box_center[1], 0), 
-                     XComplex(0., - 8 * box_size[1]), 0, 0,
-                     XComplex(0.,   8 * box_size[1]), 0, 0);
+  _cover.sinhdy = AJ(XComplex(box_center[1], 0), 
+                     XComplex(0., - box_size[1]/2), 0, 0,
+                     XComplex(0.,   box_size[1]/2), 0, 0);
 
   // TODO: verify that division by 2 is valid
   _cover.coshmu = AJ(XComplex(box_center[2], 0), 

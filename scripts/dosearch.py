@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 import os, subprocess, sys, getopt, glob, time, re
 from time import sleep
@@ -82,9 +82,9 @@ if __name__ == '__main__' :
         sys.exit(2)
 
     # Executables
-    treecat = '/u/yarmola/margulis-search/bin/treecat'
-    treeholes = '/u/yarmola/margulis-search/bin/treecat --open_holes'
-    treecheck = '/u/yarmola/margulis-search/bin/treecat --mark -s'
+    treecat = './treecat'
+    treeholes = './treecat --open_holes'
+    treecheck = './treecat --mark -s'
     refine = './refine_marg'
 
     # Set up the rest of the arguments
@@ -205,7 +205,7 @@ if __name__ == '__main__' :
                         f = open(words_file, 'a')
                         for word in new_words:
                             print 'Adding word {0}'.format(word)
-                            f.write('(' + word + ')' + '\n')
+                            f.write('(' + word + ',)' + '\n')
                         f.close()
 
                     child_count -= 1

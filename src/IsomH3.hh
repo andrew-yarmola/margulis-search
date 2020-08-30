@@ -195,6 +195,7 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
      print_center("w2.d:", w2.d);
    */
   // retuns 4 cosh( margulis ) and exp(2t) for w1,w2
+  // TODO: check that the words don't commute
   const T tr1 = w1.a + w1.d;
   const T tr2 = w2.a + w2.d;
   const T x1 = abs_sqrd(tr1);
@@ -372,6 +373,15 @@ const T jorgensen_xw(const SL2<T>& w, const Params<T>& p) {
   T shLx2 = p.sinhLx2;
   T td = w.a - w.d;
   T z = w.c * p.expmdx - w.b * p.expdx;
+//  print_type(shLx2);
+//  print_type(td);
+//  print_type(z);
+//  T s = abs_sqrd(shLx2);
+//  print_type(s);
+//  T m = abs(td * td - z * z) + 4;
+//  print_type(m);
+//  T ans = (abs(td * td - z * z) + 4) * abs_sqrd(shLx2);
+//  print_type(ans);
   return (abs(td * td - z * z) + 4) * abs_sqrd(shLx2);
 }
 
@@ -401,24 +411,46 @@ const T jorgensen_wy(const SL2<T>& w, const Params<T>& p) {
   return abs(tr * tr - 4) + abs(td * td - z * z) * abs_sqrd(shLy2);
 }
 
-// Distance between axis(x) and w(axis(x)) 
+// Complex distance between axis(x) and w(axis(x)) 
 template<typename T>
-const T four_cosh_dist_ax_wax(const SL2<T>& w, const Params<T>& p) {
+const T four_sinh_perp2_sq_ax_wax(const SL2<T>& w, const Params<T>& p) {
   T td = w.a - w.d;
   T zm = w.c * p.expmdx - w.b * p.expdx;
   // formula by using crossratios
   T four_sinh_sq_perp2 = td * td - zm * zm;  
+  return four_sinh_sq_perp2; 
+}
+
+// Distance between axis(x) and w(axis(x)) 
+template<typename T>
+const T four_cosh_dist_ax_wax(const SL2<T>& w, const Params<T>& p) {
+  T four_sinh_sq_perp2 = four_sinh_perp2_sq_ax_wax(w, p);
   return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
+}
+
+// Complex distance between axis(y) and w(axis(y)) 
+template<typename T>
+const T four_sinh_perp2_sq_ay_way(const SL2<T>& w, const Params<T>& p) {
+  T td = w.a - w.d;
+  T zm = w.c * p.expdyf - w.b * p.expmdyf;
+  // formula by using crossratios
+  T four_sinh_sq_perp2 = td * td - zm * zm;  
+  return four_sinh_sq_perp2; 
 }
 
 // Distance between axis(y) and w(axis(y)) 
 template<typename T>
 const T four_cosh_dist_ay_way(const SL2<T>& w, const Params<T>& p) {
-  T td = w.a - w.d;
-  T zm = w.c * p.expdyf - w.b * p.expmdyf;
-  // formula by using crossratios
-  T four_sinh_sq_perp2 = td * td - zm * zm;  
+  T four_sinh_sq_perp2 = four_sinh_perp2_sq_ay_way(w, p); 
   return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
+}
+
+// Complex distance between axis(x) and w(axis(y)) 
+template<typename T>
+const T four_sinh_perp2_sq_ax_way(const SL2<T>& w, const Params<T>& p) {
+  T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
+    ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
+  return z - 2;
 }
 
 // Distance between axis(x) and w(axis(y)) 
@@ -427,6 +459,14 @@ const T four_cosh_dist_ax_way(const SL2<T>& w, const Params<T>& p) {
   T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
     ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
   return  abs(z - 2) + abs(z + 2);
+}
+
+// Complex distance between axis(y) and w(axis(x)) 
+template<typename T>
+const T four_sinh_perp2_sq_ay_wax(const SL2<T>& w, const Params<T>& p) {
+  T z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
+    ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
+  return  z - 2;
 }
 
 // Distance between axis(y) and w(axis(x)) 

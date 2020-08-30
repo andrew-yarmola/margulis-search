@@ -109,11 +109,13 @@ int tree_size(PartialTree& t) {
 }
 
 //double g_cosh_marg_upper_bound = 1.3175;
+double g_cosh_marg_upper_bound = 1.0454;
 //double g_cosh_marg_upper_bound = 1.0811;
-double g_cosh_marg_upper_bound = 1.022;
+//double g_cosh_marg_upper_bound = 1.186;
 double g_cosh_marg_lower_bound = 1.0054;
 // double g_sinh_d_bound = 1.474; 
-double g_sinh_d_bound = 0.8; 
+// double g_sinh_d_bound = 5.0; 
+double g_sinh_d_bound = 0.434; 
 
 unordered_map<string, SL2<AJ> > short_words_cache;
 
@@ -135,6 +137,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
       t.test_result = result;
 //      fprintf(stderr, "Eliminated %s with test %s with result %d\n", box.name.c_str(), g_tests.get_name(t.test_index), result);
 //      fprintf(stderr, "********************************* End Validation *********************************\n");
+//      fprintf(stderr, "Test %s kills\n %s", g_tests.get_name(t.test_index).c_str(), box.desc().c_str());
       return true;
     } else if (result == open_with_qr) {
 //      fprintf(stderr,"Retested %d, new qrs len %lu\n", result, new_qrs.size());
@@ -221,9 +224,10 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
   }
 
-  if (g_options.word_search_depth >= 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 36) {
-    while (depth - searched_depth > g_options.word_search_depth) {
-      Box& search_place = place[++searched_depth];
+  if (g_options.word_search_depth > 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 24 && depth % g_options.word_search_depth == 0) {
+    // while (depth - searched_depth > g_options.word_search_depth) {
+      //Box& search_place = place[++searched_depth];
+      Box& search_place = box;
       // vector<word_pair> search_pairs = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
       vector<word_pair> search_pairs = find_words_v2(search_place.center(), 1, 6, box.qr.word_classes(), map<string, int>());
       //vector<word_pair> search_pairs;
@@ -270,11 +274,11 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
               break;
             }
             default : {
-              continue;
+              // continue;
             }
           }
         }
-      }
+    //  }
     }
   }
 

@@ -92,9 +92,25 @@ inline const bool not_identity(const SL2<T>& w) {
     ((absLB(w.a-1) > 0 || absLB(w.d-1) > 0) && (absLB(w.a+1) > 0 || absLB(w.d+1) > 0));
 }
 
+#define LERR 0.000000000001
+
+template<typename T>
+inline const bool really_cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
+  T fsp2sq = four_sinh_perp2_sq_ax_wax(w, p);
+  // print_type(fsp2sq);
+  // printf("LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
+  // printf("LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
+  return absLB(fsp2sq) > LERR && absLB(fsp2sq + 4) > LERR; 
+}
+
 template<typename T>
 inline const bool cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
-  return absLB(four_cosh_dist_ax_wax(w, p)) > 4;
+  T fsp2sq = four_sinh_perp2_sq_ax_wax(w, p);
+  // print_type(fsp2sq);
+  // printf("LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
+  // printf("LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
+  return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
+  // return absLB(four_cosh_dist_ax_wax(w, p)) > 4;
 }
 
 template<typename T>
@@ -113,8 +129,22 @@ inline const bool must_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
 }
 
 template<typename T>
+inline const bool really_cant_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
+  T fsp2sq = four_sinh_perp2_sq_ay_way(w, p);
+  // print_type(fsp2sq);
+  // printf("LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
+  // printf("LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
+  return absLB(fsp2sq) > LERR && absLB(fsp2sq + 4) > LERR; 
+}
+
+template<typename T>
 inline const bool cant_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
-  return absLB(four_cosh_dist_ay_way(w, p)) > 4;
+  T fsp2sq = four_sinh_perp2_sq_ay_way(w, p);
+  // print_type(fsp2sq);
+  // printf("LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
+  // printf("LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
+  return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
+  // return absLB(four_cosh_dist_ay_way(w, p)) > 4;
 }
 
 template<typename T>
@@ -129,6 +159,10 @@ inline const bool must_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
 template<typename T>
 inline const bool inside_var_nbd_x(const SL2<T>& w, const Params<T>& params) {
   // The second test may only work when x has trace close to +/- 2
+  // if (absUB(jorgensen_wx(w, params)) < 1 || absUB(jorgensen_xw(w, params)) < 1 || must_fix_x_axis(w, params)) {
+  //   fprintf(stderr, "UB Jwx %f, UB Jxw %f, must_fix %d\n", absUB(jorgensen_wx(w, params)),
+  //          absUB(jorgensen_xw(w, params)), must_fix_x_axis(w, params));
+  // }
   return absUB(jorgensen_wx(w, params)) < 1 || absUB(jorgensen_xw(w, params)) < 1 || must_fix_x_axis(w, params);
 }
 

@@ -11,7 +11,7 @@ inline const AJ operator-(const AJ&x) {
 
 inline const AJ conj(const AJ&x) {
 
-	return AJ(conj(x.f),conj(x.w0),conj(x.w1),conj(x.w2),conj(x.z0),conj(x.z1),conj(x.z2));
+	return AJ(conj(x.f),conj(x.w0),conj(x.w1),conj(x.w2),conj(x.z0),conj(x.z1),conj(x.z2),x.e);
 
 }
 
@@ -112,14 +112,14 @@ inline const AJ operator/(const AJ&x,double y) {
 
 inline const double absUB(const AJ&x) {
 
-	return(1+2*EPS)*(absUB(x.f)+(size(x)+x.e));
+	return (1+2*EPS)*(absUB(x.f)+(size(x)+x.e));
 
 }
 
 inline const double absLB(const AJ&x) {
 
 	double v = (1-EPS)*(absLB(x.f)-(1+EPS)*(size(x)+x.e));
-	return(v > 0) ? v : 0;
+	return (v > 0) ? v : 0;
 
 }
 

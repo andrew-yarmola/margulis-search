@@ -440,7 +440,7 @@ inline void move(axis& a, const string& word, const SL2<Complex>& gamma) {
 #define MAX_SEEN_AGAIN 64
 #define MAX_SHIFT 3
 
-vector<string> find_words_tubes(const axis &to_move, bool x_is_fixed,
+vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
     bool x_is_mover, const Params<Complex> &params,
     double cosh_ortho_bound, int num_words, int max_levels,
     const vector<string>& relators, const map<string, int>& seen)
@@ -462,7 +462,7 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_fixed,
   axis fixed;
   string shift_word;
   string shift_word_inv;
-  if (x_is_fixed) {
+  if (x_is_shifter) {
     fixed.p =  params.expmdx;
     fixed.m = -params.expmdx;
     shifter = x;
@@ -515,7 +515,7 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_fixed,
               return new_words;
             }
           }
-        } else if (c_re_orth > 1.75 * cosh_ortho_bound) {
+        } else if (c_re_orth > 2.5 * cosh_ortho_bound) {
           continue;
         } else  {
           axes[d+1].push_back(h_moved);
