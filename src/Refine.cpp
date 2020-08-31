@@ -224,7 +224,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
   }
 
-  if (g_options.word_search_depth > 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 24 && depth % g_options.word_search_depth == 0) {
+  if (g_options.word_search_depth > 0 && depth > 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 36 && depth % g_options.word_search_depth == 0) {
     // while (depth - searched_depth > g_options.word_search_depth) {
       //Box& search_place = place[++searched_depth];
       Box& search_place = box;

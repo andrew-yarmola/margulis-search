@@ -21,4 +21,4 @@ data_dir="/Users/yarmola/Projects/margulis-search/data"
 
 cd $bin_dir
 
-python2 "$search" -i 30 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$powers" -c 6 "$data_dir/source" "$data_dir/output_live" > "$data_dir/refine.log" 2>&1
+python2 "$search" -i 42 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$powers" -c 6 "$data_dir/source" "$data_dir/output_live" > "$data_dir/refine.log" 2>&1
