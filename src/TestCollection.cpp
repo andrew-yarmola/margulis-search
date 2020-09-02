@@ -11,7 +11,7 @@ extern double g_cosh_marg_upper_bound;
 extern double g_cosh_marg_lower_bound;
 extern double g_sinh_d_bound; 
 
-int num_bound_tests = 5;
+int num_bound_tests = 6;
 
 int TestCollection::size()
 {
@@ -203,6 +203,10 @@ box_state TestCollection::evaluate_center(int index, Box& box)
               return check_bounds_center(meyerhoff_k_test(center.coshlx, center.costx, four_cosh_x_tube_UB, false) || 
                   meyerhoff_k_test(center.coshly, center.costy, four_cosh_y_tube_UB, false));
             }
+    case 5: { // diagonals
+              return check_bounds_center(absLB(center.sinhdx - center.sinhdy) > 0 ||
+                                         absLB(center.sintx2 - center.sinty2) > 0);
+            }
     default:
             return evaluate_approx(pair_vector[index - num_bound_tests], box);
   }
@@ -236,6 +240,10 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
               AJ four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, cover);
               return check_bounds(meyerhoff_k_test(cover.coshlx, cover.costx, four_cosh_x_tube_UB, false) || 
                   meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB, false));
+            }
+    case 5: { // diagonals
+              return check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
+                                  absLB(cover.sintx2 - cover.sinty2) > 0);
             }
     default:
             return evaluate_AJ(pair_vector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);
