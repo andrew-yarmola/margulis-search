@@ -22,6 +22,8 @@ typedef enum _box_state
   variety_nbd_x = 11, // w and x fail Jorgensen 
   variety_nbd_y = 12, // w and y fail Jorgensen
   variety_nbd = 13, // w1 and w2 fail Jorgensen and one is not parabolic
+  var_x_hits_y = 28,
+  var_y_hits_x = 29, 
   killed_failed_qr = 27,
   open_with_qr = 14,
   out_of_bounds_center = 15,
@@ -201,6 +203,18 @@ inline const bool moves_x_axis_too_close_to_y(const SL2<T>& w, const Params<T>& 
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
   return strictly_pos(diff);
+}
+
+template<typename T>
+inline const bool moved_y_axis_not_x_axis(const SL2<T>& w, const Params<T>& p) {
+  T fsp2sq = four_sinh_perp2_sq_ax_way(w, p);
+  return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
+}
+
+template<typename T>
+inline const bool moved_x_axis_not_y_axis(const SL2<T>& w, const Params<T>& p) {
+  T fsp2sq = four_sinh_perp2_sq_ay_wax(w, p);
+  return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
 }
 
 template<typename T>

@@ -108,10 +108,10 @@ int tree_size(PartialTree& t) {
   return size;
 }
 
-//double g_cosh_marg_upper_bound = 1.3175;
+// double g_cosh_marg_upper_bound = 1.3175;
 double g_cosh_marg_upper_bound = 1.0454;
-//double g_cosh_marg_upper_bound = 1.0811;
-//double g_cosh_marg_upper_bound = 1.186;
+// double g_cosh_marg_upper_bound = 1.0811;
+// double g_cosh_marg_upper_bound = 1.186;
 double g_cosh_marg_lower_bound = 1.0054;
 // double g_sinh_d_bound = 1.474; 
 // double g_sinh_d_bound = 5.0; 
@@ -202,7 +202,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
           case killed_marg :
           case variety_nbd_x :
           case variety_nbd_y :
-          case variety_nbd : { 
+          case variety_nbd : 
+          case var_x_hits_y :
+          case var_y_hits_x : {
             t.test_index = i;
             t.test_result = result;
             return true;
@@ -259,7 +261,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
             case killed_marg :
             case variety_nbd_x :
             case variety_nbd_y :
-            case variety_nbd : { 
+            case variety_nbd : 
+            case var_x_hits_y :
+            case var_y_hits_x : {
               t.test_index = new_index;
               t.test_result = result;
               return true;
@@ -361,6 +365,8 @@ void print_tree(PartialTree& t)
       case variety_nbd_x : type = 'v'; break;
       case variety_nbd_y : type = 'V'; break;
       case variety_nbd : type = 'W'; break;
+      case var_x_hits_y : type = 'c'; break;
+      case var_y_hits_x : type = 'C'; break;
       default : return;
     }
     printf("%c%s\n", type, g_tests.get_name(t.test_index).c_str());
