@@ -204,7 +204,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
           case killed_marg :
           case variety_nbd_x :
           case variety_nbd_y :
-          case variety_nbd : { 
+          case variety_nbd : 
+          case var_x_hits_y :
+          case var_y_hits_x : {
             t.test_index = i;
             t.test_result = result;
             return true;
@@ -261,7 +263,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
             case killed_marg :
             case variety_nbd_x :
             case variety_nbd_y :
-            case variety_nbd : { 
+            case variety_nbd : 
+            case var_x_hits_y :
+            case var_y_hits_x : {
               t.test_index = new_index;
               t.test_result = result;
               return true;
@@ -363,6 +367,8 @@ void print_tree(PartialTree& t)
       case variety_nbd_x : type = 'v'; break;
       case variety_nbd_y : type = 'V'; break;
       case variety_nbd : type = 'W'; break;
+      case var_x_hits_y : type = 'c'; break;
+      case var_y_hits_x : type = 'C'; break;
       default : return;
     }
     printf("%c%s\n", type, g_tests.get_name(t.test_index).c_str());

@@ -30,7 +30,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
         return bad_move_center;
       }
       if (moves_y_axis_too_close_to_x(w,p)) {
-        return y_hits_x_center;
+        return y_hits_x_center; 
       }
       if (moves_x_axis_too_close_to_y(w,p)) {
         return x_hits_y_center;
@@ -94,10 +94,18 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
         return killed_move;
       }
       if (moves_y_axis_too_close_to_x(w,p)) {
-        return killed_y_hits_x;
+        if (moved_y_axis_not_x_axis(w, p)) {
+          return killed_y_hits_x;
+        } else {
+          return var_y_hits_x;
+        }
       }
       if (moves_x_axis_too_close_to_y(w,p)) {
-        return killed_x_hits_y;
+        if (moved_y_axis_not_x_axis(w, p)) {
+          return killed_x_hits_y;
+        } else {
+          return var_x_hits_y;
+        }
       }
     }
     if (y_power(word) > 0 && inside_var_nbd_x(w, p)) {
