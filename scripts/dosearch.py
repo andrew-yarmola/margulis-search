@@ -101,7 +101,7 @@ if __name__ == '__main__' :
     fill_holes = ''
     improve_tree = ''
     powers_file = 'none'
-    words_file = '/home/ayarmola/margulis_search/words'
+    words_file = '/u/yarmola/margulis-center/margulis-search/words/'
 
     # Get config
     holes_file = None

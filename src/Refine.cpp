@@ -109,13 +109,15 @@ int tree_size(PartialTree& t) {
 }
 
 //double g_cosh_marg_upper_bound = 1.3175;
-double g_cosh_marg_upper_bound = 1.0454;
+//double g_cosh_marg_upper_bound = 1.0454;
+double g_cosh_marg_upper_bound = 1.0811;
 //double g_cosh_marg_upper_bound = 1.0811;
 //double g_cosh_marg_upper_bound = 1.186;
 double g_cosh_marg_lower_bound = 1.0054;
 // double g_sinh_d_bound = 1.474; 
 // double g_sinh_d_bound = 5.0; 
-double g_sinh_d_bound = 0.434; 
+// double g_sinh_d_bound = 0.434; 
+double g_sinh_d_bound = 0.63; 
 
 unordered_map<string, SL2<AJ> > short_words_cache;
 
