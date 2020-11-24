@@ -31,5 +31,8 @@ refine: $(REFINEOBJS)
 debug: $(REFINEOBJS)
 	$(CPLUSPLUS) $(COPTS) $(REFINEOBJS) $(LIBS) -lm -o ../bin/refine_marg_debug
 
+full: $(REFINEOBJS)
+	$(CPLUSPLUS) $(COPTS) $(REFINEOBJS) $(LIBS) -lm -o ../bin/refine_marg_full
+
 treecat: $(TREECATOBJS)
 	$(CPLUSPLUS) $(COPTS) $(TREECATOBJS) -o ../bin/treecat

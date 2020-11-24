@@ -93,11 +93,11 @@ if __name__ == '__main__' :
     childLimit = 8
     depth_limit = 330
 
-    max_size = '5000000'
+    max_size = '1000000'
     max_depth = '330'
     truncate_depth = '6'
     invent_depth = '42'
-    word_search_depth = '6'
+    word_search_depth = '12'
     fill_holes = ''
     improve_tree = ''
     powers_file = 'none'

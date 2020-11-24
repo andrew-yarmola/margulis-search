@@ -438,7 +438,7 @@ inline void move(axis& a, const string& word, const SL2<Complex>& gamma) {
 }  
 
 #define MAX_SEEN_AGAIN 2
-#define MAX_SHIFT 4
+#define MAX_SHIFT 3
 
 vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
     bool x_is_mover, const Params<Complex> &params,
