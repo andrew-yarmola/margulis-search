@@ -62,6 +62,58 @@ string repeat(string s, int n) {
   return t+r;
 }
 
+string x_strip(string w) {
+  size_t first = -1;
+  for (size_t p = 0; p < w.length(); ++p) {
+    if (w[p] == 'x' || w[p] == 'X') {
+      first = p; 
+    } else {
+      break;
+    }
+  }
+  size_t last = w.length(); 
+  for (size_t p = w.length() - 1; p >= 0; --p) {
+    if (w[p] == 'x' || w[p] == 'X') {
+      last = p; 
+    } else {
+      break;
+    }
+  }
+  return w.substr(first+1, last - first - 1);
+}
+
+string y_strip(string w) {
+  size_t first = -1;
+  for (size_t p = 0; p < w.length(); ++p) {
+    if (w[p] == 'y' || w[p] == 'Y') {
+      first = p; 
+    } else {
+      break;
+    }
+  }
+  size_t last = w.length();
+  for (size_t p = w.length() - 1; p >= 0; --p) {
+    if (w[p] == 'y' || w[p] == 'Y') {
+      last = p; 
+    } else {
+      break;
+    }
+  }
+  return w.substr(first+1, last - first - 1);
+}
+
+int syllables(string w) {
+  int count = 0;
+  char cur = 'z'; // any char not in list
+  for (string::size_type p = 0; p < w.size(); ++p) {
+      if (w[p] != tolower(cur) && w[p] != toupper(cur)) {
+        ++count;
+        cur = w[p];
+      }
+  }
+  return count;
+} 
+
 int x_power(string w) {
   int count = 0;
   for (string::size_type p = 0; p < w.size(); ++p) {

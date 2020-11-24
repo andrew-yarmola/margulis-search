@@ -29,6 +29,9 @@ void split_string(const std::string &str, const std::string &delims, std::vector
 
 int x_power(std::string w);
 int y_power(std::string w);
+int syllables(std::string w);
+std::string x_strip(std::string w);
+std::string y_strip(std::string w);
 
 bool x_power_sort(std::string a, std::string b);
 bool y_power_sort(std::string a, std::string b);

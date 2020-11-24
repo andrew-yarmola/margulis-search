@@ -79,13 +79,21 @@ bool ends_with(const char *str, const char *suffix)
   return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
+#define BUF_SIZE 1048576
+
 bool  put_stream(FILE* dest, FILE* source) {
   size_t size;
   char buf[BUFSIZ];
+  size_t total = 0;
   while ((size = fread(buf, 1, BUFSIZ, source))) {
     fwrite(buf, 1, size, dest);
+    total += size;
   }
-  if (ferror(dest) || ferror(source)) {
+  if (ferror(dest) != 0) {
+    fprintf(stderr, "failed destination: bytes %d/%d\n", total, BUFSIZ);
+    return false;
+  } else if (ferror(source) != 0) {
+    fprintf(stderr, "failed source: bytes %d/%d\n", total, BUFSIZ);
     return false;
   } else {
     return true;
@@ -106,6 +114,7 @@ bool mark_file(char const* file_name, const char* ending_mark) {
 bool process_tree(FILE* fp, FILE* out, char* boxcode) {
 	int boxdepth = strlen(boxcode);
 	char buf[10000];
+	char tmp[10000];
   char file_name[10000];
 	int depth = 0;
 	while (fgets(buf, sizeof(buf), fp)) {
@@ -150,8 +159,11 @@ bool process_tree(FILE* fp, FILE* out, char* boxcode) {
     if (g_config.print_tree && !hole_filled) {
 			fputs(buf, out); // Print the buffer if we are printing out the filled tree
     }
-    if (g_config.print_killed && strcmp(buf, g_config.kill_test) == 0) {
-      fprintf(out, "killed: %s\n", boxcode); // Print the killed boxcode to stdout
+    if (g_config.print_killed && strncmp(g_config.kill_test, buf, strlen(g_config.kill_test)) == 0) {
+      size_t end = strlen(buf);
+      strncpy(tmp, buf, end);
+      tmp[end-1] = '\0';
+      fprintf(out, "%s: %s\n", tmp, boxcode); // Print the killed boxcode to stdout
     }
 		if (buf[0] == 'X') {
 			boxcode[boxdepth + depth] = '0'; // Descend via left branch
@@ -244,9 +256,9 @@ int main(int argc, char** argv)
       case 'v': g_config.verbose = true; break;
       case 'k': {
         strncpy(g_config.kill_test, optarg, sizeof(g_config.kill_test));
-        size_t end = strlen(optarg);
-        g_config.kill_test[end] = '\n';
-        g_config.kill_test[end+1] = '\0'; 
+        // size_t end = strlen(optarg);
+        // g_config.kill_test[end] = '\0';
+        // g_config.kill_test[end+1] = '\0'; 
         g_config.print_killed = true;
         break;
       }

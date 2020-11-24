@@ -93,7 +93,10 @@ if __name__ == '__main__' :
     childLimit = 8
     depth_limit = 330
 
-    max_size = '5000000'
+    cosh_mu_upper = '1.3375'
+    sinh_tube_upper = '1.6153'
+    
+    max_size = '1000000'
     max_depth = '330'
     truncate_depth = '6'
     invent_depth = '42'
@@ -155,7 +158,7 @@ if __name__ == '__main__' :
     wait_for_holes = False
     failed_holes = set()
     while True:
-        sleep(0.01) # We don't need to to run the main loop to death since we aren't using os.wait
+        sleep(0.001) # We don't need to to run the main loop to death since we aren't using os.wait
         open_holes = holes - done
         if len(open_holes) == 0 and refine_run_count == 0 and len(done) == 0:
             best_hole = 'root'
@@ -226,14 +229,19 @@ if __name__ == '__main__' :
                     continue
                 else :
                     continue
-            sleep(0.01) # We don't need to to run the main loop to death since we aren't using os.wait
+            sleep(0.001) # We don't need to to run the main loop to death since we aren't using os.wait
             continue        
 
         # If we make it here. We are running refine
-        print 'Open hole count: {0}\n'.format(len(open_holes))
+        print 'Open hole count: {0} {1}\n'.format(len(open_holes), time.time())
         print 'Best hole: {0}\n'.format(best_hole)
         if len(failed_holes) > 0:
           print 'Deepest failed hole: {}\n'.format(sorted(failed_holes, key=len)[-1])
+          if len(open_holes) % 100 == 0:
+            with open('deep_holes_sym', 'w') as fp:
+              fp.write('\n'.join(sorted(failed_holes, key=len)))
+            with open('open_holes_sym', 'w') as fp:
+              fp.write('\n'.join(sorted(open_holes, key=len)))
         else:
           print 'Deepest failed hole: None\n'
 
@@ -257,6 +265,8 @@ if __name__ == '__main__' :
                     ' --words ' + words_file + \
                     ' --word_search_depth ' + pid_word_search_depth + \
                     ' --powers ' + powers_file + \
+                    ' -m ' + cosh_mu_upper + \
+                    ' -r ' + sinh_tube_upper + \
                     ' > ' + out  + ' 2> ' + err
 
         first_command = treecat_command + ' | head -1'

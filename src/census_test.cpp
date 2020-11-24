@@ -351,7 +351,7 @@ int main(int argc,char**argv)
 
       vector<string> empty;
       vector<word_pair> found = find_words_v2(center, 1, 20, empty, map<string, int>());
-      printf("Word pairs found at index %zu:\n", i);
+      printf("Word pairs found for %s at index %zu:\n", name.c_str(), i);
       for (auto pair : found) {
         printf("    %s, %s\n", pair.first.c_str(), pair.second.c_str());
       }

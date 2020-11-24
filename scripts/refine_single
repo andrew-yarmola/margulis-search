@@ -16,4 +16,4 @@ if [[ $# > 1 ]]; then
     box="$2"
 fi
 
-echo 0 | ../bin/refine_marg --box "$box" --max_depth 150 --truncate_depth 6 --invent_depth 42 --max_size 3000000 --words ../words --word_search_depth 6 --powers none > "$data_dir/$name.out" 2> "$data_dir/$name.err"
+echo 0 | ../bin/refine_marg_debug --box "$box" --max_depth 150 --truncate_depth 6 --invent_depth 42 --max_size 3000000 --words ../words_none --word_search_depth 6 -m 1.3375 -r 1.6153 --powers none > "$data_dir/$name.out" 2> "$data_dir/$name.err"

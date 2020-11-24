@@ -108,17 +108,6 @@ int tree_size(PartialTree& t) {
   return size;
 }
 
-//double g_cosh_marg_upper_bound = 1.3175;
-//double g_cosh_marg_upper_bound = 1.0454;
-double g_cosh_marg_upper_bound = 1.0811;
-//double g_cosh_marg_upper_bound = 1.0811;
-//double g_cosh_marg_upper_bound = 1.186;
-double g_cosh_marg_lower_bound = 1.0054;
-// double g_sinh_d_bound = 1.474; 
-// double g_sinh_d_bound = 5.0; 
-// double g_sinh_d_bound = 0.434; 
-double g_sinh_d_bound = 0.63; 
-
 unordered_map<string, SL2<AJ> > short_words_cache;
 
 bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, vector< Box >& place, int newDepth, int& searched_depth)
@@ -233,7 +222,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
       //Box& search_place = place[++searched_depth];
       Box& search_place = box;
       // vector<word_pair> search_pairs = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
-      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 1, 6, box.qr.word_classes(), map<string, int>());
+      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 1, 8, box.qr.word_classes(), map<string, int>());
       //vector<word_pair> search_pairs;
       // fprintf(stderr, "Tube search ran at(%s\n", search_place.name.c_str());
       if (search_pairs.size() > 0) {
@@ -387,6 +376,8 @@ static struct option long_options[] = {
   {"max_size", required_argument, NULL, 's' },
   {"word_search_depth", required_argument, NULL, 'B'},
   {"fill_holes", no_argument, NULL, 'f'},
+  {"cosh_margulis_upper", required_argument, NULL, 'm'},
+  {"sinh_tube_upper", required_argument, NULL, 'r'},
   {NULL, 0, NULL, 0}
 };
 
@@ -449,6 +440,10 @@ void load_words(set<string>& s, const char* fileName)
   }
 }
 
+double g_cosh_marg_upper_bound = 1.2947;
+double g_cosh_marg_lower_bound = 1.0054;
+double g_sinh_d_bound = 1.3426; 
+
 int main(int argc, char** argv)
 {
   set_opt_str();
@@ -471,6 +466,8 @@ int main(int argc, char** argv)
     case 's': g_options.max_size = atoi(optarg); break;
     case 'B': g_options.word_search_depth = atoi(optarg); break;
     case 'f': g_options.fill_holes = true; break;
+    case 'm': g_cosh_marg_upper_bound = atof(optarg); break;
+    case 'r': g_sinh_d_bound = atof(optarg); break;
     }
   }
 
@@ -487,6 +484,8 @@ int main(int argc, char** argv)
   g_tests.load_impossible_relations(g_options.powers_file);
 
   fprintf(stderr, "%s", box.desc().c_str());
+  fprintf(stderr, "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n   sinh(d) upper %f\n",
+    g_cosh_marg_lower_bound, g_cosh_marg_upper_bound, g_sinh_d_bound);
   PartialTree t = read_tree();
   refine_tree(box, t);
   print_tree(t);

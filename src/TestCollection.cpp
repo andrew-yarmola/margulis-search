@@ -18,6 +18,8 @@ int TestCollection::size()
   return num_bound_tests + pair_vector.size();
 }
 
+
+
 box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
 {
   //  fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
@@ -29,29 +31,51 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
       if (move_less_than_marg(w, p)) {
         return bad_move_center;
       }
-      if (moves_y_axis_too_close_to_x(w,p)) {
-        return y_hits_x_center; 
-      }
       if (moves_x_axis_too_close_to_y(w,p)) {
         return x_hits_y_center;
       }
-    }
-    if (y_power(word) > 0 && inside_var_nbd_x(w, p)) {
-      if (cant_fix_x_axis(w,p)) {
-        return bad_x_tube_center;
-      } else if (non_cylic_power(w, box.x_center())) {
-        return bad_lox_x_center;
-      } else {
-        return var_x_center;
+      if (moves_y_axis_too_close_to_x(w,p)) {
+        return y_hits_x_center; 
       }
     }
-    if (x_power(word) > 0 && inside_var_nbd_y(w, p)) {
-      if (cant_fix_y_axis(w,p)) {
-        return bad_y_tube_center;
-      } else if (non_cylic_power(w, box.y_center())) {
-        return bad_lox_y_center;
+    if (y_power(word) > 0) {
+      string word_x = x_strip(word);
+      SL2<Complex> w_x;
+      if (word_x != word) {
+        w_x = construct_word(word_x, p);
       } else {
-        return var_y_center;
+        w_x = w;
+      }
+      if (inside_var_nbd_x(w_x, p)) {
+        if (syllables(word_x) < 4) {
+          return bad_x_tube_center;
+        }
+        if (cant_fix_x_axis(w_x,p)) {
+          return bad_x_tube_center;
+        }
+        if (non_cylic_power(w_x, box.x_center())) {
+          return bad_lox_x_center;
+        }
+      }
+    }
+    if (x_power(word) > 0) {
+      string word_y = y_strip(word);
+      SL2<Complex> w_y;
+      if (word_y != word) {
+        w_y = construct_word(word_y, p);
+      } else {
+        w_y = w;
+      }
+      if (inside_var_nbd_y(w_y, p)) {
+        if (syllables(word_y) < 4) {
+          return bad_y_tube_center;
+        }
+        if (cant_fix_y_axis(w_y,p)) {
+          return bad_y_tube_center;
+        }
+        if (non_cylic_power(w_y, box.y_center())) {
+          return bad_lox_y_center;
+        }
       }
     }
     //    if (must_fix_x_axis(w,p)) {
@@ -93,6 +117,14 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       if (move_less_than_marg(w, p)) {
         return killed_move;
       }
+      // TODO make these rstrip first
+      if (moves_x_axis_too_close_to_y(w,p)) {
+        if (moved_x_axis_not_y_axis(w, p)) {
+          return killed_x_hits_y;
+        } else {
+          return var_x_hits_y;
+        }
+      }
       if (moves_y_axis_too_close_to_x(w,p)) {
         if (moved_y_axis_not_x_axis(w, p)) {
           return killed_y_hits_x;
@@ -100,43 +132,45 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
           return var_y_hits_x;
         }
       }
-      if (moves_x_axis_too_close_to_y(w,p)) {
-        if (moved_y_axis_not_x_axis(w, p)) {
-          return killed_x_hits_y;
-        } else {
-          return var_x_hits_y;
+    }
+    if (y_power(word) > 0) {
+      string word_x = x_strip(word);
+      SL2<AJ> w_x;
+      if (word_x != word) {
+        w_x = construct_word(word_x, p);
+      } else {
+        w_x = w;
+      }
+      if (inside_var_nbd_x(w_x, p)) {
+        if (syllables(word_x) < 4) {
+          return killed_x_tube;
+        }
+        if (cant_fix_x_axis(w_x,p)) {
+          return killed_x_tube;
+        }
+        if (non_cylic_power(w_x, box.x_cover())) {
+          return killed_lox_not_x_power;
         }
       }
     }
-    if (y_power(word) > 0 && inside_var_nbd_x(w, p)) {
-      if (cant_fix_x_axis(w,p)) {
-        return killed_x_tube;
-      } else if (non_cylic_power(w, box.x_cover())) {
-        return killed_lox_not_x_power;
+    if (x_power(word) > 0) {
+      string word_y = y_strip(word);
+      SL2<AJ> w_y;
+      if (word_y != word) {
+        w_y = construct_word(word_y, p);
       } else {
-            //printf("word: %s\n", pair.first.c_str());
-            //printf("x:\n");
-            //print_SL2(box.x_cover());
-            //printf("y:\n");
-            //print_SL2(box.y_cover());
-            //printf("w:\n");
-            //print_SL2(w);
-        return variety_nbd_x;
+        w_y = w;
       }
-    }
-    if (x_power(word) > 0 && inside_var_nbd_y(w, p)) {
-      if (cant_fix_y_axis(w,p)) {
-        return killed_y_tube;
-      } else if (non_cylic_power(w, box.y_cover())) {
-        return killed_lox_not_y_power;
-      } else {
-        //        printf("y:\n");
-        //        print_SL2(box.y_cover());
-        //        printf("x:\n");
-        //        print_SL2(box.x_cover());
-        //        printf("w:\n");
-        //        print_SL2(w);
-        return variety_nbd_y;
+      if (inside_var_nbd_y(w_y, p)) {
+        if (syllables(word_y) < 4) {
+          return killed_y_tube;
+        }
+        if (cant_fix_y_axis(w_y,p)) {
+          return killed_y_tube;
+        }
+        if (non_cylic_power(w_y, box.y_cover())) {
+          return killed_lox_not_y_power;
+        }
       }
     }
     //    if (must_fix_x_axis(w,p)) {
