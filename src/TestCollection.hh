@@ -6,42 +6,6 @@
 #include "SL2.hh"
 #include "IsomH3.hh"
 
-typedef enum _box_state
-{
-  killed_bounds = 1,
-  // killed_powers = 2, // power of x ot y moves 1j less than mu (see killed_move)
-  killed_only_elliptic = 2, // var_nbd of w^k but w not id
-  killed_x_hits_y = 3, // w(axis(x)) closer to axis(y) than dx + dy
-  killed_y_hits_x = 4, // w(axis(y)) closer to axis(x) than dx + dy
-  killed_x_tube = 5, // w(axis(x)) closer to axis(x) than 2dx but further than 0 (i.e. w not x^k)
-  killed_y_tube = 6, // w(axis(y)) closer to axis(y) than 2dy but further than 0 (i.e. w not y^k)
-  killed_lox_not_x_power = 7, // w(axis(x)) closer to axis(x) than 2dx and provably w not x^k // FIXME need to be non-cyclic
-  killed_lox_not_y_power = 8, // w(axis(y)) closer to axis(y) than 2dy and provably w not y^k // FIXME need to be non-cyclic
-  killed_move = 9, // w(1j) moved less than marg, note power not produces by word search
-  killed_marg = 10, // w1 and w2 have (simple) margulis less than mu TODO should we do powers?
-  variety_nbd_x = 11, // w and x fail Jorgensen 
-  variety_nbd_y = 12, // w and y fail Jorgensen
-  variety_nbd = 13, // w1 and w2 fail Jorgensen and one is not parabolic
-  var_x_hits_y = 28,
-  var_y_hits_x = 29, 
-  killed_failed_qr = 27,
-  open_with_qr = 14,
-  out_of_bounds_center = 15,
-  variety_center = 16,
-  var_x_center = 17,
-  var_y_center = 18,
-  x_hits_y_center = 19,
-  y_hits_x_center = 20,
-  bad_x_tube_center = 21,
-  bad_y_tube_center = 22,
-  bad_lox_x_center = 23,
-  bad_lox_y_center = 24,
-  bad_move_center = 25,
-  bad_marg_center = 26,
-  open = -1
-} 
-box_state;
-
 struct ImpossibleRelations;
 
 struct TestCollection {

@@ -10,6 +10,7 @@
 #include "types.hh"
 #include "TubeSearch.hh"
 #include "TestCollection.hh"
+#include "Refine.hh"
 
 #define ERR 0.000001
 #define CERR 0.00001
@@ -19,9 +20,12 @@
 
 using namespace std;
 
-double g_cosh_marg_upper_bound = 1.3175;
-double g_cosh_marg_lower_bound = 1.0052;
-double g_sinh_d_bound = 1.474; 
+extern Options g_options;
+extern double g_cosh_marg_upper_bound;
+extern double g_cosh_marg_lower_bound;
+extern double g_sinh_d_bound;
+
+void refine_tree(Box box, PartialTree& t);
 
 const XComplex to_XComplex(const Complex& z) {
   return XComplex(z.real(), z.imag());
@@ -62,6 +66,7 @@ int main(int argc,char**argv)
 
     for (string box_code : box_codes) {
       Box box = get_box(box_code);
+      Box bigbox = get_box(box_code.substr(0,80));
       Params<Complex> center = box.center();
       Params<AJ> cover = box.cover();
       /*
@@ -355,6 +360,26 @@ int main(int argc,char**argv)
       for (auto pair : found) {
         printf("    %s, %s\n", pair.first.c_str(), pair.second.c_str());
       }
+
+      // Refine testing
+      g_options.box_name = bigbox.name.c_str(); 
+      g_options.words_file = "/dev/null"; 
+      g_options.powers_file = "/dev/null"; 
+      g_options.max_depth = 120; 
+      g_options.invent_depth = 24; 
+      g_options.improve_tree = false; 
+      g_options.truncate_depth = 6; 
+      g_options.max_size = 300000; 
+      g_options.word_search_depth = 6; 
+      g_options.fill_holes = true; 
+      g_cosh_marg_upper_bound = 1.55; 
+      g_sinh_d_bound = 10.0;
+
+      
+      PartialTree t();
+      refine_tree(bigbox, t);
+      print_tree(t);
+
     }
   }
 
