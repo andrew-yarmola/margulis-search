@@ -3,7 +3,7 @@
 
 template<>
 void print_type<const AJ>(const AJ& x) {
-	printf("f: %f + %f I\n\
+	fprintf(stderr, "f: %f + %f I\n\
 z0: %f + %f I   w0: %f + %f I\n\
 z1: %f + %f I   w1: %f + %f I\n\
 z2: %f + %f I   w2: %f + %f I\n\
