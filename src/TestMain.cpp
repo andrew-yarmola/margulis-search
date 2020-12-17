@@ -1,7 +1,7 @@
 #include <set>
 #include <getopt.h>
 
-#include "Refine.hh"
+#include "Testing.hh"
 #include "TestCollection.hh"
 
 using namespace std;
@@ -9,10 +9,6 @@ using namespace std;
 extern Options g_options;
 extern TestCollection g_tests;
 extern int g_boxesVisited;
-
-extern double g_cosh_marg_upper_bound;
-extern double g_cosh_marg_lower_bound;
-extern double g_sinh_d_bound; 
 
 const char* g_programName;
 
@@ -113,8 +109,6 @@ int main(int argc, char** argv)
     case 's': g_options.max_size = atoi(optarg); break;
     case 'B': g_options.word_search_depth = atoi(optarg); break;
     case 'f': g_options.fill_holes = true; break;
-    case 'm': g_cosh_marg_upper_bound = atof(optarg); break;
-    case 'r': g_sinh_d_bound = atof(optarg); break;
     }
   }
 
@@ -131,8 +125,6 @@ int main(int argc, char** argv)
   g_tests.load_impossible_relations(g_options.powers_file);
 
   fprintf(stderr, "%s", box.desc().c_str());
-  fprintf(stderr, "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n   sinh(d) upper %f\n",
-    g_cosh_marg_lower_bound, g_cosh_marg_upper_bound, g_sinh_d_bound);
   PartialTree t = read_tree();
   refine_tree(box, t);
   print_tree(t);

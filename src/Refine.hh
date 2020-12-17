@@ -1,15 +1,8 @@
 #ifndef __refine_h
 #define __refine_h
-#include <getopt.h>
-#include <stdio.h>
-#include <vector>
-#include <unordered_map>
-#include <set>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
 #include "Box.h"
+#include "PartialTree.hh"
 
 struct Options {
   Options() :
@@ -36,20 +29,6 @@ struct Options {
   bool fill_holes;
   int max_word_length;
 };
-
-struct PartialTree {
-  PartialTree() : l_child(NULL), r_child(NULL), test_index(-1), test_result(open), aux_word(), qr_desc() {}
-  PartialTree *l_child;
-  PartialTree *r_child;
-  int test_index;
-  box_state test_result;
-  std::string aux_word;
-  std::string qr_desc;
-};
-
-// Consume tree from stdin. The tree must be
-// provided in pre-order depth-first traversal.
-PartialTree read_tree();
 
 void refine_tree(Box box, PartialTree& t);
 

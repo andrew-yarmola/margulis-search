@@ -260,13 +260,13 @@ inline bool strictly_pos(const T& diff) {
 
 template<typename T>
 void print_type(const char desc[], const T& x) {
-  printf("%s\n", desc);
+  fprintf(stderr, "%s\n", desc);
   print_type(x);
 } 
 
 template<typename T>
 void print_center(const char desc[], const T& x) {
-  printf("%s\n", desc);
+  fprintf(stderr, "%s\n", desc);
   print_center(x);
 } 
 

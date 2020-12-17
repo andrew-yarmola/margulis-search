@@ -136,7 +136,7 @@ bool y_power_sort(string a, string b) { return y_power(a) < y_power(b); }
 
 template<>
 void print_type<const Complex>(const Complex& x) {
-  printf("%f + %f I\n", x.real(), x.imag());
+  fprintf(stderr, "%f + %f I\n", x.real(), x.imag());
 }
 
 template<>

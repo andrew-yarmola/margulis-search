@@ -66,7 +66,7 @@ int main(int argc,char**argv)
 
     for (string box_code : box_codes) {
       Box box = get_box(box_code);
-      Box bigbox = get_box(box_code.substr(0,80));
+      Box bigbox = get_box(box_code.substr(0,60));
       Params<Complex> center = box.center();
       Params<AJ> cover = box.cover();
       /*
@@ -365,10 +365,10 @@ int main(int argc,char**argv)
       g_options.box_name = bigbox.name.c_str(); 
       g_options.words_file = "/dev/null"; 
       g_options.powers_file = "/dev/null"; 
-      g_options.max_depth = 120; 
-      g_options.invent_depth = 24; 
+      g_options.max_depth = 140; 
+      g_options.invent_depth = 60; 
       g_options.improve_tree = false; 
-      g_options.truncate_depth = 6; 
+      g_options.truncate_depth = 12; 
       g_options.max_size = 300000; 
       g_options.word_search_depth = 6; 
       g_options.fill_holes = true; 
@@ -376,9 +376,9 @@ int main(int argc,char**argv)
       g_sinh_d_bound = 10.0;
 
       
-      PartialTree t();
-      refine_tree(bigbox, t);
-      print_tree(t);
+      PartialTree* t = new PartialTree();
+      refine_tree(bigbox, *t);
+      print_tree(*t);
 
     }
   }

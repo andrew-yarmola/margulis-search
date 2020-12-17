@@ -15,59 +15,6 @@ double g_cosh_marg_upper_bound = 1.2947;
 double g_cosh_marg_lower_bound = 1.0054;
 double g_sinh_d_bound = 1.3426; 
 
-// Consume tree from stdin. The tree must be
-// provided in pre-order depth-first traversal.
-PartialTree read_tree()
-{
-  PartialTree t;
-  char buf[1000];
-  if (!fgets(buf, sizeof(buf), stdin)) {
-    fprintf(stderr, "unexpected EOF\n");
-    exit(1);
-  }
-  int n = strlen(buf);
-  if (buf[n-1] == '\n')
-    buf[n-1] = '\0';
-  if (buf[0] == 'X') {
-    t.l_child = new PartialTree(read_tree());
-    t.r_child = new PartialTree(read_tree());
-  } else if (strstr(buf, "HOLE") != NULL) {
-    t.test_index = -2;
-  } else {
-    if (isdigit(buf[0])) {
-      t.test_index = atoi(buf);
-    } else {
-      if (strchr("xXyY", buf[2]) != NULL) {
-        t.test_index = g_tests.add(string(buf));
-      }
-    }
-  }
-  return t;
-}
-
-void truncate_tree(PartialTree& t)
-{
-  if (t.l_child) {
-    truncate_tree(*t.l_child);
-    delete t.l_child;
-    t.l_child = 0;
-  }
-  if (t.r_child) {
-    truncate_tree(*t.r_child);
-    delete t.r_child;
-    t.r_child = 0;
-  }
-}
-
-int tree_size(PartialTree& t) {
-  int size = 1;
-  if (t.l_child)
-    size += tree_size(*t.l_child);
-  if (t.r_child)
-    size += tree_size(*t.r_child);
-  return size;
-}
-
 unordered_map<string, SL2<AJ> > short_words_cache;
 
 bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, vector< Box >& place, int newDepth, int& searched_depth)
