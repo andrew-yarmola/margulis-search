@@ -22,10 +22,13 @@ box_state evaluate_center(TestCollection& tests, int index, Box& box)
   //  fprintf(stderr, "Evaluating box test index %d\n", index);
   Params<Complex> center = box.center();
   switch(index) {
-    case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
-              if (absLB(abs(center.coshmu - 1) * abs(center.coshmu - 1) +
-                  abs(center.cosf - 1)) > 0 || absLB(abs(center.sintx2 / center.cosf) +
-                  abs(center.sinty2 - 1) + abs(center.sinhdx) / abs(center.sinty2) + abs(center.sinhdy)) > 0) {
+    case 0:	{
+              if (absLB(abs(center.coshmu - 1) + 
+                  abs(sqrt(center.sintx2 + 1.1)) +
+                  abs(sqrt(center.sinty2) - 0.5) +
+                  abs(center.sinhdy + 0.7)) > 0 || 
+                  absLB(abs((center.cosf - 1.2) * (center.sinhdx - 0.5)) +
+                  abs((center.sinhdx - 0.3) / (center.sinhdy + 0.6))) > 0) {
                 return killed_bounds;
               }
                 return open;
@@ -41,10 +44,13 @@ box_state evaluate_box(TestCollection& tests, int index, Box& box)
   //  fprintf(stderr, "Evaluating box test index %d\n", index);
   Params<AJ> cover = box.cover();
   switch(index) {
-    case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
-              if (absLB(abs(cover.coshmu - 1) * abs(cover.coshmu - 1) +
-                  abs(cover.cosf - 1)) > 0 || absLB(abs(cover.sintx2 / cover.cosf) +
-                  abs(cover.sinty2 - 1) + abs(cover.sinhdx) / abs(cover.sinty2) + abs(cover.sinhdy)) > 0) {
+    case 0:	{
+              if (absLB(abs(cover.coshmu - 1) + 
+                  abs(sqrt(cover.sintx2 + 1.1)) +
+                  abs(sqrt(cover.sinty2) - 0.5) +
+                  abs(cover.sinhdy + 0.7)) > 0 || 
+                  absLB(abs((cover.cosf - 1.2) * (cover.sinhdx - 0.5)) +
+                  abs((cover.sinhdx - 0.3) / (cover.sinhdy + 0.6))) > 0) {
                 return killed_bounds;
               }
                 return open;

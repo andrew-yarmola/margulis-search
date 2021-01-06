@@ -56,7 +56,7 @@ const AJ operator/(const AJ&x,const AJ&y) {
 	double ydist = size(y);
 	double ax = absUB(x.f), ay = absLB(y.f);
 	double D = ay-(1+EPS)*(y.e+ydist);
-	if(!(D > 0))return AJ(0,0,0,0,0,0,0,infinity());
+	if(!(D > 0)) return AJ(0,0,0,0,0,0,0,infinity());
 	AComplex den = (y.f*y.f);
 	AComplex r_f = x.f/y.f;
 	AComplex r_z0 = (x.z0*y.f-x.f*y.z0)/den;

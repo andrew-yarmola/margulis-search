@@ -63,6 +63,7 @@ string repeat(string s, int n) {
 }
 
 string x_strip(string w) {
+  return w;
   size_t first = -1;
   for (size_t p = 0; p < w.length(); ++p) {
     if (w[p] == 'x' || w[p] == 'X') {
@@ -83,6 +84,7 @@ string x_strip(string w) {
 }
 
 string y_strip(string w) {
+  return w;
   size_t first = -1;
   for (size_t p = 0; p < w.length(); ++p) {
     if (w[p] == 'y' || w[p] == 'Y') {
