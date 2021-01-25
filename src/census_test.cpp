@@ -15,8 +15,8 @@
 #define ERR 0.000001
 #define CERR 0.00001
 #define DERR 0.00005
-#define FERR 0.00017
-#define AJERR 0.000835
+#define FERR 0.00020
+#define AJERR 0.0009
 
 using namespace std;
 
