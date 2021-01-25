@@ -149,7 +149,7 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       }
       if (moves_y_axis_too_close_to_x(w,p)) {
         if (moved_y_axis_not_x_axis(w, p)) {
-          fprintf(stderr, "******* MOVES Y TOO CLOSE TO X *********\n");
+          fprintf(stderr, "******* MOVES Y TOO CLOSE TO X: %s *********\n", word.c_str());
           AJ diff = p.coshdxdy * 4 - four_cosh_dist_ax_way(w, p);
           print_SL2(w);
           print_type("4cosh(dx+dy):", p.coshdxdy * 4);
@@ -362,6 +362,15 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
                   meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB, false));
             }
     case 5: { // diagonals
+              if (check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
+                               absLB(cover.sintx2 - cover.sinty2) > 0)) {
+                  print_type("cover.sinhdx:", cover.sinhdx);
+                  print_type("cover.sinhdy:", cover.sinhdy);
+                  print_type("cover.sinhdx - cover.sinhdy:", cover.sinhdx - cover.sinhdy);
+                  print_type("cover.sintx2:", cover.sintx2);
+                  print_type("cover.sinty2:", cover.sinty2);
+                  print_type("cover.sintx2 - cover.sinty2:", cover.sintx2 - cover.sinty2);
+              }
               return check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
                                   absLB(cover.sintx2 - cover.sinty2) > 0);
             }

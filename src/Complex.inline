@@ -98,3 +98,9 @@ inline const double absUB(const XComplex&x) {
 	return(1+2*EPS)*hypot(x.re,x.im);
 
 }
+
+inline const double absUB(const AComplex&x) {
+
+	return (1+EPS)*((1+2*EPS)*hypot(x.z.re, x.z.im) + x.e);
+
+}

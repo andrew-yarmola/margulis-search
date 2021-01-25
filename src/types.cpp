@@ -156,3 +156,14 @@ bool sort_comp<Complex>(const Complex& a, const Complex& b) {
   return absUB(a) < absUB(b);
 }
 
+string double_to_hex(double x)
+{
+  char buf[100];
+  union {
+    double d;
+    long l[2];
+  } u;
+  u.d = x;
+  sprintf(buf, "'%0lx', '%0lx' (%.18f)", u.l[0], u.l[1], u.d);
+  return string(buf);
+}

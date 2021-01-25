@@ -14,7 +14,7 @@ struct AJ {
 	   const XComplex& w1 = 0,
 	   const XComplex& w2 = 0,
 	   double err = 0) : f{f},z0{z0},z1{z1},z2{z2},w0{w0},w1{w1},w2{w2},e{err},
-		size((1+3*EPS)*((absUB(z0)+absUB(w0))+((absUB(z1)+absUB(w1))+(absUB(z2)+absUB(w2))))) {}
+		size((1+3*EPS) * (absUB(sqrt(XComplex(2,0))) * ((absUB(z0) + absUB(w0))+((absUB(z1) + absUB(w1))+(absUB(z2) + absUB(w2)))))) {}
 
 	XComplex f;
 	XComplex z0;

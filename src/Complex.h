@@ -28,6 +28,7 @@ inline const AComplex operator*(const XComplex& x,double y);
 inline const AComplex operator/(const XComplex& x,double y);
 inline const double absLB(const XComplex& x);
 inline const double absUB(const XComplex& x);
+inline const double absUB(const AComplex& x);
 AComplex operator/(const AComplex& x,const AComplex& y);
 AComplex operator/(const XComplex& x,const XComplex& y);
 AComplex operator/(double x,const XComplex& y);

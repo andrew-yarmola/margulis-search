@@ -17,7 +17,7 @@ inline const AJ conj(const AJ&x) {
 
 inline const AJ abs_sqrd(const AJ& x) {
 
-  return x*conj(x);
+  return x * conj(x);
 
 }
 

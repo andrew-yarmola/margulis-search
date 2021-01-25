@@ -171,29 +171,29 @@ void Box::compute_cover()
   // Here, we have sinhdx(z0,z1,z2) = size * re(z0) + center and sinhdy(z0,z1,z2) = size * im(z0) + center
   // TODO: verify that this multiplication by powers of 2 is valid
   _cover.sinhdx = AJ(XComplex(box_center[0], 0), 
-                     XComplex(box_size[0]/2, 0), 0, 0,
-                     XComplex(box_size[0]/2, 0), 0, 0);
+                     XComplex(box_size[0] / 2, 0), 0, 0,
+                     XComplex(box_size[0] / 2, 0), 0, 0);
   // Note: d(im(z0))/dz0 = - i / 2 and d(im(z0)/dconj(z0) = i/2
   _cover.sinhdy = AJ(XComplex(box_center[1], 0), 
-                     XComplex(0., - box_size[1]/2), 0, 0,
-                     XComplex(0.,   box_size[1]/2), 0, 0);
+                     XComplex(0., - box_size[1] / 2), 0, 0,
+                     XComplex(0.,   box_size[1] / 2), 0, 0);
 
   // TODO: verify that division by 2 is valid
   _cover.coshmu = AJ(XComplex(box_center[2], 0), 
-                  0, XComplex(box_size[2]/2, 0), 0,
-                  0, XComplex(box_size[2]/2, 0), 0);
+                  0, XComplex(box_size[2] / 2, 0), 0,
+                  0, XComplex(box_size[2] / 2, 0), 0);
 
   _cover.cosf = AJ(XComplex(box_center[3], 0), 
-                0, XComplex(0, -box_size[3]/2), 0,
-                0, XComplex(0,  box_size[3]/2), 0);
+                0, XComplex(0, -box_size[3] / 2), 0,
+                0, XComplex(0,  box_size[3] / 2), 0);
 
   _cover.sintx2 = AJ(XComplex(box_center[4], 0), 
-                  0, XComplex(box_size[4]/2, 0), 0,
-                  0, XComplex(box_size[4]/2, 0), 0);
+                  0, 0, XComplex(box_size[4] / 2, 0),
+                  0, 0, XComplex(box_size[4] / 2, 0));
 
   _cover.sinty2 = AJ(XComplex(box_center[5], 0), 
-                0, XComplex(0, -box_size[5]/2), 0,
-                0, XComplex(0,  box_size[5]/2), 0);
+                  0, 0, XComplex(0, -box_size[5] / 2),
+                  0, 0, XComplex(0,  box_size[5] / 2));
 
   fill_derived(_cover);
 

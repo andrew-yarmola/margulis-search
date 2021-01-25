@@ -270,4 +270,6 @@ void print_center(const char desc[], const T& x) {
   print_center(x);
 } 
 
+std::string double_to_hex(double x);
+
 #endif // __types_h
