@@ -22,7 +22,6 @@ int TestCollection::size()
 
 box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
 {
-  //  fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
   Params<Complex> p = box.center();
   if (pair.second.length() == 0) {
     string word = pair.first;
@@ -51,11 +50,13 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
           return bad_x_tube_center;
         }
         if (cant_fix_x_axis(w_x,p)) {
-          fprintf(stderr, "Word doesn't fix axis\n");
-          print_SL2(w_x);
-          fprintf(stderr, "x\n");
-          print_SL2(box.x_center());
-          fprintf(stderr, "&&&&&&&&&&&&&&&&&&&&\n");
+          if (g_debug) { 
+            fprintf(stderr, "Word doesn't fix axis\n");
+            print_SL2(w_x);
+            fprintf(stderr, "x\n");
+            print_SL2(box.x_center());
+            fprintf(stderr, "&&&&&&&&&&&&&&&&&&&&\n");
+          }
           return bad_x_tube_center;
         }
         if (non_cylic_power(w_x, box.x_center())) {
@@ -113,7 +114,9 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
 box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& aux_word,
     vector<string>& new_qrs, unordered_map< string,SL2<AJ> >& words_cache)
 {
-  //    fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
+  if (g_debug) {
+    fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
+  }
   Params<AJ> p = box.cover();
   if (pair.second.length() == 0) {
     string word = pair.first;
@@ -125,22 +128,24 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       // TODO make these rstrip first
       if (moves_x_axis_too_close_to_y(w,p)) {
         if (moved_x_axis_not_y_axis(w, p)) {
-          fprintf(stderr, "******* MOVES X TOO CLOSE TO Y *********\n");
-          AJ diff = p.coshdxdy * 4 - four_cosh_dist_ay_wax(w, p);
-          print_SL2(w);
-          print_type("4cosh(dx+dy):", p.coshdxdy * 4);
-          print_type("4coshd(dist(y-axis, w(x-axis))):", four_cosh_dist_ay_wax(w, p)); 
-          AJ z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
-            ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
-          print_type("4 sinh^2(dist/2) + 2:", z);
-          print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
-          print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
-          print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
-          print_type("diff:", diff);
-          fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
-          AJ fsp2sq = four_sinh_perp2_sq_ay_wax(w, p);
-          print_type("4 sihn^2(perp/2):", fsp2sq);
-          fprintf(stderr, "****************************************\n");
+          if (g_debug) {
+            fprintf(stderr, "******* MOVES X TOO CLOSE TO Y *********\n");
+            AJ diff = p.coshdxdy * 4 - four_cosh_dist_ay_wax(w, p);
+            print_SL2(w);
+            print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+            print_type("4coshd(dist(y-axis, w(x-axis))):", four_cosh_dist_ay_wax(w, p)); 
+            AJ z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
+              ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
+            print_type("4 sinh^2(dist/2) + 2:", z);
+            print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
+            print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
+            print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
+            print_type("diff:", diff);
+            fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
+            AJ fsp2sq = four_sinh_perp2_sq_ay_wax(w, p);
+            print_type("4 sihn^2(perp/2):", fsp2sq);
+            fprintf(stderr, "****************************************\n");
+          }
           return killed_x_hits_y;
         } else {
           // return var_x_hits_y;
@@ -149,22 +154,24 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       }
       if (moves_y_axis_too_close_to_x(w,p)) {
         if (moved_y_axis_not_x_axis(w, p)) {
-          fprintf(stderr, "******* MOVES Y TOO CLOSE TO X: %s *********\n", word.c_str());
-          AJ diff = p.coshdxdy * 4 - four_cosh_dist_ax_way(w, p);
-          print_SL2(w);
-          print_type("4cosh(dx+dy):", p.coshdxdy * 4);
-          print_type("4coshd(dist(x-axis, w(y-axis))):", four_cosh_dist_ax_way(w, p)); 
-          AJ z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
-                 ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
-          print_type("4 sinh^2(dist/2) + 2:", z);
-          print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
-          print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
-          print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
-          print_type("diff:", diff);
-          fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
-          AJ fsp2sq = four_sinh_perp2_sq_ax_way(w, p);
-          print_type("4 sihn^2(perp/2):", fsp2sq);
-          fprintf(stderr, "****************************************\n");
+          if (g_debug) {
+            fprintf(stderr, "******* MOVES Y TOO CLOSE TO X: %s *********\n", word.c_str());
+            AJ diff = p.coshdxdy * 4 - four_cosh_dist_ax_way(w, p);
+            print_SL2(w);
+            print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+            print_type("4coshd(dist(x-axis, w(y-axis))):", four_cosh_dist_ax_way(w, p)); 
+            AJ z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
+                   ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
+            print_type("4 sinh^2(dist/2) + 2:", z);
+            print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
+            print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
+            print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
+            print_type("diff:", diff);
+            fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
+            AJ fsp2sq = four_sinh_perp2_sq_ax_way(w, p);
+            print_type("4 sihn^2(perp/2):", fsp2sq);
+            fprintf(stderr, "****************************************\n");
+          }
           return killed_y_hits_x;
         } else {
           // return var_y_hits_x;
@@ -180,53 +187,50 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       } else {
         w_x = w;
       }
-      SL2<AJ> w_test = construct_word("XXyXyXXYY", p);
-      if (!not_identity(w_test)) {
-        fprintf(stderr, "&&&&&&&&&&&&&&&&&&&&\n");
-        fprintf(stderr, "X^2%s\n", word_x.c_str());
-        print_SL2(w_test);
-        fprintf(stderr, "&&&&&&&&&&&&&&&&&&&&\n");
-      }
       if (inside_var_nbd_x(w_x, p)) {
         if (syllables(word_x) < 4) {
           return killed_x_tube;
         }
         if (cant_fix_x_axis(w_x, p)) {
-          fprintf(stderr, "********** KILLED  ***********\n");
-          fprintf(stderr, "Word %s must but doesn't fix x-axis\n", word_x.c_str());
-          print_SL2(w_x);
-          fprintf(stderr, "********** MUST FIX X AXIS ***********\n");
-          fprintf(stderr, "UB Jwx %f, UB Jxw %f, must_fix %d\n", absUB(jorgensen_wx(w_x, p)),
-                  absUB(jorgensen_xw(w_x, p)), must_fix_x_axis(w_x, p));
-          AJ diff = p.cosh2dx * 4 - four_cosh_dist_ax_wax(w_x, p);
-          print_type("4 cosh 2 dx:", p.cosh2dx * 4);
-          print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w_x, p));
-          print_type("diff:", diff);
-          fprintf(stderr, "********** CANNOT FIX X AXIS ***********\n");
-          AJ fsp2sq = four_sinh_perp2_sq_ax_wax(w_x, p);
-          print_type("4sinh^2(perp/2)", fsp2sq);
-          fprintf(stderr, "Can't fix x axis LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
-          fprintf(stderr,"Can't fix x axis LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
-          fprintf(stderr, "*******************************\n");
+          if (g_debug) {
+            fprintf(stderr, "********** KILLED  ***********\n");
+            fprintf(stderr, "Word %s must but doesn't fix x-axis\n", word_x.c_str());
+            print_SL2(w_x);
+            fprintf(stderr, "********** MUST FIX X AXIS ***********\n");
+            fprintf(stderr, "UB Jwx %f, UB Jxw %f, must_fix %d\n", absUB(jorgensen_wx(w_x, p)),
+                    absUB(jorgensen_xw(w_x, p)), must_fix_x_axis(w_x, p));
+            AJ diff = p.cosh2dx * 4 - four_cosh_dist_ax_wax(w_x, p);
+            print_type("4 cosh 2 dx:", p.cosh2dx * 4);
+            print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w_x, p));
+            print_type("diff:", diff);
+            fprintf(stderr, "********** CANNOT FIX X AXIS ***********\n");
+            AJ fsp2sq = four_sinh_perp2_sq_ax_wax(w_x, p);
+            print_type("4sinh^2(perp/2)", fsp2sq);
+            fprintf(stderr, "Can't fix x axis LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
+            fprintf(stderr,"Can't fix x axis LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
+            fprintf(stderr, "*******************************\n");
+           }
           return killed_x_tube;
         }
         if (non_cylic_power(w_x, box.x_cover())) {
-          fprintf(stderr, "********** DOES NOT COMMUTE  ***********\n");
-          fprintf(stderr, "Word %s must fix x-axis but doesn't commute\n", word_x.c_str());
-          print_SL2(w_x);
-          fprintf(stderr, "********** MUST FIX X AXIS ***********\n");
-          fprintf(stderr, "UB Jwx %f, UB Jxw %f, must_fix %d\n", absUB(jorgensen_wx(w_x, p)),
-                  absUB(jorgensen_xw(w_x, p)), must_fix_x_axis(w_x, p));
-          AJ diff = p.cosh2dx * 4 - four_cosh_dist_ax_wax(w_x, p);
-          print_type("4 cosh 2 dx:", p.cosh2dx * 4);
-          print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w_x, p));
-          print_type("diff:", diff);
-          fprintf(stderr, "********** DOES NOTE COMMUTE ***********\n");
-          SL2<AJ> commutator = box.x_cover() * w * inverse(w * box.x_cover());
-          fprintf(stderr, "commutator\n");
-          print_SL2(commutator);
-          fprintf(stderr, "|b| == 0: %d, |c| == 0: %d, |a-1| == 0: %d, |d-1| == 0: %d, |a+1| == 0: %d, |d+1| == 0: %d\n", absLB(commutator.b) == 0, absLB(commutator.c) == 0, absLB(commutator.a-1) == 0,absLB(commutator.d-1) == 0, absLB(commutator.a+1) == 0, absLB(commutator.d+1) == 0);
-          fprintf(stderr, "****************************************\n");
+          if (g_debug) {
+            fprintf(stderr, "********** DOES NOT COMMUTE  ***********\n");
+            fprintf(stderr, "Word %s must fix x-axis but doesn't commute\n", word_x.c_str());
+            print_SL2(w_x);
+            fprintf(stderr, "********** MUST FIX X AXIS ***********\n");
+            fprintf(stderr, "UB Jwx %f, UB Jxw %f, must_fix %d\n", absUB(jorgensen_wx(w_x, p)),
+                    absUB(jorgensen_xw(w_x, p)), must_fix_x_axis(w_x, p));
+            AJ diff = p.cosh2dx * 4 - four_cosh_dist_ax_wax(w_x, p);
+            print_type("4 cosh 2 dx:", p.cosh2dx * 4);
+            print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w_x, p));
+            print_type("diff:", diff);
+            fprintf(stderr, "********** DOES NOTE COMMUTE ***********\n");
+            SL2<AJ> commutator = box.x_cover() * w * inverse(w * box.x_cover());
+            fprintf(stderr, "commutator\n");
+            print_SL2(commutator);
+            fprintf(stderr, "|b| == 0: %d, |c| == 0: %d, |a-1| == 0: %d, |d-1| == 0: %d, |a+1| == 0: %d, |d+1| == 0: %d\n", absLB(commutator.b) == 0, absLB(commutator.c) == 0, absLB(commutator.a-1) == 0,absLB(commutator.d-1) == 0, absLB(commutator.a+1) == 0, absLB(commutator.d+1) == 0);
+            fprintf(stderr, "****************************************\n");
+          }
           return killed_lox_not_x_power;
         }
       }
@@ -320,8 +324,8 @@ box_state TestCollection::evaluate_center(int index, Box& box)
               SL2<Complex> y = construct_y(center);
               Complex four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, center);
               Complex four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, center);
-              return check_bounds_center(meyerhoff_k_test(center.coshlx, center.costx, four_cosh_x_tube_UB, false) || 
-                  meyerhoff_k_test(center.coshly, center.costy, four_cosh_y_tube_UB, false));
+              return check_bounds_center(meyerhoff_k_test(center.coshlx, center.costx, four_cosh_x_tube_UB) || 
+                  meyerhoff_k_test(center.coshly, center.costy, four_cosh_y_tube_UB));
             }
     case 5: { // diagonals
               return check_bounds_center(absLB(center.sinhdx - center.sinhdy) > 0 ||
@@ -358,11 +362,11 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
               SL2<AJ> y = construct_y(cover);
               AJ four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, cover);
               AJ four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, cover);
-              return check_bounds(meyerhoff_k_test(cover.coshlx, cover.costx, four_cosh_x_tube_UB, false) || 
-                  meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB, false));
+              return check_bounds(meyerhoff_k_test(cover.coshlx, cover.costx, four_cosh_x_tube_UB) || 
+                  meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB));
             }
     case 5: { // diagonals
-              if (check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
+              if (g_debug && check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
                                absLB(cover.sintx2 - cover.sinty2) > 0)) {
                   print_type("cover.sinhdx:", cover.sinhdx);
                   print_type("cover.sinhdy:", cover.sinhdy);
@@ -370,7 +374,7 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
                   print_type("cover.sintx2:", cover.sintx2);
                   print_type("cover.sinty2:", cover.sinty2);
                   print_type("cover.sintx2 - cover.sinty2:", cover.sintx2 - cover.sinty2);
-              }
+              } 
               return check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
                                   absLB(cover.sintx2 - cover.sinty2) > 0);
             }

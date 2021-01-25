@@ -10,6 +10,7 @@ typedef vector< vector< box_state > > TestHistory;
 Options g_options;
 TestCollection g_tests;
 int g_boxesVisited = 0;
+bool g_debug = false;
 
 double g_cosh_marg_upper_bound = 1.2947;
 double g_cosh_marg_lower_bound = 1.0054;

@@ -6,6 +6,8 @@
 #include "SL2.hh"
 #include "IsomH3.hh"
 
+extern bool g_debug;
+
 struct ImpossibleRelations;
 
 struct TestCollection {
@@ -251,7 +253,7 @@ inline bool non_cylic_power(const SL2<T>& w, const SL2<T>& x_or_y) {
 // We stop computing if we fail the test
 #define MAX_MEYER 8
 template<typename T>
-bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam_UB, bool debug) {
+bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam_UB) {
   // Assumed ch and cs are real valued jets
   T ch_prev = T(1);
   T cs_prev = T(1);
@@ -267,7 +269,7 @@ bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam
       // See Meyerhoff paper on volume lowerbounds for hyperbolic 3-manifolds
       four_cosh_tube_diam_LB = sqrt(-(meyer_k * 32) + 16) / meyer_k;
       if (strictly_pos(four_cosh_tube_diam_LB - four_cosh_tube_diam_UB)) {
-        if (debug) {
+        if (g_debug) {
           fprintf(stderr, "Meyer k %f with 4 cosh tube diam LB %f and UB %f\n",
               absLB(meyer_k), absUB(four_cosh_tube_diam_LB), absLB(four_cosh_tube_diam_UB));
         }
