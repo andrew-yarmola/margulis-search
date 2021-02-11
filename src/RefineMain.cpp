@@ -10,9 +10,13 @@ extern Options g_options;
 extern TestCollection g_tests;
 extern int g_boxesVisited;
 
-extern double g_cosh_marg_upper_bound;
-extern double g_cosh_marg_lower_bound;
-extern double g_sinh_d_bound; 
+double g_cosh_marg_upper_bound = 1.2947;
+double g_cosh_marg_lower_bound = 1.0054;
+double g_sinh_d_bound = 1.3426; 
+
+bool g_debug = false;
+
+bool g_symmetric = true;
 
 const char* g_programName;
 

@@ -263,7 +263,7 @@ namespace TubeSearchImpl {
     //  wInv.name.c_str(), wInv.nameClass.c_str());
   }
 
-#define SEARCH_DEPTH 100
+#define SEARCH_DEPTH 30
 #define POW_DEPTH 6
 
   WordPair TubeSearch::find_pair()
@@ -437,8 +437,8 @@ inline void move(axis& a, const string& word, const SL2<Complex>& gamma) {
   a.gamma = gamma * a.gamma;
 }  
 
-#define MAX_SEEN_AGAIN 2
-#define MAX_SHIFT 4
+#define MAX_SEEN_AGAIN 1
+#define MAX_SHIFT 6
 
 vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
     bool x_is_mover, const Params<Complex> &params,

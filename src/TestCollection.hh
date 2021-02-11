@@ -1,3 +1,5 @@
+#ifndef _TestCollection_ 
+#define _TestCollection_
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -15,11 +17,13 @@ struct TestCollection {
   box_state evaluate_center(int index, Box& box);
   box_state evaluate_box(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
   const std::string get_name(int index);
+  word_pair get_pair(int index);
   int add(word_pair pair);
   int add(std::string pair);
   void load(const char* fileName);
   void load_impossible_relations(const char* fileName);
   private:
+  word_pair parse_word_pair(std::string buf);
   std::map<word_pair, int> pair_index;
   std::vector<word_pair> pair_vector;
   box_state evaluate_approx(word_pair pair, const Box& params);
@@ -288,4 +292,4 @@ bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam
   return false; // inconclusive
 }
 
-
+#endif //_TestCollection_

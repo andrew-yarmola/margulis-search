@@ -10,11 +10,12 @@ typedef vector< vector< box_state > > TestHistory;
 Options g_options;
 TestCollection g_tests;
 int g_boxesVisited = 0;
-bool g_debug = false;
 
-double g_cosh_marg_upper_bound = 1.2947;
-double g_cosh_marg_lower_bound = 1.0054;
-double g_sinh_d_bound = 1.3426; 
+extern double g_cosh_marg_upper_bound;
+extern double g_cosh_marg_lower_bound;
+extern double g_sinh_d_bound; 
+
+extern bool g_debug;
 
 unordered_map<string, SL2<AJ> > short_words_cache;
 
@@ -44,7 +45,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
         fprintf(stderr, "new quasirelator %s\n", (*it).c_str());
         box.qr.get_name(*it); // Also adds qr to the box's list
       }
-      t.qr_desc = box.qr.min_pow_desc();
+      t.qr_desc = box.qr.desc(box.cover());
     } else { 
       fprintf(stderr, "FAILED to eliminate %s with test %s with result %d\n", box.name.c_str(), g_tests.get_name(t.test_index).c_str(), result);
     }
@@ -61,13 +62,47 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
   for (vector<string>::iterator it = quasi_relators.begin(); it != quasi_relators.end(); ++it) {
     // So not idenity and absUB(w.b) < 1
     SL2<AJ> w = construct_word(*it, p, short_words_cache); 
-    if ((must_fix_x_axis(w,p) && (cant_fix_x_axis(w,p) || non_cylic_power(w, box.x_cover()))) ||
-        (must_fix_y_axis(w,p) && (cant_fix_y_axis(w,p) || non_cylic_power(w, box.y_cover()))))
-    {
-      fprintf(stderr, "killed by failed quasirelator %s at %s\n", (*it).c_str(), box.name.c_str());
-      t.aux_word.assign(*it);
-      t.test_result = killed_failed_qr;
-      return true;
+    if (moves_x_axis_too_close_to_y(w,p) &&
+        moved_x_axis_not_y_axis(w, p)) {
+        t.aux_word.assign(*it);
+        t.aux_result = killed_x_hits_y;
+        t.test_result = killed_failed_qr;
+        return true;
+    }
+    if (moves_y_axis_too_close_to_x(w,p) &&
+        moved_y_axis_not_x_axis(w, p)) {
+        t.aux_word.assign(*it);
+        t.aux_result = killed_y_hits_x;
+        t.test_result = killed_failed_qr;
+        return true;
+    }
+    if (inside_var_nbd_x(w,p)) {
+      if (cant_fix_x_axis(w,p)) {
+        t.aux_word.assign(*it);
+        t.aux_result = killed_x_tube;
+        t.test_result = killed_failed_qr;
+        return true;
+      } 
+      if (non_cylic_power(w, box.x_cover())) {
+        t.aux_word.assign(*it);
+        t.aux_result = killed_lox_not_x_power;
+        t.test_result = killed_failed_qr;
+        return true;
+      }
+    }
+    if (inside_var_nbd_y(w,p)) {
+      if (cant_fix_y_axis(w,p)) {
+        t.aux_word.assign(*it);
+        t.aux_result = killed_y_tube;
+        t.test_result = killed_failed_qr;
+        return true;
+      } 
+      if (non_cylic_power(w, box.y_cover())) {
+        t.aux_word.assign(*it);
+        t.aux_result = killed_lox_not_y_power;
+        t.test_result = killed_failed_qr;
+        return true;
+      }
     }
   }
 
@@ -114,7 +149,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
 //            fprintf(stderr, "New QR is %s\n", (*it).c_str());
               box.qr.get_name(*it); // Also adds qr to the box's list
             }
-            t.qr_desc = box.qr.min_pow_desc();
+            t.qr_desc = box.qr.desc(box.cover());
             break;
           }
           default : {
@@ -125,12 +160,12 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
   }
 
-  if (g_options.word_search_depth > 0 && depth > 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 36 && depth % g_options.word_search_depth == 0) {
+  if (g_options.word_search_depth > 0 && depth > 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 60 && depth % g_options.word_search_depth == 0) {
     // while (depth - searched_depth > g_options.word_search_depth) {
       //Box& search_place = place[++searched_depth];
       Box& search_place = box;
       // vector<word_pair> search_pairs = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
-      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 1, 8, box.qr.word_classes(), map<string, int>());
+      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 1, 5, box.qr.word_classes(), map<string, int>());
       //vector<word_pair> search_pairs;
       // fprintf(stderr, "Tube search ran at(%s\n", search_place.name.c_str());
       if (search_pairs.size() > 0) {
@@ -142,7 +177,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
 
         if (old_size < g_tests.size()) {
           fprintf(stderr, "search (%s) found (%s,%s) at (%s)\n",
-                  search_place.qr.desc().c_str(), new_pair.first.c_str(), new_pair.second.c_str(), search_place.name.c_str());
+                  search_place.qr.desc(box.cover()).c_str(), new_pair.first.c_str(), new_pair.second.c_str(), search_place.name.c_str());
 
           new_qrs.clear();
           box_state result = g_tests.evaluate_box(new_index, box, aux_word, new_qrs, short_words_cache);
@@ -173,7 +208,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
   //            fprintf(stderr, "New QR is %s\n", (*it).c_str());
                 box.qr.get_name(*it); // Also adds qr to the box's list
               }
-              t.qr_desc = box.qr.min_pow_desc();
+              t.qr_desc = box.qr.desc(box.cover());
               break;
             }
             default : {
@@ -190,7 +225,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
   if (!t.l_child) {
     if (depth >= g_options.max_depth || ++g_boxesVisited >= g_options.max_size || ++newDepth > g_options.invent_depth) {
 //    fprintf(stderr,"Deph %d, max depth %d, boxes_visited %d, max size %d, newDepth %d, invent depth %d\n", depth, g_options.max_depth, g_boxesVisited, g_options.max_size, newDepth, g_options.invent_depth);
-      fprintf(stderr, "HOLE %s (%s)\n", box.name.c_str(), box.qr.desc().c_str());
+      fprintf(stderr, "HOLE %s (%s)\n", box.name.c_str(), box.qr.desc(box.cover()).c_str());
       return false;
     }
     t.l_child = new PartialTree();
@@ -231,7 +266,7 @@ void refine_tree(Box box, PartialTree& t)
 void print_tree(PartialTree& t)
 {
     char type = 'F';
-//  printf("%d\n", t.test_result);
+    word_pair p = g_tests.get_pair(t.test_index);
     switch (t.test_result) {
       case open :
       case open_with_qr : {
@@ -249,16 +284,48 @@ void print_tree(PartialTree& t)
         return;
       }
       case killed_failed_qr : {
-        printf("%c(%s,)\n", 'Q', t.aux_word.c_str());
-        return;
+        p = word_pair(t.aux_word, "");
+        switch (t.aux_result) {
+          case killed_x_hits_y : type = 'a'; break;
+          case killed_y_hits_x : type = 'A'; break;
+          case killed_x_tube : type = 'x'; break;
+          case killed_lox_not_x_power : type = 'p';  break;
+          case killed_y_tube : type = 'y'; break;
+          case killed_lox_not_y_power : type = 'P'; break;
+        }
+        break;
       }
       case killed_only_elliptic : type = 'E'; break; 
-      case killed_x_hits_y : type = 'a'; break;
-      case killed_y_hits_x : type = 'A'; break;
-      case killed_x_tube : type = 'x'; break;
-      case killed_y_tube : type = 'y'; break;
-      case killed_lox_not_x_power : type = 'p'; break; 
-      case killed_lox_not_y_power : type = 'P'; break;
+      case killed_x_hits_y : {
+                              type = 'a';
+                              p = word_pair(x_rstrip(p.first), p.second);
+                              break;
+                             }
+      case killed_y_hits_x : {
+                              type = 'A';
+                              p = word_pair(y_rstrip(p.first), p.second);
+                              break;
+                             }
+      case killed_x_tube : {
+                             type = 'x';
+                             p = word_pair(x_strip(p.first), p.second);
+                             break;
+                           }
+      case killed_lox_not_x_power : { 
+                             type = 'p';
+                             p = word_pair(x_strip(p.first), p.second);
+                             break;
+                           }
+      case killed_y_tube : { 
+                             type = 'y';
+                             p = word_pair(y_strip(p.first), p.second);
+                             break;
+                           }
+      case killed_lox_not_y_power : { 
+                             type = 'P';
+                             p = word_pair(y_strip(p.first), p.second);
+                             break;
+                           }
       case killed_move : type = 'm'; break;
       case killed_marg : type = 'M'; break;
       case variety_nbd_x : type = 'v'; break;
@@ -268,6 +335,7 @@ void print_tree(PartialTree& t)
       case var_y_hits_x : type = 'C'; break;
       default : return;
     }
-    printf("%c%s\n", type, g_tests.get_name(t.test_index).c_str());
+    
+    printf("%c(%s,%s)\n", type, p.first.c_str(), p.second.c_str()); 
 }
 

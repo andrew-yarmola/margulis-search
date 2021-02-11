@@ -10,6 +10,7 @@ using namespace std;
 extern double g_cosh_marg_upper_bound;
 extern double g_cosh_marg_lower_bound;
 extern double g_sinh_d_bound; 
+extern bool g_symmetric; 
 
 int num_bound_tests = 6;
 
@@ -17,7 +18,6 @@ int TestCollection::size()
 {
   return num_bound_tests + pair_vector.size();
 }
-
 
 
 box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
@@ -121,63 +121,70 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<AJ> w = construct_word(word, p);
-    if (not_identity(w)) {
-      if (move_less_than_marg(w, p)) {
-        return killed_move;
-      }
-      // TODO make these rstrip first
-      if (moves_x_axis_too_close_to_y(w,p)) {
-        if (moved_x_axis_not_y_axis(w, p)) {
-          if (g_debug) {
-            fprintf(stderr, "******* MOVES X TOO CLOSE TO Y *********\n");
-            AJ diff = p.coshdxdy * 4 - four_cosh_dist_ay_wax(w, p);
-            print_SL2(w);
-            print_type("4cosh(dx+dy):", p.coshdxdy * 4);
-            print_type("4coshd(dist(y-axis, w(x-axis))):", four_cosh_dist_ay_wax(w, p)); 
-            AJ z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
-              ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
-            print_type("4 sinh^2(dist/2) + 2:", z);
-            print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
-            print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
-            print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
-            print_type("diff:", diff);
-            fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
-            AJ fsp2sq = four_sinh_perp2_sq_ay_wax(w, p);
-            print_type("4 sihn^2(perp/2):", fsp2sq);
-            fprintf(stderr, "****************************************\n");
-          }
-          return killed_x_hits_y;
-        } else {
-          // return var_x_hits_y;
-          return open;
+    if (not_identity(w) && move_less_than_marg(w, p)) {
+      return killed_move;
+    }
+    string word_xr = x_rstrip(word);
+    SL2<AJ> w_xr;
+    if (word_xr != word) {
+      w_xr = construct_word(word_xr, p);
+    } else {
+      w_xr = w;
+    }
+    if (moves_x_axis_too_close_to_y(w_xr,p)) {
+      if (moved_x_axis_not_y_axis(w_xr, p)) {
+        if (g_debug) {
+          fprintf(stderr, "******* MOVES X TOO CLOSE TO Y *********\n");
+          AJ diff = p.coshdxdy * 4 - four_cosh_dist_ay_wax(w, p);
+          print_SL2(w);
+          print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+          print_type("4coshd(dist(y-axis, w(x-axis))):", four_cosh_dist_ay_wax(w, p)); 
+          AJ z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
+            ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
+          print_type("4 sinh^2(dist/2) + 2:", z);
+          print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
+          print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
+          print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
+          print_type("diff:", diff);
+          fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
+          AJ fsp2sq = four_sinh_perp2_sq_ay_wax(w, p);
+          print_type("4 sihn^2(perp/2):", fsp2sq);
+          fprintf(stderr, "****************************************\n");
         }
+        return killed_x_hits_y;
       }
-      if (moves_y_axis_too_close_to_x(w,p)) {
-        if (moved_y_axis_not_x_axis(w, p)) {
-          if (g_debug) {
-            fprintf(stderr, "******* MOVES Y TOO CLOSE TO X: %s *********\n", word.c_str());
-            AJ diff = p.coshdxdy * 4 - four_cosh_dist_ax_way(w, p);
-            print_SL2(w);
-            print_type("4cosh(dx+dy):", p.coshdxdy * 4);
-            print_type("4coshd(dist(x-axis, w(y-axis))):", four_cosh_dist_ax_way(w, p)); 
-            AJ z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
-                   ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
-            print_type("4 sinh^2(dist/2) + 2:", z);
-            print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
-            print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
-            print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
-            print_type("diff:", diff);
-            fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
-            AJ fsp2sq = four_sinh_perp2_sq_ax_way(w, p);
-            print_type("4 sihn^2(perp/2):", fsp2sq);
-            fprintf(stderr, "****************************************\n");
-          }
-          return killed_y_hits_x;
-        } else {
-          // return var_y_hits_x;
-          return open;
+      new_qrs.push_back(word_xr);
+    }
+    string word_yr = y_rstrip(word);
+    SL2<AJ> w_yr;
+    if (word_yr != word) {
+      w_yr = construct_word(word_yr, p);
+    } else {
+      w_yr = w;
+    }
+    if (moves_y_axis_too_close_to_x(w_yr,p)) {
+      if (moved_y_axis_not_x_axis(w_yr, p)) {
+        if (g_debug) {
+          fprintf(stderr, "******* MOVES Y TOO CLOSE TO X: %s *********\n", word.c_str());
+          AJ diff = p.coshdxdy * 4 - four_cosh_dist_ax_way(w, p);
+          print_SL2(w);
+          print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+          print_type("4coshd(dist(x-axis, w(y-axis))):", four_cosh_dist_ax_way(w, p)); 
+          AJ z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
+                 ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
+          print_type("4 sinh^2(dist/2) + 2:", z);
+          print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
+          print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
+          print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
+          print_type("diff:", diff);
+          fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
+          AJ fsp2sq = four_sinh_perp2_sq_ax_way(w, p);
+          print_type("4 sihn^2(perp/2):", fsp2sq);
+          fprintf(stderr, "****************************************\n");
         }
+        return killed_y_hits_x;
       }
+      new_qrs.push_back(word_yr);
     }
     if (y_power(word) > 0) {
       string word_x = x_strip(word);
@@ -233,6 +240,7 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
           }
           return killed_lox_not_x_power;
         }
+        new_qrs.push_back(word_x);
       }
     }
     if (x_power(word) > 0) {
@@ -253,28 +261,9 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
         if (non_cylic_power(w_y, box.y_cover())) {
           return killed_lox_not_y_power;
         }
+        new_qrs.push_back(word_y);
       }
     }
-    //    if (must_fix_x_axis(w,p)) {
-    //      if (cant_fix_x_axis(w,p)) {
-    //        return killed_x_tube;
-    //      } else if (non_cylic_power(w, box.x_cover())) {
-    //        return killed_lox_not_x_power;
-    //      } else {
-    //        new_qrs.push_back(pair.first);
-    //        return open_with_qr;
-    //      }
-    //    }
-    //    if (must_fix_y_axis(w,p)) {
-    //      if (cant_fix_y_axis(w,p)) {
-    //        return killed_y_tube;
-    //      } else if (non_cylic_power(w, box.y_cover())) {
-    //        return killed_lox_not_y_power;
-    //      } else {
-    //        new_qrs.push_back(pair.first);
-    //        return open_with_qr;
-    //      }
-    //    }
   } else {
     SL2<AJ> w1 = construct_word(pair.first, p);
     SL2<AJ> w2 = construct_word(pair.second,p);
@@ -285,7 +274,11 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       return variety_nbd;
     }
   }
-  return open;
+  if (new_qrs.size() > 0) {
+    return open_with_qr;
+  } else {
+    return open;
+  }
 }
 
 box_state check_bounds_center(bool result) {
@@ -328,6 +321,7 @@ box_state TestCollection::evaluate_center(int index, Box& box)
                   meyerhoff_k_test(center.coshly, center.costy, four_cosh_y_tube_UB));
             }
     case 5: { // diagonals
+              if (!g_symmetric) return open;
               return check_bounds_center(absLB(center.sinhdx - center.sinhdy) > 0 ||
                                          absLB(center.sintx2 - center.sinty2) > 0);
             }
@@ -366,6 +360,7 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
                   meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB));
             }
     case 5: { // diagonals
+              if (!g_symmetric) return open;
               if (g_debug && check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
                                absLB(cover.sintx2 - cover.sinty2) > 0)) {
                   print_type("cover.sinhdx:", cover.sinhdx);
@@ -398,7 +393,17 @@ const string TestCollection::get_name(int index)
   }
 }
 
-int TestCollection::add(string buf)
+word_pair TestCollection::get_pair(int index)
+{
+  if (index < num_bound_tests) {
+    return word_pair();
+  } else {
+    word_pair p = pair_vector[index - num_bound_tests];
+    return p; 
+  }
+}
+
+word_pair TestCollection::parse_word_pair(string buf)
 {
   size_t start = buf.find('(');   
   size_t comma = buf.find(',');   
@@ -411,20 +416,26 @@ int TestCollection::add(string buf)
       end = buf.find(')');
     }
     if (end == string::npos) {
-      return -1;
+      return word_pair();
     }
     first = buf.substr(start + 1, end - start - 1);
   } else {
-    return -1;
+    return word_pair();
   } 
   if (comma != string::npos) {
     size_t end = buf.find(')');
     second = buf.substr(comma + 1, end - comma - 1);
   } else {
-    return -1;
+    return word_pair();
   }
   word_pair p(first, second);
-  return add(p);
+  return p;
+}
+
+
+int TestCollection::add(string buf)
+{
+  return add(parse_word_pair(buf));
 }
 
 int TestCollection::add(word_pair p) { 

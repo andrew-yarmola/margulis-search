@@ -79,7 +79,7 @@ if __name__ == '__main__' :
     sys.exit(2)
 
   # Executables
-  treecat = './simple_treecat'
+  treecat = './treecat'
   treeholes = './treecat --open_holes'
   treecheck = './treecat --mark -s'
   refine = './refine_marg'
@@ -94,10 +94,10 @@ if __name__ == '__main__' :
   sinh_tube_upper = '1.6153'
 
   max_size = '1000000'
-  max_depth = '330'
+  max_depth = '150'
   truncate_depth = '6'
   invent_depth = '42'
-  word_search_depth = '6'
+  word_search_depth = '12'
   fill_holes = ''
   improve_tree = ''
   powers_file = 'none'
@@ -177,7 +177,7 @@ if __name__ == '__main__' :
     # We now check for completed refine processes.
     if child_count >= child_limit or (child_count > 0 and len(open_holes) == 0) or wait_for_holes:
       iter_dict = dict(active_pid_to_hole)
-      for done_pid, done_hole in iter_dict.iteritems() :
+      for done_pid, done_hole in iter_dict.items():
         pid_file = dest_dir + '/' + str(done_pid) + '.pid'
         status = command_output('tail -1 {0}'.format(pid_file))
         if 'completed' in status :
@@ -233,11 +233,11 @@ if __name__ == '__main__' :
     print('Best hole: {0}\n'.format(best_hole))
     if len(failed_holes) > 0:
       print('Deepest failed hole: {}\n'.format(sorted(failed_holes, key=len)[-1]))
-    if len(open_holes) % 100 == 0:
-      with open('deep_holes_sym', 'w') as fp:
-        fp.write('\n'.join(sorted(failed_holes, key=len)))
-      with open('open_holes_sym', 'w') as fp:
-        fp.write('\n'.join(sorted(open_holes, key=len)))
+      if len(open_holes) % 100 == 0:
+        with open('deep_holes_sym', 'w') as fp:
+          fp.write('\n'.join(sorted(failed_holes, key=len)))
+        with open('open_holes_sym', 'w') as fp:
+          fp.write('\n'.join(sorted(open_holes, key=len)))
     else:
       print('Deepest failed hole: None\n')
 
@@ -249,7 +249,8 @@ if __name__ == '__main__' :
     else: 
       pid_word_search_depth = word_search_depth
 
-    treecat_command = '{0} -r {1} {2} | ./treetrim 500000 12'.format(treecat, src_dir, best_hole)
+    #treecat_command = '{0} {1} {2} | ./treetrim 500000 12'.format(treecat, src_dir, best_hole)
+    treecat_command = '{0} {1} {2}'.format(treecat, src_dir, best_hole)
     refine_command = refine + \
         fill_holes + \
         improve_tree + \

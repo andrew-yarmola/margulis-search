@@ -63,7 +63,6 @@ string repeat(string s, int n) {
 }
 
 string x_strip(string w) {
-  return w;
   size_t first = -1;
   for (size_t p = 0; p < w.length(); ++p) {
     if (w[p] == 'x' || w[p] == 'X') {
@@ -84,7 +83,6 @@ string x_strip(string w) {
 }
 
 string y_strip(string w) {
-  return w;
   size_t first = -1;
   for (size_t p = 0; p < w.length(); ++p) {
     if (w[p] == 'y' || w[p] == 'Y') {
@@ -103,6 +101,31 @@ string y_strip(string w) {
   }
   return w.substr(first+1, last - first - 1);
 }
+
+string x_rstrip(string w) {
+  size_t last = w.length(); 
+  for (size_t p = w.length() - 1; p >= 0; --p) {
+    if (w[p] == 'x' || w[p] == 'X') {
+      last = p; 
+    } else {
+      break;
+    }
+  }
+  return w.substr(0, last);
+}
+
+string y_rstrip(string w) {
+  size_t last = w.length();
+  for (size_t p = w.length() - 1; p >= 0; --p) {
+    if (w[p] == 'y' || w[p] == 'Y') {
+      last = p; 
+    } else {
+      break;
+    }
+  }
+  return w.substr(0, last);
+}
+
 
 int syllables(string w) {
   int count = 0;

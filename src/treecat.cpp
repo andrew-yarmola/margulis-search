@@ -53,13 +53,13 @@ FILE* open_box(char* boxcode, char* file_name)
     return fp;
 	}
   // Look for a gzipped file
-	sprintf(file_name, "%s/%s.out.gz", g_config.tree_location, boxcode_file);
+	sprintf(file_name, "%s/%s.out.tar.gz", g_config.tree_location, boxcode_file);
 	if (0 == stat(file_name, &sb)) {
 		char command_buf[10000];
 		if (g_config.verbose) {
       fprintf(stderr, "opening %s\n", file_name);
     }
-		sprintf(command_buf, "gzcat %s", file_name); // cool trick
+		sprintf(command_buf, "tar -xOzf %s", file_name); // cool trick
 		fp = popen(command_buf, "r");
 		return fp;
 	}

@@ -42,6 +42,9 @@ int main(int argc,char**argv)
   printf("x strip xxXyxyYx : %s\n", x_strip("xxXyxyYx").c_str());
   printf("y strip yYyxxXyyYxyyY : %s\n", y_strip("yYyxxXyyYxyyY").c_str());
   printf("y strip yYyxxXyyYx : %s\n", y_strip("yYyxxXyyYx").c_str());
+  printf("x rstrip xxXyxyYx : %s\n", x_rstrip("xxXyxyYx").c_str());
+  printf("y rstrip yYyxxXyyYxyyY : %s\n", y_rstrip("yYyxxXyyYxyyY").c_str());
+  printf("y rstrip yYyxxXyyYx : %s\n", y_rstrip("yYyxxXyyYx").c_str());
   printf("Box: %s", box.desc().c_str());
 
 //  SL2<AJ> x = box.x_cover(); 
