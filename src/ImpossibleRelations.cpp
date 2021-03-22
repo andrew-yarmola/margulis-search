@@ -10,106 +10,76 @@
 #include "ImpossibleRelations.h"
 #include <map>
 #include <stdio.h>
+#include <string.h>
 
 using namespace std;
 
 namespace ImpossibleRelationsImpl {
 	
 	struct Impl : public ImpossibleRelations {
-		bool isAlwaysImpossible(string word, vector<string>& mandatoryIdentities);
-		bool isImpossible(string word, int mCoeff, int nCoeff, vector<string>& mandatoryIdentities);
-		void load(const char* filePath);
+		bool is_impossible(string word, vector<string>& required_non_identities);
+		void load(const char* path);
 	private:
 		struct PossiblePower {
-			bool subWordIdentityAllowed;
-			bool matchRequired;
-			int matchingMCoeff;
-			int matchingNCoeff;
+			bool subword_identity_allowed;
 			int power;
-			string subWord;
+			string subword;
 		};
 		typedef multimap<string, PossiblePower> PossibleStore;
-		PossibleStore possibleStore;
+		PossibleStore possible_store;
 	};
 	
-	bool Impl::isAlwaysImpossible(string word, vector<string>& mandatoryIdentities)
+	bool Impl::is_impossible(string word, vector<string>& required_non_identities)
 	{
-		PossibleStore::iterator it = possibleStore.lower_bound(word);
-		vector<string> mandatory;
-		while (it != possibleStore.end() && it->first == word) {
-			PossiblePower possible = it->second;
-			if (!possible.matchRequired) {
-				if (!possible.subWordIdentityAllowed) {
-					return true;
-				} else {
-					mandatory.push_back(possible.subWord);
-				}
-			}
-			++it;
+		PossibleStore::iterator it = possible_store.lower_bound(word);
+		vector<string> required;
+		while (it != possible_store.end() && it->first == word) {
+      return true;
+      /*PossiblePower possible = it->second;
+      if (!possible.subword_identity_allowed) {
+        return true;
+      } else {
+        required.push_back(possible.subword);
+      }
+			++it;*/
 		}
-		mandatoryIdentities.swap(mandatory);
+		required_non_identities.swap(required);
 		return false;
 	}
-	
-	bool Impl::isImpossible(string word, int mCoeff, int nCoeff, vector<string>& mandatoryIdentities)
-	{
-		PossibleStore::iterator it = possibleStore.lower_bound(word);
-		vector<string> mandatory;
-		while (it != possibleStore.end() && it->first == word) {
-			PossiblePower possible = it->second;
-//			printf("considering %s/%s\n", word.c_str(), possible.subWord.c_str());
-			if (!possible.matchRequired || (mCoeff == possible.matchingMCoeff && nCoeff == possible.matchingNCoeff)) {
-				if (!possible.subWordIdentityAllowed) {
-					return true;
-				} else {
-					if (!possible.matchRequired) {
-						int diffX = possible.matchingMCoeff - mCoeff;
-						int diffY = possible.matchingNCoeff - nCoeff;
-						if (diffX % possible.power != 0 || diffY % possible.power != 0) {
-							return true;
-						}
-					}
-					mandatory.push_back(possible.subWord);
-				}
-			}
-			++it;
-		}
-		mandatoryIdentities.swap(mandatory);
-		return false;
-	}
-	
-	// PossiblePower gMggMgMgg 0 0 -1 0 MgMgg^2 ~ 0 n=3 base=3 {PossiblePower MgMgg 0 1 0 0 Mg^3 ~ 2 n=1 base=1 }
 
-	void Impl::load(const char* filePath)
+	void Impl::load(const char* path)
 	{
 		char buf[1000];
-		char wordBuf[1000];
-		char subWordBuf[1000];
-		int subWordIdentityAllowed;
+		char word_buf[1000];
+		char sub_word_buf[1000];
+		int subword_identity_allowed;
 		int matchRequired;
 		PossiblePower possible;
-		FILE* fp = fopen(filePath, "r");
+		FILE* fp = fopen(path, "r");
 		while (fp && fgets(buf, sizeof(buf), fp)) {
+      buf[strcspn(buf, "\r\n")] = 0;
+      possible_store.insert(make_pair(string(buf), possible));
+      /*
 			int n = sscanf(buf, "PossiblePower %s %d %d %d %d %[gGmMnN]^%d",
-				wordBuf, &subWordIdentityAllowed, &matchRequired,
+				word_buf, &subword_identity_allowed, &matchRequired,
 				&possible.matchingMCoeff, &possible.matchingNCoeff,
-				subWordBuf, &possible.power);
+				sub_word_buf, &possible.power);
 			if (n == 7) { // Filled all the values
-				possible.subWordIdentityAllowed = subWordIdentityAllowed;
+				possible.subword_identity_allowed = subword_identity_allowed;
 				possible.matchRequired = matchRequired;
-				possible.subWord = subWordBuf;
-				possibleStore.insert(make_pair(string(wordBuf), possible));
+				possible.subWord = sub_word_buf;
+				possible_store.insert(make_pair(string(word_buf), possible));
 			} else {
 				if (n > 0) fprintf(stderr, "incomplete line %s", buf);
 				return;
-			}
+			}*/
 		}
 	}
 }
 
-ImpossibleRelations* ImpossibleRelations::create(const char* relationsFilePath)
+ImpossibleRelations* ImpossibleRelations::create(const char* file_path)
 {
 	ImpossibleRelationsImpl::Impl* impossible = new ImpossibleRelationsImpl::Impl();
-	impossible->load(relationsFilePath);
+	impossible->load(file_path);
 	return impossible;
 }

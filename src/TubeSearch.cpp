@@ -437,8 +437,9 @@ inline void move(axis& a, const string& word, const SL2<Complex>& gamma) {
   a.gamma = gamma * a.gamma;
 }  
 
-#define MAX_SEEN_AGAIN 1
+#define MAX_SEEN_AGAIN 128
 #define MAX_SHIFT 6
+#define MAX_TOTAL 1000000
 
 vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
     bool x_is_mover, const Params<Complex> &params,
@@ -453,6 +454,7 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
   // Generate new axes
   int d = 0;
   int seen_count = 0;
+  int total = 0;
   SL2<Complex> x = construct_x(params);
   SL2<Complex> X = inverse(x);
   SL2<Complex> y = construct_y(params);
@@ -511,7 +513,7 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
             } else {
               seen_count += 1;
             }
-            if (new_words.size() >= num_words || seen_count > MAX_SEEN_AGAIN) {
+            if (new_words.size() >= num_words || seen_count >= MAX_SEEN_AGAIN) {
               return new_words;
             }
           }
@@ -519,6 +521,7 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
           continue;
         } else  {
           axes[d+1].push_back(h_moved);
+          total += 1;
           axis shifted = h_moved;
           axis shifted_inv = h_moved;
           int shift_count = 0;
@@ -528,7 +531,11 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
             axes[d+1].push_back(shifted);
             axes[d+1].push_back(shifted_inv);
             shift_count += 1 ;
+            total += 2;
           } 
+        }
+        if (total > MAX_TOTAL) {
+          return new_words;
         }
       }
     }

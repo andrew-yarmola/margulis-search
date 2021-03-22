@@ -7,6 +7,7 @@
 #include "Box.h"
 #include "SL2.hh"
 #include "IsomH3.hh"
+#include "ImpossibleRelations.h"
 
 extern bool g_debug;
 
@@ -20,8 +21,9 @@ struct TestCollection {
   word_pair get_pair(int index);
   int add(word_pair pair);
   int add(std::string pair);
-  void load(const char* fileName);
-  void load_impossible_relations(const char* fileName);
+  void load(const char* file_path);
+  void load_impossible_relations(const char* file_path);
+  ImpossibleRelations *impossible;
   private:
   word_pair parse_word_pair(std::string buf);
   std::map<word_pair, int> pair_index;
@@ -30,7 +32,6 @@ struct TestCollection {
   box_state evaluate_AJ(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
   bool ready_for_elliptics_test(SL2<AJ>& w);
   bool only_elliptics(SL2<AJ>& w, Params<AJ>& params);
-  ImpossibleRelations *impossible;
 };
 
 template<typename T>
@@ -258,7 +259,7 @@ inline bool non_cylic_power(const SL2<T>& w, const SL2<T>& x_or_y) {
 #define MAX_MEYER 8
 template<typename T>
 bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam_UB) {
-  // Assumed ch and cs are real valued jets
+  // Assumed ch and cs are real valued jets for cosh(Re(L)) and cos(Im(L))
   T ch_prev = T(1);
   T cs_prev = T(1);
   T ch = ch_o;
@@ -290,6 +291,79 @@ bool meyerhoff_k_test(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam
     count +=1;
   }
   return false; // inconclusive
+}
+
+#define MAX_ROOTS 8
+template<typename T>
+T worst_primitive_cosh_re_len(const T& ch_o, const T& cs_o, const T& four_cosh_tube_diam_UB) {
+  // Assumed ch and cs are real valued jets for cosh(Re(L)) and cos(Im(L))
+  T ch_prev = ch_o;
+  T cs_prev = cs_o;
+  for (int i = 0; i < MAX_ROOTS; ++i) {
+    T ch = sqrt((ch_prev + 1) / 2);
+    T cs = sqrt((cs_prev + 1) / 2); // note, - pi <= Im(L) <= pi, so sign is +
+    if (meyerhoff_k_test(ch, cs, four_cosh_tube_diam_UB)) {
+      return ch_prev;
+    }
+  }
+  // no luck
+  T zero(0);
+  return zero; 
+}
+
+template<typename T>
+T cosh_marg_lower_bound(const T& sinh_r) {
+  T s = sinh_r;
+  T a8 = powT(s, 8) * (-0.002012744207511); 
+  T a7 = powT(s, 7) *   0.050422869707363; 
+  T a6 = powT(s, 6) * (-0.2800449482233);
+  T a5 = powT(s, 5) *   0.6738467122499;
+  T a4 = powT(s, 4) * (-0.730897277659114);
+  T a3 = powT(s, 3) *   0.1178833280583;
+  T a2 = powT(s, 2) *   0.390674936173773;
+  T a1 = s          *   0.001212870129678;
+  double a0 = 0.999972595620724;
+  return ((a8 + (a1 + a0)) + (a4 + a5)) + ((a7 + a2) + (a6 + a3)); 
+}
+
+#define MAX_ID_SHIFT 5
+template<typename T>
+std::string proven_identity(std::string word, const Params<T>& p) {
+  SL2<T> w = construct_word(word, p);
+  SL2<T> x = construct_x(p);
+  SL2<T> y = construct_y(p);
+  std::string new_word;
+  if (inside_var_nbd_x(w, p)) {
+    T four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, p);
+    T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshlx, p.costx, four_cosh_x_tube_UB); 
+    for (auto s : {"x", "X"}) {
+      new_word = x_strip(word);
+      for (int i = 0; i < MAX_ID_SHIFT; ++i) {
+        new_word = s + new_word;
+        SL2<T> new_w = construct_word(new_word, p); // order matters
+        T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
+        if (strictly_pos(diff)) {
+          return new_word;
+        }      
+      }
+    }
+  }
+  if (inside_var_nbd_y(w, p)) {
+    T four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, p);
+    T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshly, p.costy, four_cosh_y_tube_UB); 
+    for (auto s : {"y", "Y"}) {
+      new_word = y_strip(word);
+      for (int i = 0; i < MAX_ID_SHIFT; ++i) {
+        new_word = s + new_word;
+        SL2<T> new_w = construct_word(new_word, p); // order matters
+        T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
+        if (strictly_pos(diff)) {
+          return new_word;
+        }      
+      }
+    }
+  }
+  return "";
 }
 
 #endif //_TestCollection_

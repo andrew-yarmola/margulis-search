@@ -9,17 +9,15 @@
 #SBATCH --mail-type=end
 #SBATCH --mail-user=yarmola@princeton.edu
 
-#base_dir="/Users/yarmola/Projects/margulis-search"
 base_dir="/u/yarmola/margulis-center/margulis-search"
 bin_dir="$base_dir/bin"
 words_dir=$base_dir
 
-search="$base_dir/scripts/dosearch.py"
+search="$base_dir/scripts/dosearch_micro.py"
 words="$words_dir/words"
 powers="$words_dir/powers"
 
-#data_dir="/Users/yarmola/Projects/margulis-search/data"
-data_dir="/scratch/network/yarmola/margulis_center"
+data_dir="/scratch/network/yarmola/marg_sym_micro"
 
 cd $bin_dir
 

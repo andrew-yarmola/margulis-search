@@ -104,6 +104,14 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
         return true;
       }
     }
+    vector<string> required;
+    string proven = proven_identity(*it, p);
+    if (proven.length() > 0 && g_tests.impossible->is_impossible(proven, required)) {
+      t.aux_word.assign(proven);
+      t.aux_result = open;
+      t.test_result = killed_failed_qr;
+      return true;
+    }
   }
 
   if (g_options.improve_tree || !t.l_child) {
@@ -165,7 +173,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
       //Box& search_place = place[++searched_depth];
       Box& search_place = box;
       // vector<word_pair> search_pairs = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
-      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 1, 5, box.qr.word_classes(), map<string, int>());
+      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 1, 7, box.qr.word_classes(), map<string, int>());
       //vector<word_pair> search_pairs;
       // fprintf(stderr, "Tube search ran at(%s\n", search_place.name.c_str());
       if (search_pairs.size() > 0) {
@@ -292,6 +300,7 @@ void print_tree(PartialTree& t)
           case killed_lox_not_x_power : type = 'p';  break;
           case killed_y_tube : type = 'y'; break;
           case killed_lox_not_y_power : type = 'P'; break;
+          default: type = 'K'; break;
         }
         break;
       }

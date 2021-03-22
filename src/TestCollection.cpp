@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "TestCollection.hh"
-#include "ImpossibleRelations.h"
+// #include "ImpossibleRelations.h"
 #include <algorithm>
 using namespace std;
 // using namespace __gnu_cxx;
@@ -12,7 +12,7 @@ extern double g_cosh_marg_lower_bound;
 extern double g_sinh_d_bound; 
 extern bool g_symmetric; 
 
-int num_bound_tests = 6;
+int num_bound_tests = 7;
 
 int TestCollection::size()
 {
@@ -84,20 +84,6 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
         }
       }
     }
-    //    if (must_fix_x_axis(w,p)) {
-    //      if (cant_fix_x_axis(w,p)) {
-    //        return bad_x_tube_center;
-    //      } else if (non_cylic_power(w, box.x_center())) {
-    //        return bad_lox_x_center;
-    //      }
-    //    }
-    //    if (must_fix_y_axis(w,p)) {
-    //      if (cant_fix_y_axis(w,p)) {
-    //        return bad_y_tube_center;
-    //      } else if (non_cylic_power(w, box.y_center())) {
-    //        return bad_lox_y_center;
-    //      }
-    //    }
   } else {
     SL2<Complex> w1 = construct_word(pair.first, p);
     SL2<Complex> w2 = construct_word(pair.second,p);
@@ -118,6 +104,7 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
     fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
   }
   Params<AJ> p = box.cover();
+  vector<string> required;
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<AJ> w = construct_word(word, p);
@@ -153,6 +140,11 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
         }
         return killed_x_hits_y;
       }
+      string proven = proven_identity(word_xr, p);
+      if (proven.length() > 0 && impossible->is_impossible(proven, required)) {
+        aux_word.assign(proven);
+        return killed_failed_qr;
+      }
       new_qrs.push_back(word_xr);
     }
     string word_yr = y_rstrip(word);
@@ -183,6 +175,11 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
           fprintf(stderr, "****************************************\n");
         }
         return killed_y_hits_x;
+      }
+      string proven = proven_identity(word_yr, p);
+      if (proven.length() > 0 && impossible->is_impossible(proven, required)) {
+        aux_word.assign(proven);
+        return killed_failed_qr;
       }
       new_qrs.push_back(word_yr);
     }
@@ -240,6 +237,11 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
           }
           return killed_lox_not_x_power;
         }
+        string proven = proven_identity(word_x, p);
+        if (proven.length() > 0 && impossible->is_impossible(proven, required)) {
+          aux_word.assign(proven);
+          return killed_failed_qr;
+        }
         new_qrs.push_back(word_x);
       }
     }
@@ -260,6 +262,11 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
         }
         if (non_cylic_power(w_y, box.y_cover())) {
           return killed_lox_not_y_power;
+        }
+        string proven = proven_identity(word_y, p);
+        if (proven.length() > 0 && impossible->is_impossible(proven, required)) {
+          aux_word.assign(proven);
+          return killed_failed_qr;
         }
         new_qrs.push_back(word_y);
       }
@@ -317,13 +324,22 @@ box_state TestCollection::evaluate_center(int index, Box& box)
               SL2<Complex> y = construct_y(center);
               Complex four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, center);
               Complex four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, center);
-              return check_bounds_center(meyerhoff_k_test(center.coshlx, center.costx, four_cosh_x_tube_UB) || 
+              return check_bounds_center(
+                  meyerhoff_k_test(center.coshlx, center.costx, four_cosh_x_tube_UB) || 
                   meyerhoff_k_test(center.coshly, center.costy, four_cosh_y_tube_UB));
             }
     case 5: { // diagonals
               if (!g_symmetric) return open;
               return check_bounds_center(absLB(center.sinhdx - center.sinhdy) > 0 ||
                                          absLB(center.sintx2 - center.sinty2) > 0);
+            }
+    case 6: { // 4.26 in bilipschitz paper
+              Complex cosh_mu_LB_x = cosh_marg_lower_bound(center.sinhdx);
+              Complex cosh_mu_LB_y = cosh_marg_lower_bound(center.sinhdy); // overkill in symmertic
+              return check_bounds_center(
+                  strictly_pos(cosh_mu_LB_x - center.coshmu) ||
+                  strictly_pos(cosh_mu_LB_y - center.coshmu));
+                    
             }
     default:
             return evaluate_approx(pair_vector[index - num_bound_tests], box);
@@ -372,6 +388,14 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
               } 
               return check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
                                   absLB(cover.sintx2 - cover.sinty2) > 0);
+            }
+    case 6: { // 4.26 in bilipschitz paper
+              AJ cosh_mu_LB_x = cosh_marg_lower_bound(cover.sinhdx);
+              AJ cosh_mu_LB_y = cosh_marg_lower_bound(cover.sinhdy); // overkill in symmertic
+              return check_bounds(
+                  strictly_pos(cosh_mu_LB_x - cover.coshmu) ||
+                  strictly_pos(cosh_mu_LB_y - cover.coshmu));
+                    
             }
     default:
             return evaluate_AJ(pair_vector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);

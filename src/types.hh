@@ -272,6 +272,28 @@ void print_center(const char desc[], const T& x) {
   print_center(x);
 } 
 
+template<typename T>
+inline const T powT(const T& x, int n) {
+  T one(1);
+  T a = one;
+  if (n == 0) { return a; }
+  T b;
+  if (n < 0) { 
+    b = one / x;
+    n = -n;
+  } else {
+    b = x;
+  }
+  while (n > 1) {
+    if (n & 1) { // n odd
+      a = a*b;
+    }
+    b = b*b;
+    n /= 2; // int division
+  } 
+  return a*b;
+};
+
 std::string double_to_hex(double x);
 
 #endif // __types_h
