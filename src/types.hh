@@ -49,6 +49,9 @@ typedef enum _box_state
   bad_lox_y_center = 24,
   bad_move_center = 25,
   bad_marg_center = 26,
+  bad_length_center = 30,
+  bad_length = 31,
+  proven_relator = 32,
   open = -1
 } 
 box_state;

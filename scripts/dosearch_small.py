@@ -90,8 +90,8 @@ if __name__ == '__main__' :
   child_limit = 8
   depth_limit = 330
 
-  cosh_mu_upper = '1.08108'
-  sinh_tube_upper = '0.4881'
+  cosh_mu_upper = '1.0202'
+  sinh_tube_upper = '0.336'
 
   max_size = '1000000'
   max_depth = '150'
@@ -101,7 +101,7 @@ if __name__ == '__main__' :
   fill_holes = ''
   improve_tree = ''
   powers_file = 'none'
-  words_file = '/u/yarmola/margulis-center/margulis-search/words/'
+  words_file = '/u/yarmola/margulis-search/words/'
 
   # Get config
   holes_file = None

@@ -15,6 +15,8 @@ extern double g_cosh_marg_upper_bound;
 extern double g_cosh_marg_lower_bound;
 extern double g_sinh_d_bound; 
 
+extern int num_bound_tests;
+
 extern bool g_debug;
 
 unordered_map<string, SL2<AJ> > short_words_cache;
@@ -45,7 +47,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
         fprintf(stderr, "new quasirelator %s\n", (*it).c_str());
         box.qr.get_name(*it); // Also adds qr to the box's list
       }
-      t.qr_desc = box.qr.desc(box.cover());
+      // t.qr_desc = box.qr.desc(box.cover());
     } else { 
       fprintf(stderr, "FAILED to eliminate %s with test %s with result %d\n", box.name.c_str(), g_tests.get_name(t.test_index).c_str(), result);
     }
@@ -106,20 +108,30 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
     vector<string> required;
     string proven = proven_identity(*it, p);
-    if (proven.length() > 0 && g_tests.impossible->is_impossible(proven, required)) {
-      t.aux_word.assign(proven);
-      t.aux_result = open;
-      t.test_result = killed_failed_qr;
-      return true;
+    if (proven.length() > 0) {
+      if (g_tests.impossible->is_impossible(proven, required)) {
+        t.aux_word.assign(proven);
+        t.aux_result = open;
+        t.test_result = killed_failed_qr;
+        return true;
+      } else {
+        t.aux_word.assign(proven);
+        t.aux_result = proven_relator;
+        t.test_result = killed_failed_qr;
+        return true;
+      }
     }
   }
 
-  if (g_options.improve_tree || !t.l_child) {
+  if (g_options.improve_tree || (!t.l_child && box.name.length() % 4 == 0)) {
     for (int i = 0; i < g_tests.size(); ++i) {
+      if (i >= num_bound_tests && depth % 6 == 0) {
+        break;
+      } 
       vector<box_state>& th = history[i];
       while (th.size() <= depth && (th.size() < depth-6 || th.empty() || th.back() == open)) {
 //        fprintf(stderr, "********************************* Center Test *********************************\n");
-//        fprintf(stderr, "%s", box.desc().c_str());
+//        fprintf(stderr, "depth-size: %d\n", depth - th.size());
         box_state result = g_tests.evaluate_center(i, place[th.size()]);
 //        fprintf(stderr, "********************************* End Center Test *********************************\n");
         th.push_back(result);
@@ -145,6 +157,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
           case variety_nbd_x :
           case variety_nbd_y :
           case variety_nbd : 
+          case bad_length : 
           case var_x_hits_y :
           case var_y_hits_x : {
             t.test_index = i;
@@ -157,7 +170,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
 //            fprintf(stderr, "New QR is %s\n", (*it).c_str());
               box.qr.get_name(*it); // Also adds qr to the box's list
             }
-            t.qr_desc = box.qr.desc(box.cover());
+            // t.qr_desc = box.qr.desc(box.cover());
             break;
           }
           default : {
@@ -168,13 +181,15 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
   }
 
-  if (g_options.word_search_depth > 0 && depth > 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 60 && depth % g_options.word_search_depth == 0) {
+  if (g_options.word_search_depth > 0 && depth > 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 80 && depth % g_options.word_search_depth == 0) {
     // while (depth - searched_depth > g_options.word_search_depth) {
       //Box& search_place = place[++searched_depth];
       Box& search_place = box;
-      // vector<word_pair> search_pairs = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
-      vector<word_pair> search_pairs = find_words_v2(search_place.center(), 1, 7, box.qr.word_classes(), map<string, int>());
-      //vector<word_pair> search_pairs;
+      vector<word_pair> search_pairs_v1 = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
+      vector<word_pair> search_pairs_v2 = find_words_v2(search_place.center(), 1, 7, box.qr.word_classes(), map<string, int>());
+      vector<word_pair> search_pairs;
+      search_pairs.insert(search_pairs.end(), search_pairs_v1.begin(), search_pairs_v1.end());
+      search_pairs.insert(search_pairs.end(), search_pairs_v2.begin(), search_pairs_v2.end());
       // fprintf(stderr, "Tube search ran at(%s\n", search_place.name.c_str());
       if (search_pairs.size() > 0) {
         word_pair new_pair = search_pairs.back();
@@ -204,6 +219,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
             case variety_nbd_x :
             case variety_nbd_y :
             case variety_nbd : 
+            case bad_length : 
             case var_x_hits_y :
             case var_y_hits_x : {
               t.test_index = new_index;
@@ -216,7 +232,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
   //            fprintf(stderr, "New QR is %s\n", (*it).c_str());
                 box.qr.get_name(*it); // Also adds qr to the box's list
               }
-              t.qr_desc = box.qr.desc(box.cover());
+              // t.qr_desc = box.qr.desc(box.cover());
               break;
             }
             default : {
@@ -300,6 +316,7 @@ void print_tree(PartialTree& t)
           case killed_lox_not_x_power : type = 'p';  break;
           case killed_y_tube : type = 'y'; break;
           case killed_lox_not_y_power : type = 'P'; break;
+          case proven_relator : type = 'R'; break;
           default: type = 'K'; break;
         }
         break;
@@ -337,6 +354,7 @@ void print_tree(PartialTree& t)
                            }
       case killed_move : type = 'm'; break;
       case killed_marg : type = 'M'; break;
+      case bad_length : type = 'L'; break; 
       case variety_nbd_x : type = 'v'; break;
       case variety_nbd_y : type = 'V'; break;
       case variety_nbd : type = 'W'; break;

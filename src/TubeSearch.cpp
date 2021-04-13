@@ -26,6 +26,7 @@ namespace TubeSearchImpl {
     double four_cosh_x_y = -1;
     double four_cosh_y_y = -1;
     double four_cosh_y_x = -1;
+    double four_cosh_re_len = -1;
     double cosh_move = -1;
     double jorg_x = -1;
     double jorg_y = -1;
@@ -51,6 +52,9 @@ namespace TubeSearchImpl {
         }
         if (pos_neq(jorg_y, b.jorg_y)) {
           return jorg_y > b.jorg_y;
+        }
+        if (pos_neq(four_cosh_re_len, b.four_cosh_re_len)) {
+          return four_cosh_re_len > b.four_cosh_re_len;
         }
       } else {
         if (x_power(name) > 0 && y_power(name) > 0) {
@@ -162,6 +166,7 @@ namespace TubeSearchImpl {
 
   void Word::compute_vals(const Params<Complex>& params)
   {
+    four_cosh_re_len = absUB(four_cosh_re_length(matrix));
     if (y_power(name) > 0) {
       four_cosh_x_x = absUB(four_cosh_dist_ax_wax(matrix, params)); 
       four_cosh_y_x = absUB(four_cosh_dist_ay_wax(matrix, params)); 
@@ -212,7 +217,8 @@ namespace TubeSearchImpl {
         pos_less(word.four_cosh_y_x, absUB(params.coshdxdy * 6.5))  ||
         pos_less(word.cosh_move, absUB(params.coshmu * 2.5))    ||
         pos_less(word.jorg_x, 3)                                ||
-        pos_less(word.jorg_y, 3))
+        pos_less(word.jorg_y, 3)                                ||
+        pos_less(word.four_cosh_re_len, absUB(params.coshlx * 6.5)))
     {
       word_lookup.push_back(word);
       words.push(word);
@@ -234,7 +240,7 @@ namespace TubeSearchImpl {
       }
       WordPair pair(word, *it, params);
       if (pos_less(pair.jorgensen_words, 1.5)                        ||
-          pos_less(pair.four_cosh_marg, absUB(params.coshmu * 4.5))    ||
+          pos_less(pair.four_cosh_marg, absUB(params.coshmu * 4.1))    ||
           pos_less(pair.cosh_two_ortho, absUB(params.coshdxdy * 1.2)))
       {
         pairs.push(pair);
@@ -283,7 +289,8 @@ namespace TubeSearchImpl {
              pos_less(w.four_cosh_y_x, absLB(params.coshdxdy * 3.999999))  ||
              pos_less(w.cosh_move, absLB(params.coshmu * 0.999999))        ||
              pos_less(w.jorg_x, 0.9999999)                                 ||
-             pos_less(w.jorg_y, 0.9999999)))
+             pos_less(w.jorg_y, 0.9999999)                                ||
+             pos_less(w.four_cosh_re_len, absLB(params.coshlx * 3.9999999))))
         {
           m_found_good_pair = true;
           Word none;
@@ -438,7 +445,7 @@ inline void move(axis& a, const string& word, const SL2<Complex>& gamma) {
 }  
 
 #define MAX_SEEN_AGAIN 128
-#define MAX_SHIFT 6
+#define MAX_SHIFT 7
 #define MAX_TOTAL 1000000
 
 vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
@@ -498,9 +505,11 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
         double c_re_orth = cosh_re_orth_LB(fixed, h_moved);
         // fprintf(stderr, "Axis with word %s has %f distance vs %f\n", h_moved.word.c_str(), c_re_orth, cosh_ortho_bound);
         double c_move_j = absUB(cosh_move_j(h_moved.gamma));
+        double f_cosh_re_len = absUB(four_cosh_re_length(h_moved.gamma));
 
         if (c_move_j < absLB(0.98 * params.coshmu) || 
-            c_re_orth < 0.98 * cosh_ortho_bound) {
+            c_re_orth < 0.98 * cosh_ortho_bound ||
+            f_cosh_re_len < absLB(params.coshlx * 3.99)) {
           if (find(relators.begin(), relators.end(), h_moved.word) == relators.end()) {
             if (seen.find(h_moved.word) == seen.end()) {
               /*if (c_re_orth < 0.98 * cosh_ortho_bound) {

@@ -305,6 +305,8 @@ T worst_primitive_cosh_re_len(const T& ch_o, const T& cs_o, const T& four_cosh_t
     if (meyerhoff_k_test(ch, cs, four_cosh_tube_diam_UB)) {
       return ch_prev;
     }
+    ch_prev = ch;
+    cs_prev = cs;
   }
   // no luck
   T zero(0);

@@ -138,6 +138,7 @@ int main(int argc, char** argv)
   fprintf(stderr, "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n   sinh(d) upper %f\n",
     g_cosh_marg_lower_bound, g_cosh_marg_upper_bound, g_sinh_d_bound);
   PartialTree t = read_tree();
+	fprintf(stderr, "Loaded tree and %d tests\n", g_tests.size());
   refine_tree(box, t);
   print_tree(t);
   fprintf(stderr, "%d nodes added\n", g_boxesVisited);

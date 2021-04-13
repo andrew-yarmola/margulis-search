@@ -12,7 +12,7 @@ extern double g_cosh_marg_lower_bound;
 extern double g_sinh_d_bound; 
 extern bool g_symmetric; 
 
-int num_bound_tests = 7;
+int num_bound_tests = 8;
 
 int TestCollection::size()
 {
@@ -26,6 +26,9 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<Complex> w = construct_word(word, p);
+    if (strictly_pos(p.coshlx * 4 - four_cosh_re_length(w))) {
+      return bad_length_center;
+    }
     if (not_identity(w)) {
       if (move_less_than_marg(w, p)) {
         return bad_move_center;
@@ -108,6 +111,9 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<AJ> w = construct_word(word, p);
+    if (strictly_pos(p.coshlx * 4 - four_cosh_re_length(w))) {
+      return bad_length;
+    }
     if (not_identity(w) && move_less_than_marg(w, p)) {
       return killed_move;
     }
@@ -329,9 +335,7 @@ box_state TestCollection::evaluate_center(int index, Box& box)
                   meyerhoff_k_test(center.coshly, center.costy, four_cosh_y_tube_UB));
             }
     case 5: { // diagonals
-              if (!g_symmetric) return open;
-              return check_bounds_center(absLB(center.sinhdx - center.sinhdy) > 0 ||
-                                         absLB(center.sintx2 - center.sinty2) > 0);
+              return check_bounds_center(false);
             }
     case 6: { // 4.26 in bilipschitz paper
               Complex cosh_mu_LB_x = cosh_marg_lower_bound(center.sinhdx);
@@ -341,7 +345,10 @@ box_state TestCollection::evaluate_center(int index, Box& box)
                   strictly_pos(cosh_mu_LB_y - center.coshmu));
                     
             }
-    default:
+    case 7: { // x is shortest
+              return check_bounds_center(strictly_pos(center.coshlx - center.coshly));
+            }
+   default:
             return evaluate_approx(pair_vector[index - num_bound_tests], box);
   }
 }
@@ -376,18 +383,7 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
                   meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB));
             }
     case 5: { // diagonals
-              if (!g_symmetric) return open;
-              if (g_debug && check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
-                               absLB(cover.sintx2 - cover.sinty2) > 0)) {
-                  print_type("cover.sinhdx:", cover.sinhdx);
-                  print_type("cover.sinhdy:", cover.sinhdy);
-                  print_type("cover.sinhdx - cover.sinhdy:", cover.sinhdx - cover.sinhdy);
-                  print_type("cover.sintx2:", cover.sintx2);
-                  print_type("cover.sinty2:", cover.sinty2);
-                  print_type("cover.sintx2 - cover.sinty2:", cover.sintx2 - cover.sinty2);
-              } 
-              return check_bounds(absLB(cover.sinhdx - cover.sinhdy) > 0 ||
-                                  absLB(cover.sintx2 - cover.sinty2) > 0);
+              return check_bounds(false);
             }
     case 6: { // 4.26 in bilipschitz paper
               AJ cosh_mu_LB_x = cosh_marg_lower_bound(cover.sinhdx);
@@ -396,6 +392,9 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
                   strictly_pos(cosh_mu_LB_x - cover.coshmu) ||
                   strictly_pos(cosh_mu_LB_y - cover.coshmu));
                     
+            }
+    case 7: { // x is shortest
+              return check_bounds(strictly_pos(cover.coshlx - cover.coshly));
             }
     default:
             return evaluate_AJ(pair_vector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);
