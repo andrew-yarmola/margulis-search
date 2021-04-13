@@ -15,6 +15,8 @@ extern double g_cosh_marg_upper_bound;
 extern double g_cosh_marg_lower_bound;
 extern double g_sinh_d_bound; 
 
+extern int num_bound_tests;
+
 extern bool g_debug;
 
 unordered_map<string, SL2<AJ> > short_words_cache;
@@ -45,7 +47,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
         fprintf(stderr, "new quasirelator %s\n", (*it).c_str());
         box.qr.get_name(*it); // Also adds qr to the box's list
       }
-      t.qr_desc = box.qr.desc(box.cover());
+      // t.qr_desc = box.qr.desc(box.cover());
     } else { 
       fprintf(stderr, "FAILED to eliminate %s with test %s with result %d\n", box.name.c_str(), g_tests.get_name(t.test_index).c_str(), result);
     }
@@ -106,16 +108,26 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
     vector<string> required;
     string proven = proven_identity(*it, p);
-    if (proven.length() > 0 && g_tests.impossible->is_impossible(proven, required)) {
-      t.aux_word.assign(proven);
-      t.aux_result = open;
-      t.test_result = killed_failed_qr;
-      return true;
+    if (proven.length() > 0) {
+      if (g_tests.impossible->is_impossible(proven, required)) {
+        t.aux_word.assign(proven);
+        t.aux_result = open;
+        t.test_result = killed_failed_qr;
+        return true;
+      } else {
+        t.aux_word.assign(proven);
+        t.aux_result = proven_relator;
+        t.test_result = killed_failed_qr;
+        return true;
+      }
     }
   }
 
   if (g_options.improve_tree || !t.l_child) {
     for (int i = 0; i < g_tests.size(); ++i) {
+      if (i >= num_bound_tests && depth % 6 == 0) {
+        break;
+      } 
       vector<box_state>& th = history[i];
       while (th.size() <= depth && (th.size() < depth-6 || th.empty() || th.back() == open)) {
 //        fprintf(stderr, "********************************* Center Test *********************************\n");
@@ -157,7 +169,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
 //            fprintf(stderr, "New QR is %s\n", (*it).c_str());
               box.qr.get_name(*it); // Also adds qr to the box's list
             }
-            t.qr_desc = box.qr.desc(box.cover());
+            // t.qr_desc = box.qr.desc(box.cover());
             break;
           }
           default : {
@@ -216,7 +228,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
   //            fprintf(stderr, "New QR is %s\n", (*it).c_str());
                 box.qr.get_name(*it); // Also adds qr to the box's list
               }
-              t.qr_desc = box.qr.desc(box.cover());
+              // t.qr_desc = box.qr.desc(box.cover());
               break;
             }
             default : {
@@ -300,6 +312,7 @@ void print_tree(PartialTree& t)
           case killed_lox_not_x_power : type = 'p';  break;
           case killed_y_tube : type = 'y'; break;
           case killed_lox_not_y_power : type = 'P'; break;
+          case proven_relator : type = 'R'; break;
           default: type = 'K'; break;
         }
         break;
