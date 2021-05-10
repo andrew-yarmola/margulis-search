@@ -9,7 +9,7 @@ typedef vector< vector< box_state > > TestHistory;
 
 Options g_options;
 TestCollection g_tests;
-int g_boxesVisited = 0;
+int g_boxes_visited = 0;
 
 extern double g_cosh_marg_upper_bound;
 extern double g_cosh_marg_lower_bound;
@@ -23,7 +23,6 @@ unordered_map<string, SL2<AJ> > short_words_cache;
 
 bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, vector< Box >& place, int newDepth, int& searched_depth)
 {
-  //fprintf(stderr, "rr: %s depth %d placeSize %lu\n", box.name.c_str(), depth, place.size());
   place.push_back(box);
   int old_test_index = t.test_index;
   vector<string> new_qrs;
@@ -31,27 +30,18 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
 
   string aux_word;
   if (t.test_index >= 0) {
-//    fprintf(stderr, "********************************* Validation *********************************\n");
-//    fprintf(stderr, "%s", box.desc().c_str());
     box_state result = g_tests.evaluate_box(t.test_index, box, aux_word, new_qrs, short_words_cache);
     if (result != open && result != open_with_qr) {
       t.aux_word.assign(aux_word);
       t.test_result = result;
-//      fprintf(stderr, "Eliminated %s with test %s with result %d\n", box.name.c_str(), g_tests.get_name(t.test_index), result);
-//      fprintf(stderr, "********************************* End Validation *********************************\n");
-//      fprintf(stderr, "Test %s kills\n %s", g_tests.get_name(t.test_index).c_str(), box.desc().c_str());
       return true;
     } else if (result == open_with_qr) {
-//      fprintf(stderr,"Retested %d, new qrs len %lu\n", result, new_qrs.size());
       for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {
-        fprintf(stderr, "new quasirelator %s\n", (*it).c_str());
         box.qr.get_name(*it); // Also adds qr to the box's list
       }
-      // t.qr_desc = box.qr.desc(box.cover());
     } else { 
       fprintf(stderr, "FAILED to eliminate %s with test %s with result %d\n", box.name.c_str(), g_tests.get_name(t.test_index).c_str(), result);
     }
-//    fprintf(stderr, "********************************* End Validation *********************************\n");
   }
 
   if (t.test_index == -2 && !g_options.fill_holes) {
@@ -62,7 +52,6 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
   Params<AJ> p = box.cover();
   vector<string> quasi_relators = box.qr.word_classes();
   for (vector<string>::iterator it = quasi_relators.begin(); it != quasi_relators.end(); ++it) {
-    // So not idenity and absUB(w.b) < 1
     SL2<AJ> w = construct_word(*it, p, short_words_cache); 
     if (moves_x_axis_too_close_to_y(w,p) &&
         moved_x_axis_not_y_axis(w, p)) {
@@ -123,29 +112,27 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
   }
 
-  if (g_options.improve_tree || (!t.l_child && box.name.length() % 4 == 0)) {
+  if (g_options.improve_tree || !t.l_child) {
     for (int i = 0; i < g_tests.size(); ++i) {
-      if (i >= num_bound_tests && depth % 6 == 0) {
+      if (i >= num_bound_tests && depth % 12 == 0) {
         break;
       } 
       vector<box_state>& th = history[i];
-      while (th.size() <= depth && (th.size() < depth-6 || th.empty() || th.back() == open)) {
-//        fprintf(stderr, "********************************* Center Test *********************************\n");
-//        fprintf(stderr, "depth-size: %d\n", depth - th.size());
+      while (th.size() <= depth) {
         box_state result = g_tests.evaluate_center(i, place[th.size()]);
-//        fprintf(stderr, "********************************* End Center Test *********************************\n");
         th.push_back(result);
       }
-      if (th.back() != open) {
+      bool do_eval = true;
+      int s = th.size();
+      for (int j = 1; j <= min(s, 7); j++) {
+        do_eval = do_eval && th[th.size() - j] != open;
+      }
+      if (do_eval) {
         new_qrs.clear();
-//        fprintf(stderr, "********************************* Evaluate *********************************\n");
-//        fprintf(stderr, "%s", box.desc().c_str());
         box_state result = g_tests.evaluate_box(i, box, aux_word, new_qrs, short_words_cache);
-//        fprintf(stderr, "********************************* End Evaluate *********************************\n");
-
         switch (result) {
           case killed_bounds :
-          case killed_only_elliptic : //TODO 
+          case killed_only_elliptic : 
           case killed_x_hits_y :
           case killed_y_hits_x :
           case killed_x_tube :
@@ -165,12 +152,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
             return true;
           }
           case open_with_qr : {
-//          fprintf(stderr,"Result %d, new qrs len %d\n", result, new_qrs.size());
             for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {
-//            fprintf(stderr, "New QR is %s\n", (*it).c_str());
               box.qr.get_name(*it); // Also adds qr to the box's list
             }
-            // t.qr_desc = box.qr.desc(box.cover());
             break;
           }
           default : {
@@ -181,74 +165,68 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
   }
 
-  if (g_options.word_search_depth > 0 && depth > 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 80 && depth % g_options.word_search_depth == 0) {
-    // while (depth - searched_depth > g_options.word_search_depth) {
-      //Box& search_place = place[++searched_depth];
-      Box& search_place = box;
-      vector<word_pair> search_pairs_v1 = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
-      vector<word_pair> search_pairs_v2 = find_words_v2(search_place.center(), 1, 7, box.qr.word_classes(), map<string, int>());
-      vector<word_pair> search_pairs;
-      search_pairs.insert(search_pairs.end(), search_pairs_v1.begin(), search_pairs_v1.end());
-      search_pairs.insert(search_pairs.end(), search_pairs_v2.begin(), search_pairs_v2.end());
-      // fprintf(stderr, "Tube search ran at(%s\n", search_place.name.c_str());
-      if (search_pairs.size() > 0) {
-        word_pair new_pair = search_pairs.back();
+  if (g_options.word_search_depth > 0 && depth > 0 && (g_options.improve_tree || !t.l_child) && box.name.length() > 60 && depth % g_options.word_search_depth == 0) {
+    Box& search_place = box;
+    vector<word_pair> search_pairs_v1 = find_pairs(search_place.center(), vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
+    vector<word_pair> search_pairs_v2 = find_words_v2(search_place.center(), 1, 7, box.qr.word_classes(), map<string, int>());
+    vector<word_pair> search_pairs;
+    search_pairs.insert(search_pairs.end(), search_pairs_v1.begin(), search_pairs_v1.end());
+    search_pairs.insert(search_pairs.end(), search_pairs_v2.begin(), search_pairs_v2.end());
+    while (search_pairs.size() > 0) {
+      word_pair new_pair = search_pairs.back();
 
-        int old_size = g_tests.size();
-        int new_index = g_tests.add(new_pair);
-        history.resize(g_tests.size());
+      int old_size = g_tests.size();
+      int new_index = g_tests.add(new_pair);
+      history.resize(g_tests.size());
 
-        if (old_size < g_tests.size()) {
-          fprintf(stderr, "search (%s) found (%s,%s) at (%s)\n",
-                  search_place.qr.desc(box.cover()).c_str(), new_pair.first.c_str(), new_pair.second.c_str(), search_place.name.c_str());
+      search_pairs.pop_back();
 
-          new_qrs.clear();
-          box_state result = g_tests.evaluate_box(new_index, box, aux_word, new_qrs, short_words_cache);
+      if (old_size < g_tests.size()) {
+        fprintf(stderr, "search (%s) found (%s,%s) at (%s)\n",
+                search_place.qr.desc(box.cover()).c_str(), new_pair.first.c_str(), new_pair.second.c_str(), search_place.name.c_str());
 
-          switch (result) {
-            case killed_bounds :
-            case killed_only_elliptic : //TODO 
-            case killed_x_hits_y :
-            case killed_y_hits_x :
-            case killed_x_tube :
-            case killed_y_tube :
-            case killed_lox_not_x_power : 
-            case killed_lox_not_y_power :
-            case killed_move :
-            case killed_marg :
-            case variety_nbd_x :
-            case variety_nbd_y :
-            case variety_nbd : 
-            case bad_length : 
-            case var_x_hits_y :
-            case var_y_hits_x : {
-              t.test_index = new_index;
-              t.test_result = result;
-              return true;
+        new_qrs.clear();
+        box_state result = g_tests.evaluate_box(new_index, box, aux_word, new_qrs, short_words_cache);
+
+        switch (result) {
+          case killed_bounds :
+          case killed_only_elliptic : 
+          case killed_x_hits_y :
+          case killed_y_hits_x :
+          case killed_x_tube :
+          case killed_y_tube :
+          case killed_lox_not_x_power : 
+          case killed_lox_not_y_power :
+          case killed_move :
+          case killed_marg :
+          case variety_nbd_x :
+          case variety_nbd_y :
+          case variety_nbd : 
+          case bad_length : 
+          case var_x_hits_y :
+          case var_y_hits_x : {
+            t.test_index = new_index;
+            t.test_result = result;
+            return true;
+          }
+          case open_with_qr : {
+            for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {
+              box.qr.get_name(*it); // Also adds qr to the box's list
             }
-            case open_with_qr : {
-  //          fprintf(stderr,"Result %d, new qrs len %d\n", result, new_qrs.size());
-              for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {
-  //            fprintf(stderr, "New QR is %s\n", (*it).c_str());
-                box.qr.get_name(*it); // Also adds qr to the box's list
-              }
-              // t.qr_desc = box.qr.desc(box.cover());
-              break;
-            }
-            default : {
-              // continue;
-            }
+            break;
+          }
+          default : {
+            continue;
           }
         }
-    //  }
+      }
     }
   }
 
   t.test_index = -1;
 
   if (!t.l_child) {
-    if (depth >= g_options.max_depth || ++g_boxesVisited >= g_options.max_size || ++newDepth > g_options.invent_depth) {
-//    fprintf(stderr,"Deph %d, max depth %d, boxes_visited %d, max size %d, newDepth %d, invent depth %d\n", depth, g_options.max_depth, g_boxesVisited, g_options.max_size, newDepth, g_options.invent_depth);
+    if (depth >= g_options.max_depth || ++g_boxes_visited >= g_options.max_size || ++newDepth > g_options.invent_depth) {
       fprintf(stderr, "HOLE %s (%s)\n", box.name.c_str(), box.qr.desc(box.cover()).c_str());
       return false;
     }

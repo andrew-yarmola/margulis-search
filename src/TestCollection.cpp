@@ -111,9 +111,9 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<AJ> w = construct_word(word, p);
-    if (strictly_pos(p.coshlx * 4 - four_cosh_re_length(w))) {
-      return bad_length;
-    }
+//    if (strictly_pos(p.coshlx * 4 - four_cosh_re_length(w))) {
+//      return bad_length;
+//    }
     if (not_identity(w) && move_less_than_marg(w, p)) {
       return killed_move;
     }
@@ -147,11 +147,16 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
         return killed_x_hits_y;
       }
       string proven = proven_identity(word_xr, p);
-      if (proven.length() > 0 && impossible->is_impossible(proven, required)) {
-        aux_word.assign(proven);
-        return killed_failed_qr;
+      if (proven.length() > 0) {
+        if(impossible->is_impossible(proven, required)) {
+          aux_word.assign(proven);
+          return killed_failed_qr;
+        } else { //HACK
+          return killed_failed_qr;
+        }
       }
       new_qrs.push_back(word_xr);
+      return var_x_hits_y; 
     }
     string word_yr = y_rstrip(word);
     SL2<AJ> w_yr;
@@ -183,11 +188,16 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
         return killed_y_hits_x;
       }
       string proven = proven_identity(word_yr, p);
-      if (proven.length() > 0 && impossible->is_impossible(proven, required)) {
-        aux_word.assign(proven);
-        return killed_failed_qr;
+      if (proven.length() > 0) {
+        if(impossible->is_impossible(proven, required)) {
+          aux_word.assign(proven);
+          return killed_failed_qr;
+        } else { //HACK
+          return killed_failed_qr;
+        }
       }
       new_qrs.push_back(word_yr);
+      return var_y_hits_x;
     }
     if (y_power(word) > 0) {
       string word_x = x_strip(word);
@@ -244,11 +254,16 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
           return killed_lox_not_x_power;
         }
         string proven = proven_identity(word_x, p);
-        if (proven.length() > 0 && impossible->is_impossible(proven, required)) {
-          aux_word.assign(proven);
-          return killed_failed_qr;
+        if (proven.length() > 0) {
+          if(impossible->is_impossible(proven, required)) {
+            aux_word.assign(proven);
+            return killed_failed_qr;
+          } else { //HACK
+            return killed_failed_qr;
+          }
         }
         new_qrs.push_back(word_x);
+        return variety_nbd_x;
       }
     }
     if (x_power(word) > 0) {
@@ -270,11 +285,16 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
           return killed_lox_not_y_power;
         }
         string proven = proven_identity(word_y, p);
-        if (proven.length() > 0 && impossible->is_impossible(proven, required)) {
-          aux_word.assign(proven);
-          return killed_failed_qr;
+        if (proven.length() > 0) {
+          if(impossible->is_impossible(proven, required)) {
+            aux_word.assign(proven);
+            return killed_failed_qr;
+          } else { //HACK
+            return killed_failed_qr;
+          }
         }
         new_qrs.push_back(word_y);
+        return variety_nbd_y;
       }
     }
   } else {

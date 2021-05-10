@@ -8,7 +8,7 @@ using namespace std;
 
 extern Options g_options;
 extern TestCollection g_tests;
-extern int g_boxesVisited;
+extern int g_boxes_visited;
 
 double g_cosh_marg_upper_bound = 1.2947;
 double g_cosh_marg_lower_bound = 1.0054;
@@ -18,7 +18,7 @@ bool g_debug = false;
 
 bool g_symmetric = true;
 
-const char* g_programName;
+const char* g_program_name;
 
 static struct option long_options[] = {
   {"box",  required_argument, NULL, 'b' },
@@ -80,7 +80,7 @@ Options controlling tree manipulation:\n\
   [ --fill_holes ]\n\
     If set, attempt to patch holes in the input tree.\n\
 ";
-  fprintf(stderr, "Usage: %s %s\n\n%s", g_programName, opt_str, longUsage);
+  fprintf(stderr, "Usage: %s %s\n\n%s", g_program_name, opt_str, longUsage);
 }
 
 void load_words(set<string>& s, const char* fileName)
@@ -141,5 +141,5 @@ int main(int argc, char** argv)
 	fprintf(stderr, "Loaded tree and %d tests\n", g_tests.size());
   refine_tree(box, t);
   print_tree(t);
-  fprintf(stderr, "%d nodes added\n", g_boxesVisited);
+  fprintf(stderr, "%d nodes added\n", g_boxes_visited);
 }
