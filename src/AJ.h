@@ -36,6 +36,8 @@ struct AJ {
 inline const AJ eye(const AJ& x) { return AJ(XComplex(0,1)); };
 inline const AJ operator-(const AJ& x);
 inline const AJ conj(const AJ& x);
+inline const AJ re(const AJ& x);
+inline const AJ im(const AJ& x);
 inline const AJ operator+(const AJ& x,const AJ& y);
 inline const AJ operator-(const AJ& x,const AJ& y);
 inline const AJ operator+(const AJ& x,double y);

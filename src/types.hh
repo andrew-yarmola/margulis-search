@@ -15,6 +15,8 @@ inline const Complex operator-(const Complex&x,double y) { return x - Complex(y,
 inline const Complex operator*(const Complex&x,double y) { return x * Complex(y,0); };
 inline const Complex operator/(const Complex&x,double y) { return x / Complex(y,0); };
 inline const Complex abs(const Complex& x) { return Complex(hypot(x.real(), x.imag()), 0); };
+inline const Complex re(const Complex& x) { return Complex(x.real(), 0); };
+inline const Complex im(const Complex& x) { return Complex(x.imag(), 0); };
 inline const Complex abs_sqrd(const Complex& x) { return Complex(x.real()*x.real()+x.imag()*x.imag(), 0); };
 
 typedef enum _box_state
@@ -260,7 +262,7 @@ bool sort_comp(const T& a, const T& b);
 
 template<typename T>
 inline bool strictly_pos(const T& diff) {
-  return absLB(diff) > 0 && re_center(diff) > 0;
+  return absLB(re(diff)) > 0 && re_center(diff) > 0;
 }
 
 template<typename T>

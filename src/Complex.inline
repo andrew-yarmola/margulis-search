@@ -10,6 +10,18 @@ inline const XComplex conj(const XComplex&x) {
 
 }
 
+inline const XComplex re(const XComplex&x) {
+
+	return XComplex(x.re,0);
+
+}
+
+inline const XComplex imag(const XComplex&x) {
+
+	return XComplex(x.im,0);
+
+}
+
 inline const AComplex operator+(const XComplex&x,const XComplex&y) {
 
 	double re= x.re+y.re;

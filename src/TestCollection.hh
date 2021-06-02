@@ -7,6 +7,7 @@
 #include "Box.h"
 #include "SL2.hh"
 #include "IsomH3.hh"
+#include "Params.hh"
 #include "ImpossibleRelations.h"
 
 extern bool g_debug;
@@ -50,13 +51,14 @@ inline const bool inside_var_nbd_ne(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 inline const bool not_parabolic(const SL2<T>& w) {
-  return absLB(w.a + w.d - 2) > 0 && absLB(w.a + w.d + 2) > 0;
+  T tr = w.a + w.d;
+  return absLB(im(tr)) > 0 || (absLB(re(tr) - 2) > 0 && absLB(re(tr) + 2) > 0);
 }
 
 template<typename T>
 inline const bool not_elliptic_or_parabolic(const SL2<T>& w) {
   T tr = w.a + w.d;
-  return absLB(tr) > 2 || absLB(tr - conj(tr)) > 0;
+  return absLB(im(tr)) > 0 || absLB(re(tr)) > 2; 
 }
 
 template<typename T>
@@ -65,15 +67,13 @@ inline const bool not_identity(const SL2<T>& w) {
     ((absLB(w.a-1) > 0 || absLB(w.d-1) > 0) && (absLB(w.a+1) > 0 || absLB(w.d+1) > 0));
 }
 
-#define LERR 0.000000000001
-
 template<typename T>
 inline const bool really_cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
   T fsp2sq = four_sinh_perp2_sq_ax_wax(w, p);
   // print_type(fsp2sq);
   // printf("LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
   // printf("LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
-  return absLB(fsp2sq) > LERR && absLB(fsp2sq + 4) > LERR; 
+  return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
 }
 
 template<typename T>
@@ -106,6 +106,8 @@ inline const bool must_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
   // we only test if the real part is to one side of the bound
   return strictly_pos(diff);
 }
+
+#define LERR 0.00000000001
 
 template<typename T>
 inline const bool really_cant_fix_y_axis(const SL2<T>& w, const Params<T>& p) {

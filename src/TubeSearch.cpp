@@ -4,6 +4,7 @@
 #include "TubeSearch.hh"
 #include "CanonicalName.hh"
 #include "IsomH3.hh"
+#include "Params.hh"
 #include "roundoff.h"
 
 using namespace std;
