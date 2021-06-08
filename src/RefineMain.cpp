@@ -13,6 +13,7 @@ extern int g_boxes_visited;
 double g_cosh_marg_upper_bound = 1.2947;
 double g_cosh_marg_lower_bound = 1.0054;
 double g_sinh_d_bound = 1.3426; 
+double g_cosh_d_bound = 1.675; 
 
 bool g_debug = false;
 

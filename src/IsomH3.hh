@@ -3,7 +3,6 @@
 #include <math.h>
 #include <string>
 #include "SL2.hh"
-#include "AJ.h"
 #include "Generators.hh"
 #include "roundoff.h"
 #include "types.hh"
@@ -18,6 +17,16 @@ template<typename T>
 const T four_cosh_re_length(const SL2<T>& w) {
   T tr = w.a + w.d;
   return abs_sqrd(tr) + abs(tr*tr - 4);
+}
+
+template<typename T>
+const T two_cosh_dist(T& two_sinh_sq_perp2) {
+  return abs(two_sinh_sq_perp2 + 2) + abs(two_sinh_sq_perp2);
+}
+
+template<typename T>
+const T four_cosh_dist(T& four_sinh_sq_perp2) {
+  return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
 }
 
 template<typename T>
@@ -318,13 +327,6 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
   return result;
 }
 
-template<typename T>
-const T cosh_move_j(const SL2<T>& w) {
-  T q = abs_sqrd(w.c) + abs_sqrd(w.d);
-  T z = w.a * conj(w.c) + w.b * conj(w.d);
-  return (abs_sqrd(z) + (q - 1) * (q - 1))/(q * 2) + 1; 
-}
-
 // We compute |tr(w1)^2 - 4| + |tr(w1 w2 W1 W2) - 2|
 // with optimzation for x and y specifically
 template<typename T>
@@ -335,6 +337,27 @@ const T jorgensen(const SL2<T>& w1, const SL2<T>& w2) {
   T tr1 = w1.a + w1.d; 
   T tr2 = C.a + C.d; 
   return abs(tr1*tr1 - 4) + abs(tr2 - 2);
+}
+
+// Complex distance between {zm, zp} and {0, infty} 
+template<typename T>
+const T sinh_perp2_sq_zero_inf(T& zm, T& zp) {
+  return zm / (zp - zm); 
+}
+
+// Complex distance between {zm, zp} and {-1, 1} 
+template<typename T>
+const T sinh_perp2_sq_mp_one(T& zm, T& zp) {
+  T one = T(1);
+  return (((zm + one) * (zp - one)) * 0.5) / (zm - zp) ; 
+}
+
+// Complex distance between {zm, zp} and {-1, 1} 
+template<typename T>
+const T sinh_perp2_sq_mp_eye(T& zm, T& zp) {
+  T one = T(1);
+  T eye = eye(one);
+  return (((one - eye * zm) * (zp - eye)) * 0.5) / (zm - zp) ; 
 }
 
 #endif // __IsomH3_h

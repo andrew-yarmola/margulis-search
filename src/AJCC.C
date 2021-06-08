@@ -6,14 +6,13 @@ void print_type<const AJCC>(const AJCC& x) {
 	fprintf(stderr, "f: %.20f + %.20f I\n\
 z0: %.20f + %.20f I   w0: %.20f + %.20f I\n\
 z1: %.20f + %.20f I   w1: %.20f + %.20f I\n\
-z2: %.20f + %.20f I   w2: %.20f + %.20f I\n\
 err: %.40f\n\
 size: %.40f\n\
 absLB: %.20f | hex %s\n\
 abdUB: %.20f | hex %s\n", x.f.re, x.f.im,
 		   x.z0.re, x.z0.im, x.w0.re, x.w0.im,
 		   x.z1.re, x.z1.im, x.w1.re, x.w1.im,
-		   x.z2.re, x.z2.im, x.w2.re, x.w2.im, x.e, x.size,
+		   x.e, x.size,
        absLB(x), double_to_hex(absLB(x)).c_str(),
        absUB(x), double_to_hex(absUB(x)).c_str());
 }
@@ -56,7 +55,7 @@ const AJCC operator/(const AJCC&x,const AJCC&y) {
 	double ydist = size(y);
 	double ax = absUB(x.f), ay = absLB(y.f);
 	double D = ay-(1+EPS)*(y.e+ydist);
-	if(!(D > 0)) return AJCC(0,0,0,0,0,0,0,infinity());
+	if(!(D > 0)) return AJCC(0,0,0,0,0,infinity());
 	AComplex den = (y.f*y.f);
 	AComplex r_f = x.f/y.f;
 	AComplex r_z0 = (x.z0*y.f-x.f*y.z0)/den;
@@ -75,7 +74,7 @@ const AJCC operator/(double x,const AJCC&y) {
 	double ydist = size(y);
 	double ax = fabs(x), ay = absLB(y.f);
 	double D = ay-(1+EPS)*(y.e+ydist);
-	if(!(D > 0))return AJCC(0,0,0,0,0,0,0,infinity());
+	if(!(D > 0))return AJCC(0,0,0,0,0,infinity());
 	AComplex den = (y.f*y.f);
 	AComplex r_f = x/y.f;
 	AComplex r_z0 = (-x*y.z0)/den;

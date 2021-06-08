@@ -19,7 +19,11 @@ extern int num_bound_tests;
 
 extern bool g_debug;
 
-unordered_map<string, SL2<AJ> > short_words_cache;
+unordered_map<string, SL2<AJCC> > short_words_cache;
+
+// TODO
+//void parse_result(box_state result, Box& box, PartialTree& t) {
+//}
 
 bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, vector< Box >& place, int newDepth, int& searched_depth)
 {
@@ -49,10 +53,22 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
   }
 
   // Check if the box is now small enough that some former qrs actually kill it
-  Params<AJ> p = box.cover();
+  Params<AJCC> p = box.cover();
   vector<string> quasi_relators = box.qr.word_classes();
   for (vector<string>::iterator it = quasi_relators.begin(); it != quasi_relators.end(); ++it) {
-    SL2<AJ> w = construct_word(*it, p, short_words_cache); 
+    SL2<AJCC> w = construct_word(*it, p, short_words_cache); 
+    if (wx_hits_elliptic_axis(w,p)) {
+        t.aux_word.assign(*it);
+        t.aux_result = wx_hits_elliptic;
+        t.test_result = killed_failed_qr;
+        return true;
+    }
+    if (wy_hits_elliptic_axis(w,p)) {
+        t.aux_word.assign(*it);
+        t.aux_result = wy_hits_elliptic;
+        t.test_result = killed_failed_qr;
+        return true;
+    }
     if (moves_x_axis_too_close_to_y(w,p) &&
         moved_x_axis_not_y_axis(w, p)) {
         t.aux_word.assign(*it);
@@ -145,6 +161,8 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
           case variety_nbd_y :
           case variety_nbd : 
           case bad_length : 
+          case wx_hits_elliptic :
+          case wy_hits_elliptic :
           case var_x_hits_y :
           case var_y_hits_x : {
             t.test_index = i;
@@ -203,6 +221,8 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
           case variety_nbd_y :
           case variety_nbd : 
           case bad_length : 
+          case wx_hits_elliptic :
+          case wy_hits_elliptic :
           case var_x_hits_y :
           case var_y_hits_x : {
             t.test_index = new_index;
@@ -288,6 +308,8 @@ void print_tree(PartialTree& t)
       case killed_failed_qr : {
         p = word_pair(t.aux_word, "");
         switch (t.aux_result) {
+          case wx_hits_elliptic : type = 'n'; break;
+          case wy_hits_elliptic : type = 'N'; break;
           case killed_x_hits_y : type = 'a'; break;
           case killed_y_hits_x : type = 'A'; break;
           case killed_x_tube : type = 'x'; break;
@@ -336,6 +358,8 @@ void print_tree(PartialTree& t)
       case variety_nbd_x : type = 'v'; break;
       case variety_nbd_y : type = 'V'; break;
       case variety_nbd : type = 'W'; break;
+      case wx_hits_elliptic : type = 'n'; break;
+      case wy_hits_elliptic : type = 'N'; break;
       case var_x_hits_y : type = 'c'; break;
       case var_y_hits_x : type = 'C'; break;
       default : return;

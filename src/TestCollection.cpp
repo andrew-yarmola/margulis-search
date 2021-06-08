@@ -9,10 +9,10 @@ using namespace std;
 
 extern double g_cosh_marg_upper_bound;
 extern double g_cosh_marg_lower_bound;
-extern double g_sinh_d_bound; 
+extern double g_cosh_d_bound; 
 extern bool g_symmetric; 
 
-int num_bound_tests = 8;
+int num_bound_tests = 4;
 
 int TestCollection::size()
 {
@@ -26,7 +26,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<Complex> w = construct_word(word, p);
-    if (strictly_pos(p.coshlx * 4 - four_cosh_re_length(w))) {
+    if (strictly_pos(p.coshreL * 4 - four_cosh_re_length(w))) {
       return bad_length_center;
     }
     if (not_identity(w)) {
@@ -38,6 +38,12 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
       }
       if (moves_y_axis_too_close_to_x(w,p)) {
         return y_hits_x_center; 
+      }
+      if (wx_hits_elliptic_axis(w,p)) {
+        return wx_hits_elliptic_center; 
+      }
+      if (wy_hits_elliptic_axis(w,p)) {
+        return wy_hits_elliptic_center; 
       }
     }
     if (y_power(word) > 0) {
@@ -100,25 +106,31 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
   return open;
 }
 
-box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& aux_word,
-    vector<string>& new_qrs, unordered_map< string,SL2<AJ> >& words_cache)
+box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& aux_word,
+    vector<string>& new_qrs, unordered_map< string,SL2<AJCC> >& words_cache)
 {
   if (g_debug) {
     fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
   }
-  Params<AJ> p = box.cover();
+  Params<AJCC> p = box.cover();
   vector<string> required;
   if (pair.second.length() == 0) {
     string word = pair.first;
-    SL2<AJ> w = construct_word(word, p);
-//    if (strictly_pos(p.coshlx * 4 - four_cosh_re_length(w))) {
+    SL2<AJCC> w = construct_word(word, p);
+//    if (strictly_pos(p.coshreL * 4 - four_cosh_re_length(w))) {
 //      return bad_length;
 //    }
     if (not_identity(w) && move_less_than_marg(w, p)) {
       return killed_move;
     }
+    if (wx_hits_elliptic_axis(w,p)) {
+      return wx_hits_elliptic; 
+    }
+    if (wy_hits_elliptic_axis(w,p)) {
+      return wy_hits_elliptic; 
+    }
     string word_xr = x_rstrip(word);
-    SL2<AJ> w_xr;
+    SL2<AJCC> w_xr;
     if (word_xr != word) {
       w_xr = construct_word(word_xr, p);
     } else {
@@ -128,19 +140,19 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       if (moved_x_axis_not_y_axis(w_xr, p)) {
         if (g_debug) {
           fprintf(stderr, "******* MOVES X TOO CLOSE TO Y *********\n");
-          AJ diff = p.coshdxdy * 4 - four_cosh_dist_ay_wax(w, p);
+          AJCC diff = p.coshreD * 4 - four_cosh_dist_ay_wax(w, p);
           print_SL2(w);
-          print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+          print_type("4cosh(dx+dy):", p.coshreD * 4);
           print_type("4coshd(dist(y-axis, w(x-axis))):", four_cosh_dist_ay_wax(w, p)); 
-          AJ z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
-            ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
+          AJCC z = ((w.a * w.a) * p.expmD2 - (w.b * w.b) * p.expD2 ) * p.expmD2 +
+            ((w.d * w.d) * p.expD2  - (w.c * w.c) * p.expmD2) * p.expD2;
           print_type("4 sinh^2(dist/2) + 2:", z);
           print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
           print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
           print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
           print_type("diff:", diff);
           fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
-          AJ fsp2sq = four_sinh_perp2_sq_ay_wax(w, p);
+          AJCC fsp2sq = four_sinh_perp2_sq_ay_wax(w, p);
           print_type("4 sihn^2(perp/2):", fsp2sq);
           fprintf(stderr, "****************************************\n");
         }
@@ -159,7 +171,7 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       return var_x_hits_y; 
     }
     string word_yr = y_rstrip(word);
-    SL2<AJ> w_yr;
+    SL2<AJCC> w_yr;
     if (word_yr != word) {
       w_yr = construct_word(word_yr, p);
     } else {
@@ -169,19 +181,19 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       if (moved_y_axis_not_x_axis(w_yr, p)) {
         if (g_debug) {
           fprintf(stderr, "******* MOVES Y TOO CLOSE TO X: %s *********\n", word.c_str());
-          AJ diff = p.coshdxdy * 4 - four_cosh_dist_ax_way(w, p);
+          AJCC diff = p.coshreD * 4 - four_cosh_dist_ax_way(w, p);
           print_SL2(w);
-          print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+          print_type("4cosh(dx+dy):", p.coshreD * 4);
           print_type("4coshd(dist(x-axis, w(y-axis))):", four_cosh_dist_ax_way(w, p)); 
-          AJ z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
-                 ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
+          AJCC z = ((w.a * w.a) * p.expD2  - (w.b * w.b) * p.expmD2) * p.expD2 +
+                 ((w.d * w.d) * p.expmD2 - (w.c * w.c) * p.expD2 ) * p.expmD2;
           print_type("4 sinh^2(dist/2) + 2:", z);
           print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
           print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
           print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
           print_type("diff:", diff);
           fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
-          AJ fsp2sq = four_sinh_perp2_sq_ax_way(w, p);
+          AJCC fsp2sq = four_sinh_perp2_sq_ax_way(w, p);
           print_type("4 sihn^2(perp/2):", fsp2sq);
           fprintf(stderr, "****************************************\n");
         }
@@ -201,7 +213,7 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
     }
     if (y_power(word) > 0) {
       string word_x = x_strip(word);
-      SL2<AJ> w_x;
+      SL2<AJCC> w_x;
       if (word_x != word) {
         w_x = construct_word(word_x, p);
       } else {
@@ -219,12 +231,12 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
             fprintf(stderr, "********** MUST FIX X AXIS ***********\n");
             fprintf(stderr, "UB Jwx %f, UB Jxw %f, must_fix %d\n", absUB(jorgensen_wx(w_x, p)),
                     absUB(jorgensen_xw(w_x, p)), must_fix_x_axis(w_x, p));
-            AJ diff = p.cosh2dx * 4 - four_cosh_dist_ax_wax(w_x, p);
-            print_type("4 cosh 2 dx:", p.cosh2dx * 4);
+            AJCC diff = p.coshreD * 4 - four_cosh_dist_ax_wax(w_x, p);
+            print_type("4 cosh 2 dx:", p.coshreD * 4);
             print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w_x, p));
             print_type("diff:", diff);
             fprintf(stderr, "********** CANNOT FIX X AXIS ***********\n");
-            AJ fsp2sq = four_sinh_perp2_sq_ax_wax(w_x, p);
+            AJCC fsp2sq = four_sinh_perp2_sq_ax_wax(w_x, p);
             print_type("4sinh^2(perp/2)", fsp2sq);
             fprintf(stderr, "Can't fix x axis LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
             fprintf(stderr,"Can't fix x axis LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
@@ -240,12 +252,12 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
             fprintf(stderr, "********** MUST FIX X AXIS ***********\n");
             fprintf(stderr, "UB Jwx %f, UB Jxw %f, must_fix %d\n", absUB(jorgensen_wx(w_x, p)),
                     absUB(jorgensen_xw(w_x, p)), must_fix_x_axis(w_x, p));
-            AJ diff = p.cosh2dx * 4 - four_cosh_dist_ax_wax(w_x, p);
-            print_type("4 cosh 2 dx:", p.cosh2dx * 4);
+            AJCC diff = p.coshreD * 4 - four_cosh_dist_ax_wax(w_x, p);
+            print_type("4 cosh 2 dx:", p.coshreD * 4);
             print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w_x, p));
             print_type("diff:", diff);
             fprintf(stderr, "********** DOES NOTE COMMUTE ***********\n");
-            SL2<AJ> commutator = box.x_cover() * w * inverse(w * box.x_cover());
+            SL2<AJCC> commutator = box.x_cover() * w * inverse(w * box.x_cover());
             fprintf(stderr, "commutator\n");
             print_SL2(commutator);
             fprintf(stderr, "|b| == 0: %d, |c| == 0: %d, |a-1| == 0: %d, |d-1| == 0: %d, |a+1| == 0: %d, |d+1| == 0: %d\n", absLB(commutator.b) == 0, absLB(commutator.c) == 0, absLB(commutator.a-1) == 0,absLB(commutator.d-1) == 0, absLB(commutator.a+1) == 0, absLB(commutator.d+1) == 0);
@@ -268,7 +280,7 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
     }
     if (x_power(word) > 0) {
       string word_y = y_strip(word);
-      SL2<AJ> w_y;
+      SL2<AJCC> w_y;
       if (word_y != word) {
         w_y = construct_word(word_y, p);
       } else {
@@ -298,8 +310,8 @@ box_state TestCollection::evaluate_AJ(word_pair pair, const Box& box, string& au
       }
     }
   } else {
-    SL2<AJ> w1 = construct_word(pair.first, p);
-    SL2<AJ> w2 = construct_word(pair.second,p);
+    SL2<AJCC> w1 = construct_word(pair.first, p);
+    SL2<AJCC> w2 = construct_word(pair.second,p);
     if (margulis_smaller_than_xy(w1, w2, p)) {
       return killed_marg;
     }
@@ -332,92 +344,62 @@ box_state TestCollection::evaluate_center(int index, Box& box)
   switch(index) {
     case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
               return check_bounds_center(absUB(center.coshmu) < g_cosh_marg_lower_bound ||
-                  absLB(center.coshmu) > g_cosh_marg_upper_bound ||
-                  strictly_pos(-center.coshmu));
+                  absLB(center.coshmu) > g_cosh_marg_upper_bound);
             } 
-    case 1: { //
-              return check_bounds_center(absLB(center.sinhdx) > g_sinh_d_bound || strictly_pos(-center.sinhdx) ||
-                  absLB(center.sinhdy) > g_sinh_d_bound || strictly_pos(-center.sinhdy));
+    case 1: { // FIXME use nearer and further
+              return check_bounds_center(absLB(center.coshreL) > g_cosh_d_bound || 
+                      strictly_pos(-re(center.sinhL2)) || strictly_pos(-im(center.sinhL2)) ||
+                      strictly_pos(-re(center.sinhD2)) || strictly_pos(-im(center.sinhD2)));
             }
-    case 2: { // sin/cos bounds between -1 and 1
-              return check_bounds_center(absLB(center.cosf) > 1 || absLB(center.sintx2) > 1 || absLB(center.sinty2) > 1);
-            }
-    case 3: { // check lengths are not negative 
-              return check_bounds_center(absUB(center.coshlx) < 1 || absUB(center.coshly) < 1);
-            }
-    case 4: { // Meyerhoff tube bound. Check if embeded tube radius is more than rad + marg/2 
+    case 2: { // Meyerhoff tube bound. Check if embeded tube radius is more than rad + marg/2 
               SL2<Complex> x = construct_x(center);
               SL2<Complex> y = construct_y(center);
               Complex four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, center);
               Complex four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, center);
               return check_bounds_center(
-                  meyerhoff_k_test(center.coshlx, center.costx, four_cosh_x_tube_UB) || 
-                  meyerhoff_k_test(center.coshly, center.costy, four_cosh_y_tube_UB));
+                  meyerhoff_k_test(center.coshreL, center.cosimL, four_cosh_x_tube_UB) || 
+                  meyerhoff_k_test(center.coshreL, center.cosimL, four_cosh_y_tube_UB));
             }
-    case 5: { // diagonals
-              return check_bounds_center(false);
-            }
-    case 6: { // 4.26 in bilipschitz paper
-              Complex cosh_mu_LB_x = cosh_marg_lower_bound(center.sinhdx);
-              Complex cosh_mu_LB_y = cosh_marg_lower_bound(center.sinhdy); // overkill in symmertic
-              return check_bounds_center(
-                  strictly_pos(cosh_mu_LB_x - center.coshmu) ||
-                  strictly_pos(cosh_mu_LB_y - center.coshmu));
-                    
-            }
-    case 7: { // x is shortest
-              return check_bounds_center(strictly_pos(center.coshlx - center.coshly));
+    case 3: { // 4.26 in bilipschitz paper
+              // FIXME use something other than sinhreL
+              Complex cosh_mu_LB = cosh_marg_lower_bound(center.sinhreL);
+              return check_bounds_center(strictly_pos(cosh_mu_LB - center.coshmu));
             }
    default:
             return evaluate_approx(pair_vector[index - num_bound_tests], box);
   }
 }
 
-box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, vector<string>& new_qrs, unordered_map< string,SL2<AJ> >& words_cache)
+box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, vector<string>& new_qrs, unordered_map< string,SL2<AJCC> >& words_cache)
 {
   //  fprintf(stderr, "Evaluating box test index %d\n", index);
-  Params<AJ> cover = box.cover();
+  Params<AJCC> cover = box.cover();
   switch(index) {
     case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
               return check_bounds(absUB(cover.coshmu) < g_cosh_marg_lower_bound ||
-                  absLB(cover.coshmu) > g_cosh_marg_upper_bound ||
-                  strictly_pos(-cover.coshmu));
+                  absLB(cover.coshmu) > g_cosh_marg_upper_bound);
             } 
-    case 1: { //
-              return check_bounds(absLB(cover.sinhdx) > g_sinh_d_bound || strictly_pos(-cover.sinhdx) ||
-                  absLB(cover.sinhdy) > g_sinh_d_bound || strictly_pos(-cover.sinhdy));
+    case 1: { // FIXME use nearer and further
+              return check_bounds(absLB(cover.coshreL) > g_cosh_d_bound || 
+                      strictly_pos(-re(cover.sinhL2)) || strictly_pos(-im(cover.sinhL2)) ||
+                      strictly_pos(-re(cover.sinhD2)) || strictly_pos(-im(cover.sinhD2)));
             }
-    case 2: { // sin/cos bounds between -1 and 1
-              return check_bounds(absLB(cover.cosf) > 1 || absLB(cover.sintx2) > 1 || absLB(cover.sinty2) > 1);
-            }
-    case 3: { // check lengths are not negative 
-              return check_bounds(absUB(cover.coshlx) < 1 || absUB(cover.coshly) < 1);
-            }
-    case 4: { // Meyerhoff tube bound. Check if embeded tube radius is more than rad + marg/2 
+    case 2: { // Meyerhoff tube bound. Check if embeded tube radius is more than rad + marg/2 
               // fprintf(stderr, "%s", box.desc().c_str());
-              SL2<AJ> x = construct_x(cover);
-              SL2<AJ> y = construct_y(cover);
-              AJ four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, cover);
-              AJ four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, cover);
-              return check_bounds(meyerhoff_k_test(cover.coshlx, cover.costx, four_cosh_x_tube_UB) || 
-                  meyerhoff_k_test(cover.coshly, cover.costy, four_cosh_y_tube_UB));
+              SL2<AJCC> x = construct_x(cover);
+              SL2<AJCC> y = construct_y(cover);
+              AJCC four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, cover);
+              AJCC four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, cover);
+              return check_bounds(meyerhoff_k_test(cover.coshreL, cover.cosimL, four_cosh_x_tube_UB) || 
+                  meyerhoff_k_test(cover.coshreL, cover.cosimL, four_cosh_y_tube_UB));
             }
-    case 5: { // diagonals
-              return check_bounds(false);
-            }
-    case 6: { // 4.26 in bilipschitz paper
-              AJ cosh_mu_LB_x = cosh_marg_lower_bound(cover.sinhdx);
-              AJ cosh_mu_LB_y = cosh_marg_lower_bound(cover.sinhdy); // overkill in symmertic
-              return check_bounds(
-                  strictly_pos(cosh_mu_LB_x - cover.coshmu) ||
-                  strictly_pos(cosh_mu_LB_y - cover.coshmu));
-                    
-            }
-    case 7: { // x is shortest
-              return check_bounds(strictly_pos(cover.coshlx - cover.coshly));
+    case 3: { // 4.26 in bilipschitz paper
+              // FIXME use something other than sinhreL
+              AJCC cosh_mu_LB = cosh_marg_lower_bound(cover.sinhreL);
+              return check_bounds(strictly_pos(cosh_mu_LB - cover.coshmu));
             }
     default:
-            return evaluate_AJ(pair_vector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);
+            return evaluate_AJCC(pair_vector[index - num_bound_tests], box, aux_word, new_qrs, words_cache);
   }
 }
 

@@ -212,14 +212,14 @@ namespace TubeSearchImpl {
     // fprintf(stderr, "Word: %s\n", word.name.c_str());
     bool pushed = false;
 
-    if (pos_less(word.four_cosh_x_x, absUB(params.cosh2dx * 6.5))   ||  
-        pos_less(word.four_cosh_y_y, absUB(params.cosh2dy * 6.5))   ||
-        pos_less(word.four_cosh_x_y, absUB(params.coshdxdy * 6.5))  ||
-        pos_less(word.four_cosh_y_x, absUB(params.coshdxdy * 6.5))  ||
+    if (pos_less(word.four_cosh_x_x, absUB(params.coshreD * 6.5))   ||  
+        pos_less(word.four_cosh_y_y, absUB(params.coshreD * 6.5))   ||
+        pos_less(word.four_cosh_x_y, absUB(params.coshreD * 6.5))  ||
+        pos_less(word.four_cosh_y_x, absUB(params.coshreD * 6.5))  ||
         pos_less(word.cosh_move, absUB(params.coshmu * 2.5))    ||
         pos_less(word.jorg_x, 3)                                ||
         pos_less(word.jorg_y, 3)                                ||
-        pos_less(word.four_cosh_re_len, absUB(params.coshlx * 6.5)))
+        pos_less(word.four_cosh_re_len, absUB(params.coshreL * 6.5)))
     {
       word_lookup.push_back(word);
       words.push(word);
@@ -242,7 +242,7 @@ namespace TubeSearchImpl {
       WordPair pair(word, *it, params);
       if (pos_less(pair.jorgensen_words, 1.5)                        ||
           pos_less(pair.four_cosh_marg, absUB(params.coshmu * 4.1))    ||
-          pos_less(pair.cosh_two_ortho, absUB(params.coshdxdy * 1.2)))
+          pos_less(pair.cosh_two_ortho, absUB(params.coshreD * 1.2)))
       {
         pairs.push(pair);
         // pushed = true;
@@ -281,24 +281,24 @@ namespace TubeSearchImpl {
         Word w(words.top());
         // fprintf(stderr, "Smallest word %s\n", w.name.c_str());
         //        if (w.name == "Xy") {
-        //          fprintf(stderr, "    4cosh(ax, wax): %f < %f\n    4cosh(ay, way): %f < %f\n    4cosh(ax, way): %f < %f\n    4cosh(ay, wax): %f < %f\n    cosh_move: %f < %f\n    jorg_x: %f < 1.0\n    jorg_y: %f < 1.0\n", w.four_cosh_x_x, absLB(params.cosh2dx * 4), w.four_cosh_y_y, absLB(params.cosh2dy * 4), w.four_cosh_x_y, absLB(params.coshdxdy * 4), w.four_cosh_y_x, absLB(params.coshdxdy * 4), w.cosh_move, absLB(params.coshmu), w.jorg_x, w.jorg_y);
+        //          fprintf(stderr, "    4cosh(ax, wax): %f < %f\n    4cosh(ay, way): %f < %f\n    4cosh(ax, way): %f < %f\n    4cosh(ay, wax): %f < %f\n    cosh_move: %f < %f\n    jorg_x: %f < 1.0\n    jorg_y: %f < 1.0\n", w.four_cosh_x_x, absLB(params.coshreD * 4), w.four_cosh_y_y, absLB(params.coshreD * 4), w.four_cosh_x_y, absLB(params.coshreD * 4), w.four_cosh_y_x, absLB(params.coshreD * 4), w.cosh_move, absLB(params.coshmu), w.jorg_x, w.jorg_y);
         //        } 
         if (y_power(w.name) > 0 && x_power(w.name) > 0 &&
-            (pos_less(w.four_cosh_x_x, absLB(params.cosh2dx * 3.999999))   ||  
-             pos_less(w.four_cosh_y_y, absLB(params.cosh2dy * 3.999999))   ||
-             pos_less(w.four_cosh_x_y, absLB(params.coshdxdy * 3.999999))  ||
-             pos_less(w.four_cosh_y_x, absLB(params.coshdxdy * 3.999999))  ||
+            (pos_less(w.four_cosh_x_x, absLB(params.coshreD * 3.999999))   ||  
+             pos_less(w.four_cosh_y_y, absLB(params.coshreD * 3.999999))   ||
+             pos_less(w.four_cosh_x_y, absLB(params.coshreD * 3.999999))  ||
+             pos_less(w.four_cosh_y_x, absLB(params.coshreD * 3.999999))  ||
              pos_less(w.cosh_move, absLB(params.coshmu * 0.999999))        ||
              pos_less(w.jorg_x, 0.9999999)                                 ||
              pos_less(w.jorg_y, 0.9999999)                                ||
-             pos_less(w.four_cosh_re_len, absLB(params.coshlx * 3.9999999))))
+             pos_less(w.four_cosh_re_len, absLB(params.coshreL * 3.9999999))))
         {
           m_found_good_pair = true;
           Word none;
           none.name = "";
           WordPair result(w, none, params);
           // fprintf(stderr, "Found word %s\n", w.name.c_str());
-          // fprintf(stderr, "    4cosh(ax, wax): %f < %f\n    4cosh(ay, way): %f < %f\n    4cosh(ax, way): %f < %f\n    4cosh(ay, wax): %f < %f\n    cosh_move: %f < %f\n    jorg_x: %f < 1.0\n    jorg_y: %f < 1.0\n", w.four_cosh_x_x, absLB(params.cosh2dx * 4), w.four_cosh_y_y, absLB(params.cosh2dy * 4), w.four_cosh_x_y, absLB(params.coshdxdy * 4), w.four_cosh_y_x, absLB(params.coshdxdy * 4), w.cosh_move, absLB(params.coshmu), w.jorg_x, w.jorg_y);
+          // fprintf(stderr, "    4cosh(ax, wax): %f < %f\n    4cosh(ay, way): %f < %f\n    4cosh(ax, way): %f < %f\n    4cosh(ay, wax): %f < %f\n    cosh_move: %f < %f\n    jorg_x: %f < 1.0\n    jorg_y: %f < 1.0\n", w.four_cosh_x_x, absLB(params.coshreD * 4), w.four_cosh_y_y, absLB(params.coshreD * 4), w.four_cosh_x_y, absLB(params.coshreD * 4), w.four_cosh_y_x, absLB(params.coshreD * 4), w.cosh_move, absLB(params.coshmu), w.jorg_x, w.jorg_y);
           return result;
         }
         words.pop();
@@ -335,12 +335,12 @@ namespace TubeSearchImpl {
         // fprintf(stderr, "Smallest pair (%s, %s)\n", p.first.name.c_str(), p.second.name.c_str());
         if (pos_less(p.jorgensen_words, 0.999999)                ||
             pos_less(p.four_cosh_marg, absLB(params.coshmu * 3.999999))) 
-          //pos_less(p.cosh_two_ortho, absLB(params.coshdxdy)))
+          //pos_less(p.cosh_two_ortho, absLB(params.coshreD)))
         {
           m_found_good_pair = true;
           pairs.pop();
           // fprintf(stderr, "Found pair (%s, %s)\n", p.first.name.c_str(), p.second.name.c_str());
-          // fprintf(stderr, "    jorgensen_words: %f < 1.0\n    four_cosh_marg: %f < %f\n    cosh_two_ortho: %f < %f\n", p.jorgensen_words, p.four_cosh_marg, absLB(params.coshmu * 4), p.cosh_two_ortho, absLB(params.coshdxdy));
+          // fprintf(stderr, "    jorgensen_words: %f < 1.0\n    four_cosh_marg: %f < %f\n    cosh_two_ortho: %f < %f\n", p.jorgensen_words, p.four_cosh_marg, absLB(params.coshmu * 4), p.cosh_two_ortho, absLB(params.coshreD));
           return p;
         }
         pairs.pop();
@@ -473,15 +473,15 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
   string shift_word;
   string shift_word_inv;
   if (x_is_shifter) {
-    fixed.p =  params.expmdx;
-    fixed.m = -params.expmdx;
+    fixed.p =  params.expmD2;
+    fixed.m = -params.expmD2;
     shifter = x;
     shifter_inv = X;
     shift_word = "x";
     shift_word_inv = "X";
   } else {
-    fixed.p =  params.expdyf;
-    fixed.m = -params.expdyf;
+    fixed.p =  params.expD2;
+    fixed.m = -params.expD2;
     shifter = y;
     shifter_inv = Y;
     shift_word = "y";
@@ -510,7 +510,7 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
 
         if (c_move_j < absLB(0.98 * params.coshmu) || 
             c_re_orth < 0.98 * cosh_ortho_bound ||
-            f_cosh_re_len < absLB(params.coshlx * 3.99)) {
+            f_cosh_re_len < absLB(params.coshreL * 3.99)) {
           if (find(relators.begin(), relators.end(), h_moved.word) == relators.end()) {
             if (seen.find(h_moved.word) == seen.end()) {
               /*if (c_re_orth < 0.98 * cosh_ortho_bound) {
@@ -559,18 +559,18 @@ vector< word_pair > find_words_v2(const Params<Complex>& params, int num_words, 
     const vector<string>& relators, const map<string, int>& seen)
 {
   axis x_axis, y_axis;
-  x_axis.p = params.expmdx;
-  x_axis.m = -params.expmdx;
-  y_axis.p = params.expdyf;
-  y_axis.m = -params.expdyf;
+  x_axis.p = params.expmD2;
+  x_axis.m = -params.expmD2;
+  y_axis.p = params.expD2;
+  y_axis.m = -params.expD2;
   vector<string> move_x_words = find_words_tubes(x_axis, true, false, params,
-      absUB(params.cosh2dx), num_words, max_move_len, relators, seen);
+      absUB(params.coshreD), num_words, max_move_len, relators, seen);
   vector<string> move_y_words = find_words_tubes(y_axis, false, true, params,
-      absUB(params.cosh2dy), num_words, max_move_len, relators, seen);
+      absUB(params.coshreD), num_words, max_move_len, relators, seen);
   vector<string> move_xy_words = find_words_tubes(y_axis, true, false, params,
-      absUB(params.coshdxdy), num_words, max_move_len, relators, seen);
+      absUB(params.coshreD), num_words, max_move_len, relators, seen);
   vector<string> move_yx_words = find_words_tubes(x_axis, false, true, params,
-      absUB(params.coshdxdy), num_words, max_move_len, relators, seen);
+      absUB(params.coshreD), num_words, max_move_len, relators, seen);
 
   set<string> new_words;
   new_words.insert(move_x_words.begin(), move_x_words.end());

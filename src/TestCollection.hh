@@ -17,7 +17,7 @@ struct ImpossibleRelations;
 struct TestCollection {
   int size();
   box_state evaluate_center(int index, Box& box);
-  box_state evaluate_box(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
+  box_state evaluate_box(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJCC> >& words_cache);
   const std::string get_name(int index);
   word_pair get_pair(int index);
   int add(word_pair pair);
@@ -25,14 +25,14 @@ struct TestCollection {
   void load(const char* file_path);
   void load_impossible_relations(const char* file_path);
   ImpossibleRelations *impossible;
+  box_state evaluate_AJCC(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJCC> >& words_cache);
   private:
   word_pair parse_word_pair(std::string buf);
   std::map<word_pair, int> pair_index;
   std::vector<word_pair> pair_vector;
   box_state evaluate_approx(word_pair pair, const Box& params);
-  box_state evaluate_AJ(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJ> >& words_cache);
-  bool ready_for_elliptics_test(SL2<AJ>& w);
-  bool only_elliptics(SL2<AJ>& w, Params<AJ>& params);
+  bool ready_for_elliptics_test(SL2<AJCC>& w);
+  bool only_elliptics(SL2<AJCC>& w, Params<AJCC>& params);
 };
 
 template<typename T>
@@ -68,6 +68,40 @@ inline const bool not_identity(const SL2<T>& w) {
 }
 
 template<typename T>
+inline const bool tube_hits_axis_two(const T& two_sinh_p2sq, const T& two_cosh_re_tube) {
+  T tcd = two_cosh_dist(two_sinh_p2sq);
+  // sinh(I Pi/4)^2 = -1/2 which means axes meet othrogonally
+  return absLB(two_cosh_re_tube - tcd) > 0 && absLB(two_sinh_p2sq + 1) > 0;
+}
+
+template<typename T>
+inline const bool tube_hits_axis_four(const T& four_sinh_p2sq, const T& two_cosh_re_tube) {
+  T fcd = four_cosh_dist(four_sinh_p2sq);
+  // sinh(I Pi/4)^2 = -1/2 which means axes meet othrogonally
+  return absLB(two_cosh_re_tube * 2 - fcd) > 0 && absLB(four_sinh_p2sq + 2) > 0;
+}
+
+template<typename T>
+inline const bool wx_hits_elliptic_axis(const SL2<T>& w, const Params<T>& p) {
+  T tsp2sq_inf = two_sinh_perp2_sq_wax_zero_inf(w, p);
+  T fsp2sq_one = four_sinh_perp2_sq_wax_mp_one(w, p);
+  T fsp2sq_iye = four_sinh_perp2_sq_wax_mp_iye(w, p);
+  return (tube_hits_axis_two(tsp2sq_inf, p.twocoshreD2) ||
+          tube_hits_axis_four(fsp2sq_one, p.twocoshreD2) || 
+          tube_hits_axis_four(fsp2sq_iye, p.twocoshreD2));
+}
+
+template<typename T>
+inline const bool wy_hits_elliptic_axis(const SL2<T>& w, const Params<T>& p) {
+  T tsp2sq_inf = two_sinh_perp2_sq_way_zero_inf(w, p);
+  T fsp2sq_one = four_sinh_perp2_sq_way_mp_one(w, p);
+  T fsp2sq_iye = four_sinh_perp2_sq_way_mp_iye(w, p);
+  return (tube_hits_axis_two(tsp2sq_inf, p.twocoshreD2) ||
+          tube_hits_axis_four(fsp2sq_one, p.twocoshreD2) || 
+          tube_hits_axis_four(fsp2sq_iye, p.twocoshreD2));
+}
+
+template<typename T>
 inline const bool really_cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
   T fsp2sq = four_sinh_perp2_sq_ax_wax(w, p);
   // print_type(fsp2sq);
@@ -79,7 +113,7 @@ inline const bool really_cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
 template<typename T>
 inline const bool cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
   T fsp2sq = four_sinh_perp2_sq_ax_wax(w, p);
-//  if (std::is_same<T, AJ>::value && absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0) {
+//  if (std::is_same<T, AJCC>::value && absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0) {
 //    fprintf(stderr, "********** CANNOT FIX X AXIS ***********\n");
 //    T fsp2sq = four_sinh_perp2_sq_ax_wax(w, p);
 //    print_type(fsp2sq);
@@ -92,12 +126,12 @@ inline const bool cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
 
 template<typename T>
 inline const bool must_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
-  // The "must" part is only valid for AJ tests
-  T diff = p.cosh2dx * 4 - four_cosh_dist_ax_wax(w, p);
-//  if (std::is_same<T, AJ>::value && strictly_pos(diff)) {
+  // The "must" part is only valid for AJCC tests
+  T diff = p.coshreD * 4 - four_cosh_dist_ax_wax(w, p);
+//  if (std::is_same<T, AJCC>::value && strictly_pos(diff)) {
 //    fprintf(stderr, "********** MUST FIX X AXIS ***********\n");
 //    print_SL2(w);
-//    print_type("4 cosh 2 dx:", p.cosh2dx * 4);
+//    print_type("4 cosh 2 dx:", p.coshreD * 4);
 //    print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w, p));
 //    print_type("diff:", diff);
 //    fprintf(stderr, "*******************************\n");
@@ -130,8 +164,8 @@ inline const bool cant_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
 
 template<typename T>
 inline const bool must_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
-  // The "must" part is only valid for AJ tests
-  T diff = p.cosh2dy * 4 - four_cosh_dist_ay_way(w, p);
+  // The "must" part is only valid for AJCC tests
+  T diff = p.coshreD * 4 - four_cosh_dist_ay_way(w, p);
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
   return strictly_pos(diff);
@@ -160,14 +194,14 @@ inline const bool inside_var_nbd_y(const SL2<T>& w, const Params<T>& params) {
 
 template<typename T>
 inline const bool moves_y_axis_too_close_to_x(const SL2<T>& w, const Params<T>& p) {
-  T diff = p.coshdxdy * 4 - four_cosh_dist_ax_way(w, p);
+  T diff = p.coshreD * 4 - four_cosh_dist_ax_way(w, p);
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
-//  if (std::is_same<T, AJ>::value && strictly_pos(diff)) {
+//  if (std::is_same<T, AJCC>::value && strictly_pos(diff)) {
 //    fprintf(stderr, "****************************************\n");
 //    fprintf(stderr, "MOVES Y TOO CLOSE TO X\n");
 //    print_SL2(w);
-//    print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+//    print_type("4cosh(dx+dy):", p.coshreD * 4);
 //    print_type("4coshd(dist(x-axis, w(y-axis))):", four_cosh_dist_ax_way(w, p)); 
 //    T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
 //           ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
@@ -184,14 +218,14 @@ inline const bool moves_y_axis_too_close_to_x(const SL2<T>& w, const Params<T>& 
 
 template<typename T>
 inline const bool moves_x_axis_too_close_to_y(const SL2<T>& w, const Params<T>& p) {
-  T diff = p.coshdxdy * 4 - four_cosh_dist_ay_wax(w, p);
+  T diff = p.coshreD * 4 - four_cosh_dist_ay_wax(w, p);
   // We know that diff is away from zero and the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
-//  if (std::is_same<T, AJ>::value && strictly_pos(diff)) {
+//  if (std::is_same<T, AJCC>::value && strictly_pos(diff)) {
 //    fprintf(stderr, "****************************************\n");
 //    fprintf(stderr, "MOVES X TOO CLOSE TO Y\n");
 //    print_SL2(w);
-//    print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+//    print_type("4cosh(dx+dy):", p.coshreD * 4);
 //    print_type("4coshd(dist(y-axis, w(x-axis))):", four_cosh_dist_ay_wax(w, p)); 
 //    T z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
 //      ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
@@ -238,7 +272,7 @@ inline bool non_cylic_power(const SL2<T>& w, const SL2<T>& x_or_y) {
   // Here we check that this is impossible in this box. Must use margulis
   // number to check cut off for roots of x or y
   SL2<T> commutator = x_or_y * w * inverse(w * x_or_y);
-//  if (std::is_same<T, AJ>::value && not_identity(commutator)) {
+//  if (std::is_same<T, AJCC>::value && not_identity(commutator)) {
 //    fprintf(stderr, "****************************************\n");
 //    fprintf(stderr, "NOT CYCLIC POWER\n");
 //    fprintf(stderr, "x or y\n");
@@ -339,7 +373,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
   std::string new_word;
   if (inside_var_nbd_x(w, p)) {
     T four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, p);
-    T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshlx, p.costx, four_cosh_x_tube_UB); 
+    T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshreL, p.cosimL, four_cosh_x_tube_UB); 
     for (auto s : {"x", "X"}) {
       new_word = x_strip(word);
       for (int i = 0; i < MAX_ID_SHIFT; ++i) {
@@ -354,7 +388,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
   }
   if (inside_var_nbd_y(w, p)) {
     T four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, p);
-    T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshly, p.costy, four_cosh_y_tube_UB); 
+    T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshreL, p.cosimL, four_cosh_y_tube_UB); 
     for (auto s : {"y", "Y"}) {
       new_word = y_strip(word);
       for (int i = 0; i < MAX_ID_SHIFT; ++i) {
