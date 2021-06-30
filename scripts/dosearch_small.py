@@ -90,8 +90,8 @@ if __name__ == '__main__' :
   child_limit = 8
   depth_limit = 330
 
-  cosh_mu_upper = '1.0202'
-  sinh_tube_upper = '0.336'
+  cosh_mu_upper = '1.32'
+  sinh_tube_upper = '1.48'
 
   max_size = '1000000'
   max_depth = '150'

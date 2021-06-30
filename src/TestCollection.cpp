@@ -168,7 +168,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
         }
       }
       new_qrs.push_back(word_xr);
-      return var_x_hits_y; 
+      //return var_x_hits_y; 
     }
     string word_yr = y_rstrip(word);
     SL2<AJCC> w_yr;
@@ -209,7 +209,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
         }
       }
       new_qrs.push_back(word_yr);
-      return var_y_hits_x;
+      //return var_y_hits_x;
     }
     if (y_power(word) > 0) {
       string word_x = x_strip(word);
@@ -275,7 +275,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
           }
         }
         new_qrs.push_back(word_x);
-        return variety_nbd_x;
+        // return variety_nbd_x;
       }
     }
     if (x_power(word) > 0) {
@@ -306,7 +306,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
           }
         }
         new_qrs.push_back(word_y);
-        return variety_nbd_y;
+        //return variety_nbd_y;
       }
     }
   } else {
@@ -315,9 +315,9 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
     if (margulis_smaller_than_xy(w1, w2, p)) {
       return killed_marg;
     }
-    if (inside_var_nbd(w1, w2)) {
-      return variety_nbd;
-    }
+    //if (inside_var_nbd(w1, w2)) {
+    //  return variety_nbd;
+    //}
   }
   if (new_qrs.size() > 0) {
     return open_with_qr;

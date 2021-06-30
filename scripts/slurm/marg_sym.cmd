@@ -9,20 +9,18 @@
 #SBATCH --mail-type=end
 #SBATCH --mail-user=yarmola@princeton.edu
 
-#base_dir="/Users/yarmola/Projects/margulis-search"
-base_dir="/u/yarmola/margulis-center/margulis-search"
+base_dir="/u/yarmola/margsym/margulis-search"
 bin_dir="$base_dir/bin"
 words_dir=$base_dir
 
-search="$base_dir/scripts/dosearch.py"
+search="$base_dir/scripts/dosearch_small.py"
 words="$words_dir/words"
 powers="$words_dir/powers"
 
-#data_dir="/Users/yarmola/Projects/margulis-search/data"
-data_dir="/scratch/network/yarmola/margulis_center"
+data_dir="/scratch/network/yarmola/marg_sym_param"
 
 cd $bin_dir
 
 cat "$data_dir/refine.log" >> "$data_dir/refine.log.all"
 
-python3 "$search" -i 22 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$powers" -c 38 "$data_dir/source" "$data_dir/output_live" > "$data_dir/refine.log" 2>&1
+python3 "$search" -i 12 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$powers" -c 38 "$data_dir/source" "$data_dir/output_live" > "$data_dir/refine.log" 2>&1
