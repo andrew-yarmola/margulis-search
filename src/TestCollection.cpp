@@ -59,7 +59,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
           return bad_x_tube_center;
         }
         if (cant_fix_x_axis(w_x,p)) {
-          if (g_debug) { 
+          if (g_debug && false) { 
             fprintf(stderr, "Word doesn't fix axis\n");
             print_SL2(w_x);
             fprintf(stderr, "x\n");
@@ -109,7 +109,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
 box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& aux_word,
     vector<string>& new_qrs, unordered_map< string,SL2<AJCC> >& words_cache)
 {
-  if (g_debug) {
+  if (g_debug && false) {
     fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++++\n     Word Pair: %s and %s\n +++++++++++++++++++++++++++++++++++++++++++\n", pair.first.c_str(), pair.second.c_str());
   }
   Params<AJCC> p = box.cover();
@@ -138,7 +138,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
     }
     if (moves_x_axis_too_close_to_y(w_xr,p)) {
       if (moved_x_axis_not_y_axis(w_xr, p)) {
-        if (g_debug) {
+        if (g_debug && false) {
           fprintf(stderr, "******* MOVES X TOO CLOSE TO Y *********\n");
           AJCC diff = p.coshreD * 4 - four_cosh_dist_ay_wax(w, p);
           print_SL2(w);
@@ -179,7 +179,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
     }
     if (moves_y_axis_too_close_to_x(w_yr,p)) {
       if (moved_y_axis_not_x_axis(w_yr, p)) {
-        if (g_debug) {
+        if (g_debug && false) {
           fprintf(stderr, "******* MOVES Y TOO CLOSE TO X: %s *********\n", word.c_str());
           AJCC diff = p.coshreD * 4 - four_cosh_dist_ax_way(w, p);
           print_SL2(w);
@@ -224,7 +224,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
           return killed_x_tube;
         }
         if (cant_fix_x_axis(w_x, p)) {
-          if (g_debug) {
+          if (g_debug && false) {
             fprintf(stderr, "********** KILLED  ***********\n");
             fprintf(stderr, "Word %s must but doesn't fix x-axis\n", word_x.c_str());
             print_SL2(w_x);
@@ -245,7 +245,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
           return killed_x_tube;
         }
         if (non_cylic_power(w_x, box.x_cover())) {
-          if (g_debug) {
+          if (g_debug && false) {
             fprintf(stderr, "********** DOES NOT COMMUTE  ***********\n");
             fprintf(stderr, "Word %s must fix x-axis but doesn't commute\n", word_x.c_str());
             print_SL2(w_x);
@@ -380,6 +380,7 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
                   absLB(cover.coshmu) > g_cosh_marg_upper_bound);
             } 
     case 1: { // FIXME use nearer and further
+              return open;
               return check_bounds(absLB(cover.coshreL) > g_cosh_d_bound || 
                       strictly_pos(-re(cover.sinhL2)) || strictly_pos(-im(cover.sinhL2)) ||
                       strictly_pos(-re(cover.sinhD2)) || strictly_pos(-im(cover.sinhD2)));

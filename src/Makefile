@@ -4,6 +4,7 @@ TESTOBJS= test.o Box.o AJCC.o Complex.o roundoff.o types.o TubeSearch.o Canonica
 CENSUSTESTOBJS= census_test.o Refine.o PartialTree.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o QuasiRelators.o ImpossibleRelations.o
 PLAYOBJS= playground.o Box.o AJCC.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
 TREECATOBJS= treecat.o
+TREESTATOBJS= treestat.o
 CPLUSPLUS= g++
 CC= g++
 
@@ -36,3 +37,6 @@ debug: $(REFINEOBJS)
 
 treecat: $(TREECATOBJS)
 	$(CPLUSPLUS) $(COPTS) $(TREECATOBJS) -o ../bin/treecat
+
+treestat: $(TREESTATOBJS)
+	$(CPLUSPLUS) $(COPTS) $(TREESTATOBJS) -o ../bin/treestat

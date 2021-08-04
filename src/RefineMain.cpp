@@ -32,6 +32,7 @@ static struct option long_options[] = {
   {"max_size", required_argument, NULL, 's' },
   {"word_search_depth", required_argument, NULL, 'B'},
   {"fill_holes", no_argument, NULL, 'f'},
+  {"debug", no_argument, NULL, 'v'},
   {"cosh_margulis_upper", required_argument, NULL, 'm'},
   {"sinh_tube_upper", required_argument, NULL, 'r'},
   {NULL, 0, NULL, 0}
@@ -80,6 +81,8 @@ Options controlling tree manipulation:\n\
     If set, attempt to directly eliminate internal nodes of the input tree.\n\
   [ --fill_holes ]\n\
     If set, attempt to patch holes in the input tree.\n\
+  [ --debug ]\n\
+    If set, print debug logs.\n\
 ";
   fprintf(stderr, "Usage: %s %s\n\n%s", g_program_name, opt_str, longUsage);
 }
@@ -120,6 +123,7 @@ int main(int argc, char** argv)
     case 'f': g_options.fill_holes = true; break;
     case 'm': g_cosh_marg_upper_bound = atof(optarg); break;
     case 'r': g_sinh_d_bound = atof(optarg); break;
+    case 'v': g_debug = true; break;
     }
   }
 

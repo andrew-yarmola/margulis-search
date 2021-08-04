@@ -33,7 +33,7 @@ Box Box::child(int dir) const
 
 	child.qr = qr;
 
-    child.compute_center_and_size();
+  child.compute_center_and_size();
 	child.compute_cover();
 	return child;
 }
@@ -65,9 +65,9 @@ std::string Box::desc() {
                                   sinhL2.f.re, sinhL2.f.im, sinhL2.size, absLB(sinhL2), absUB(sinhL2));
   sprintf(_desc + strlen(_desc), "cosh(L/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
                                   coshL2.f.re, coshL2.f.im, coshL2.size, absLB(coshL2), absUB(coshL2));
-  sprintf(_desc + strlen(_desc), "sinh(L/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
+  sprintf(_desc + strlen(_desc), "sinh(D/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
                                   sinhD2.f.re, sinhD2.f.im, sinhD2.size, absLB(sinhD2), absUB(sinhD2));
-  sprintf(_desc + strlen(_desc), "cosh(L/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
+  sprintf(_desc + strlen(_desc), "cosh(D/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
                                   coshD2.f.re, coshD2.f.im, coshD2.size, absLB(coshD2), absUB(coshD2));
 
   sprintf(_desc + strlen(_desc),
