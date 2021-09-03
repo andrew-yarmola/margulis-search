@@ -164,6 +164,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
           aux_word.assign(proven);
           return killed_failed_qr;
         } else { //HACK
+          aux_word.assign(proven);
           return killed_failed_qr;
         }
       }
@@ -271,6 +272,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
             aux_word.assign(proven);
             return killed_failed_qr;
           } else { //HACK
+            aux_word.assign(proven);
             return killed_failed_qr;
           }
         }
@@ -302,6 +304,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
             aux_word.assign(proven);
             return killed_failed_qr;
           } else { //HACK
+            aux_word.assign(proven);
             return killed_failed_qr;
           }
         }

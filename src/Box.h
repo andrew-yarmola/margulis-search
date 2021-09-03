@@ -6,7 +6,7 @@
 #include "QuasiRelators.h"
 
 #define DIM 4
-#define SCL 4   
+#define SCL 2   
 // Initial box dimensions are therefore
 // 2 * (2, 2^(3/4), 2^(2/4), 2^(1/4)). The last is > 2.37
 

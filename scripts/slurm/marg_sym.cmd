@@ -23,4 +23,4 @@ cd $bin_dir
 
 cat "$data_dir/refine.log" >> "$data_dir/refine.log.all"
 
-python3 "$search" -i 12 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$powers" -c 38 "$data_dir/source" "$data_dir/output_live" > "$data_dir/refine.log" 2>&1
+python3 "$search" -i 24 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$powers" -c 38 "$data_dir/source" "$data_dir/output_live" > "$data_dir/refine.log" 2>&1
