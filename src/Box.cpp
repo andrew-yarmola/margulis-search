@@ -5,48 +5,48 @@
 double scale[DIM];
 static bool scale_initialized = false; 
 Box::Box() {
-	if (!scale_initialized) {
-		scale_initialized = true;
-		for (int i = 0; i < DIM; ++i) {
-			scale[i] = pow(2, -i / float(DIM));
-		}
-	}
-	for (int i = 0; i < DIM; ++i) {
-		center_digits[i] = 0;
-		size_digits[i] = SCL;
-	}
-	pos = 0;
-    compute_center_and_size();
-	compute_cover();
+  if (!scale_initialized) {
+    scale_initialized = true;
+    for (int i = 0; i < DIM; ++i) {
+      scale[i] = pow(2, -i / float(DIM));
+    }
+  }
+  for (int i = 0; i < DIM; ++i) {
+    center_digits[i] = 0;
+    size_digits[i] = SCL;
+  }
+  pos = 0;
+  compute_center_and_size();
+  compute_cover();
 }
 
 Box Box::child(int dir) const
 {
-	Box child(*this);
-	child.size_digits[pos] *= 0.5;
-	child.center_digits[pos] += (2*dir-1)*child.size_digits[pos];
-	++child.pos;
-	if (child.pos == DIM) { child.pos = 0; }
+  Box child(*this);
+  child.size_digits[pos] *= 0.5;
+  child.center_digits[pos] += (2*dir-1)*child.size_digits[pos];
+  ++child.pos;
+  if (child.pos == DIM) { child.pos = 0; }
 
-	child.name = name;
-	child.name.append(1, '0'+dir);
+  child.name = name;
+  child.name.append(1, '0'+dir);
 
-	child.qr = qr;
+  child.qr = qr;
 
   child.compute_center_and_size();
-	child.compute_cover();
-	return child;
+  child.compute_cover();
+  return child;
 }
 
 Box get_box(std::string code) {
-	Box box;
-	for (char dir : code) {
-		if (dir == '0') {
-			box = box.child(0);
-		} else if (dir == '1') {
-			box = box.child(1);
-		}
-	}
+  Box box;
+  for (char dir : code) {
+    if (dir == '0') {
+      box = box.child(0);
+    } else if (dir == '1') {
+      box = box.child(1);
+    }
+  }
     return box;
 }
 
@@ -80,14 +80,14 @@ std::string Box::desc() {
 
 void Box::compute_center_and_size()
 {
-	for (int i = 0; i < DIM; ++i) {
-        // GMT paper page 419 of Annals
-        // box_size guarantees that :
-        // box_center - box_size <= true_center - true_size
-        // box_center + box_size >= true_center + true_size
-        // where box operations are floating point. 
-        box_center[i] = scale[i]*center_digits[i];
-        box_size[i]= (1+2*EPS)*(size_digits[i]*scale[i]+HALFEPS*fabs(center_digits[i]));
+  for (int i = 0; i < DIM; ++i) {
+    // GMT paper page 419 of Annals
+    // box_size guarantees that :
+    // box_center - box_size <= true_center - true_size
+    // box_center + box_size >= true_center + true_size
+    // where box operations are floating point. 
+    box_center[i] = scale[i]*center_digits[i];
+    box_size[i]= (1+2*EPS)*(size_digits[i]*scale[i]+HALFEPS*fabs(center_digits[i]));
   }
   _center.sinhL2 = Complex(box_center[1], box_center[3]);
   _center.sinhD2 = Complex(box_center[0], box_center[2]);

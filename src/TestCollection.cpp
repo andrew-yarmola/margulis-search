@@ -106,6 +106,24 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
   return open;
 }
 
+const vector<string> bad_relators = {
+  "XXXYxxYYYYxxY",
+  "XXXYxxYYYYxxY",
+  "XXXYXYYxYYXY"
+  };
+
+bool proven_is_good(const string& proven, const Box& box) {
+  if (box.name.length() < 42 || proven.length() == 0) {
+    return false;
+  }
+  for (auto& w: bad_relators) {
+    if (proven.compare(w) == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
 box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& aux_word,
     vector<string>& new_qrs, unordered_map< string,SL2<AJCC> >& words_cache)
 {
@@ -117,9 +135,6 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<AJCC> w = construct_word(word, p);
-//    if (strictly_pos(p.coshreL * 4 - four_cosh_re_length(w))) {
-//      return bad_length;
-//    }
     if (not_identity(w) && move_less_than_marg(w, p)) {
       return killed_move;
     }
@@ -159,7 +174,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
         return killed_x_hits_y;
       }
       string proven = proven_identity(word_xr, p);
-      if (proven.length() > 0) {
+      if (proven_is_good(proven, box)) {
         if(impossible->is_impossible(proven, required)) {
           aux_word.assign(proven);
           return killed_failed_qr;
@@ -201,11 +216,12 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
         return killed_y_hits_x;
       }
       string proven = proven_identity(word_yr, p);
-      if (proven.length() > 0) {
+      if (proven_is_good(proven, box)) {
         if(impossible->is_impossible(proven, required)) {
           aux_word.assign(proven);
           return killed_failed_qr;
         } else { //HACK
+          aux_word.assign(proven);
           return killed_failed_qr;
         }
       }
@@ -267,7 +283,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
           return killed_lox_not_x_power;
         }
         string proven = proven_identity(word_x, p);
-        if (proven.length() > 0) {
+        if (proven_is_good(proven, box)) {
           if(impossible->is_impossible(proven, required)) {
             aux_word.assign(proven);
             return killed_failed_qr;
@@ -277,7 +293,6 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
           }
         }
         new_qrs.push_back(word_x);
-        // return variety_nbd_x;
       }
     }
     if (x_power(word) > 0) {
@@ -299,7 +314,7 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
           return killed_lox_not_y_power;
         }
         string proven = proven_identity(word_y, p);
-        if (proven.length() > 0) {
+        if (proven_is_good(proven, box)) {
           if(impossible->is_impossible(proven, required)) {
             aux_word.assign(proven);
             return killed_failed_qr;
@@ -309,7 +324,6 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
           }
         }
         new_qrs.push_back(word_y);
-        //return variety_nbd_y;
       }
     }
   } else {
@@ -344,15 +358,15 @@ box_state TestCollection::evaluate_center(int index, Box& box)
 {
   //  fprintf(stderr, "Evaluating center test index %d\n", index);
   Params<Complex> center = box.center();
+  Complex one(1);
   switch(index) {
     case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
               return check_bounds_center(absUB(center.coshmu) < g_cosh_marg_lower_bound ||
                   absLB(center.coshmu) > g_cosh_marg_upper_bound);
             } 
     case 1: { // FIXME use nearer and further
-              return check_bounds_center(absLB(center.coshreL) > g_cosh_d_bound || 
-                      strictly_pos(-re(center.sinhL2)) || strictly_pos(-im(center.sinhL2)) ||
-                      strictly_pos(-re(center.sinhD2)) || strictly_pos(-im(center.sinhD2)));
+              return check_bounds(absLB(center.coshreL) > g_cosh_d_bound || 
+                      strictly_pos(one - center.coshreD) || strictly_pos(one - center.coshreL));
             }
     case 2: { // Meyerhoff tube bound. Check if embeded tube radius is more than rad + marg/2 
               SL2<Complex> x = construct_x(center);
@@ -377,16 +391,15 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
 {
   //  fprintf(stderr, "Evaluating box test index %d\n", index);
   Params<AJCC> cover = box.cover();
+  AJCC one(1);
   switch(index) {
     case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
               return check_bounds(absUB(cover.coshmu) < g_cosh_marg_lower_bound ||
                   absLB(cover.coshmu) > g_cosh_marg_upper_bound);
             } 
     case 1: { // FIXME use nearer and further
-              return open;
               return check_bounds(absLB(cover.coshreL) > g_cosh_d_bound || 
-                      strictly_pos(-re(cover.sinhL2)) || strictly_pos(-im(cover.sinhL2)) ||
-                      strictly_pos(-re(cover.sinhD2)) || strictly_pos(-im(cover.sinhD2)));
+                      strictly_pos(one - cover.coshreD) || strictly_pos(one - cover.coshreL));
             }
     case 2: { // Meyerhoff tube bound. Check if embeded tube radius is more than rad + marg/2 
               // fprintf(stderr, "%s", box.desc().c_str());
