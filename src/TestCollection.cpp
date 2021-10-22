@@ -152,6 +152,24 @@ box_state TestCollection::evaluate_AJCC(word_pair pair, const Box& box, string& 
       w_xr = w;
     }
     if (moves_x_axis_too_close_to_y(w_xr,p)) {
+        if (g_debug) {
+          fprintf(stderr, "******* MOVES X TOO CLOSE TO Y *********\n");
+          AJ diff = p.coshdxdy * 4 - four_cosh_dist_ay_wax(w, p);
+          print_SL2(w);
+          print_type("4cosh(dx+dy):", p.coshdxdy * 4);
+          print_type("4coshd(dist(y-axis, w(x-axis))):", four_cosh_dist_ay_wax(w, p)); 
+          AJ z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
+            ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
+          print_type("4 sinh^2(dist/2) + 2:", z);
+          print_type("|4 sinh^2(dist/2)|:", abs(z - 2));
+          print_type("|4 cosh^2(dist/2)|:", abs(z + 2));
+          print_type("4 cosh(dist):",  abs(z - 2) + abs(z + 2));
+          print_type("diff:", diff);
+          fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
+          AJ fsp2sq = four_sinh_perp2_sq_ay_wax(w, p);
+          print_type("4 sihn^2(perp/2):", fsp2sq);
+          fprintf(stderr, "****************************************\n");
+        }
       if (moved_x_axis_not_y_axis(w_xr, p)) {
         if (g_debug && false) {
           fprintf(stderr, "******* MOVES X TOO CLOSE TO Y *********\n");
