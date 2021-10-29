@@ -3,7 +3,11 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <vector>
+#include "types.hh"
+#include "SL2.hh"
+#include "CanonicalName.hh"
 
 class QuasiRelators {
 public:
@@ -16,11 +20,35 @@ public:
 	std::string min_pow_desc();                               // string describing minimal power set of quasi-relators
 	bool is_quasi_relator(std::string w);         // is this word a quasi-relator?
 
+  template<typename T>
+  std::string desc(const Params<T>& p);
+
 private:
+  CanonicalName canonical_name;
 	typedef std::map< std::string, std::string > NameStore;
 	NameStore names;
 	std::vector<std::string> name_vector;
 	std::string inverse(std::string w);
 };
+
+template<typename T>
+std::string QuasiRelators::desc(const Params<T>& p)
+{
+  std::string buf;
+  std::string word;
+  std::set<std::string> words;
+	for (std::vector<std::string>::iterator it = name_vector.begin(); it != name_vector.end(); ++it) {
+		if (!buf.empty() && buf.back() != ',')
+			buf += ",";
+    word = proven_identity(*it, p);
+    word = canonical_name.get_canonical_name(word);
+    if (word.length() > 0) {
+      if (words.insert(word).second) {
+        buf += word;
+      }
+    }
+	}
+	return buf;
+}
 
 #endif

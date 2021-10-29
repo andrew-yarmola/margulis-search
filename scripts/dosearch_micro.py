@@ -90,8 +90,8 @@ if __name__ == '__main__' :
   child_limit = 8
   depth_limit = 330
 
-  cosh_mu_upper = '1.3375'
-  sinh_tube_upper = '1.6153'
+  cosh_mu_upper = '1.04533852'
+  sinh_tube_upper = '0.349736'
 
   max_size = '1000000'
   max_depth = '150'
@@ -234,10 +234,10 @@ if __name__ == '__main__' :
     if len(failed_holes) > 0:
       print('Deepest failed hole: {}\n'.format(sorted(failed_holes, key=len)[-1]))
       if len(open_holes) % 100 == 0:
-        with open('deep_holes_sym', 'w') as fp:
+        with open('deep_holes_sym_micro', 'w') as fp:
           num = min(len(failed_holes), 10000)
           fp.write('\n'.join(sorted(failed_holes, key=len, reverse=True)[:num]))
-        with open('open_holes_sym', 'w') as fp:
+        with open('open_holes_sym_micro', 'w') as fp:
           num = min(len(open_holes), 10000)
           fp.write('\n'.join(sorted(open_holes, key=len, reverse=True)[:num]))
     else:

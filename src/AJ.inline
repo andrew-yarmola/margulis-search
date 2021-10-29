@@ -15,9 +15,21 @@ inline const AJ conj(const AJ&x) {
 
 }
 
+inline const AJ re(const AJ&x) {
+
+	return (x + conj(x)) * 0.5;
+
+}
+
+inline const AJ im(const AJ&x) {
+
+	return ((x - conj(x)) * eye(AJ())) * 0.5;
+
+}
+
 inline const AJ abs_sqrd(const AJ& x) {
 
-  return x*conj(x);
+  return x * conj(x);
 
 }
 

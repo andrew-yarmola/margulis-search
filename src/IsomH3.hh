@@ -3,7 +3,6 @@
 #include <math.h>
 #include <string>
 #include "SL2.hh"
-#include "AJ.h"
 #include "Generators.hh"
 #include "roundoff.h"
 #include "types.hh"
@@ -18,6 +17,16 @@ template<typename T>
 const T four_cosh_re_length(const SL2<T>& w) {
   T tr = w.a + w.d;
   return abs_sqrd(tr) + abs(tr*tr - 4);
+}
+
+template<typename T>
+const T two_cosh_dist(T& two_sinh_sq_perp2) {
+  return abs(two_sinh_sq_perp2 + 2) + abs(two_sinh_sq_perp2);
+}
+
+template<typename T>
+const T four_cosh_dist(T& four_sinh_sq_perp2) {
+  return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
 }
 
 template<typename T>
@@ -318,30 +327,6 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
   return result;
 }
 
-template<typename T>
-const T cosh_move_j(const SL2<T>& w) {
-  T q = abs_sqrd(w.c) + abs_sqrd(w.d);
-  T z = w.a * conj(w.c) + w.b * conj(w.d);
-  return (abs_sqrd(z) + (q - 1) * (q - 1))/(q * 2) + 1; 
-}
-
-// Exp of distance from ortho endpts to the special point on axis
-template<typename T>
-double exp_dist_to_ortho_x(const T& zm, const T& zp, const Params<T>& p) {
-  T one(1.0); 
-  T z = ((p.expdx * zm + one) * (p.expdx * zp + one))/
-    ((p.expdx * zm - one) * (p.expdx * zp - one));
-  return absUB(sqrt(z));
-}
-
-// Exp of distance from ortho endpts to the special point on axis
-template<typename T>
-double exp_dist_to_ortho_y(const T& zm, const T& zp, const Params<T>& p) {
-  T z = ((p.expdyf + zm) * (p.expdyf + zp))/
-    ((p.expdyf - zm) * (p.expdyf - zp));
-  return absUB(sqrt(z));
-}
-
 // We compute |tr(w1)^2 - 4| + |tr(w1 w2 W1 W2) - 2|
 // with optimzation for x and y specifically
 template<typename T>
@@ -354,204 +339,26 @@ const T jorgensen(const SL2<T>& w1, const SL2<T>& w2) {
   return abs(tr1*tr1 - 4) + abs(tr2 - 2);
 }
 
-// Eliminate bad boxes that can't generate non-elementay groups
+// Complex distance between {zm, zp} and {0, infty} 
 template<typename T>
-const T jorgensen_xy(const Params<T>& p) {
-  T z = p.sinhLy2 * p.sinhperp; 
-  return (abs_sqrd(z) + 1) * abs_sqrd(p.sinhLx2) * 4;
+const T sinh_perp2_sq_zero_inf(T& zm, T& zp) {
+  return zm / (zp - zm); 
 }
 
-// Eliminate bad boxes that can't generate non-elementay groups
+// Complex distance between {zm, zp} and {-1, 1} 
 template<typename T>
-const T jorgensen_yx(const Params<T>& p) {
-  T z = p.sinhLx2 * p.sinhperp; 
-  return (abs_sqrd(z) + 1) * abs_sqrd(p.sinhLy2) * 4;
+const T sinh_perp2_sq_mp_one(T& zm, T& zp) {
+  T one = T(1);
+  return (((zm + one) * (zp - one)) * 0.5) / (zm - zp) ; 
 }
 
+// Complex distance between {zm, zp} and {-1, 1} 
 template<typename T>
-const T jorgensen_xw(const SL2<T>& w, const Params<T>& p) {
-  T shLx2 = p.sinhLx2;
-  T td = w.a - w.d;
-  T z = w.c * p.expmdx - w.b * p.expdx;
-//  print_type(shLx2);
-//  print_type(td);
-//  print_type(z);
-//  T s = abs_sqrd(shLx2);
-//  print_type(s);
-//  T m = abs(td * td - z * z) + 4;
-//  print_type(m);
-//  T ans = (abs(td * td - z * z) + 4) * abs_sqrd(shLx2);
-//  print_type(ans);
-  return (abs(td * td - z * z) + 4) * abs_sqrd(shLx2);
-}
-
-template<typename T>
-const T jorgensen_wx(const SL2<T>& w, const Params<T>& p) {
-  T shLx2 = p.sinhLx2;
-  T tr = w.a + w.d;
-  T td = w.a - w.d;
-  T z = w.c * p.expmdx - w.b * p.expdx;
-  return abs(tr * tr - 4) + abs(td * td - z * z) * abs_sqrd(shLx2);
-}
-
-template<typename T>
-const T jorgensen_yw(const SL2<T>& w, const Params<T>& p) {
-  T shLy2 = p.sinhLy2;
-  T td = w.a - w.d;
-  T z = w.c * p.expdyf - w.b * p.expmdyf;
-  return (abs(td * td - z * z) + 4) * abs_sqrd(shLy2);
-}
-
-template<typename T>
-const T jorgensen_wy(const SL2<T>& w, const Params<T>& p) {
-  T shLy2 = p.sinhLy2;
-  T tr = w.a + w.d;
-  T td = w.a - w.d;
-  T z = w.c * p.expdyf - w.b * p.expmdyf;
-  return abs(tr * tr - 4) + abs(td * td - z * z) * abs_sqrd(shLy2);
-}
-
-// Complex distance between axis(x) and w(axis(x)) 
-template<typename T>
-const T four_sinh_perp2_sq_ax_wax(const SL2<T>& w, const Params<T>& p) {
-  T td = w.a - w.d;
-  T zm = w.c * p.expmdx - w.b * p.expdx;
-  // formula by using crossratios
-  T four_sinh_sq_perp2 = td * td - zm * zm;  
-  return four_sinh_sq_perp2; 
-}
-
-// Distance between axis(x) and w(axis(x)) 
-template<typename T>
-const T four_cosh_dist_ax_wax(const SL2<T>& w, const Params<T>& p) {
-  T four_sinh_sq_perp2 = four_sinh_perp2_sq_ax_wax(w, p);
-  return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
-}
-
-// Complex distance between axis(y) and w(axis(y)) 
-template<typename T>
-const T four_sinh_perp2_sq_ay_way(const SL2<T>& w, const Params<T>& p) {
-  T td = w.a - w.d;
-  T zm = w.c * p.expdyf - w.b * p.expmdyf;
-  // formula by using crossratios
-  T four_sinh_sq_perp2 = td * td - zm * zm;  
-  return four_sinh_sq_perp2; 
-}
-
-// Distance between axis(y) and w(axis(y)) 
-template<typename T>
-const T four_cosh_dist_ay_way(const SL2<T>& w, const Params<T>& p) {
-  T four_sinh_sq_perp2 = four_sinh_perp2_sq_ay_way(w, p); 
-  return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
-}
-
-// Complex distance between axis(x) and w(axis(y)) 
-template<typename T>
-const T four_sinh_perp2_sq_ax_way(const SL2<T>& w, const Params<T>& p) {
-  T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
-    ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
-  return z - 2;
-}
-
-// Distance between axis(x) and w(axis(y)) 
-template<typename T>
-const T four_cosh_dist_ax_way(const SL2<T>& w, const Params<T>& p) {
-  T z = ((w.a * w.a) * p.expdyf  - (w.b * w.b) * p.expmdyf) * p.expdx +
-    ((w.d * w.d) * p.expmdyf - (w.c * w.c) * p.expdyf ) * p.expmdx;
-  return  abs(z - 2) + abs(z + 2);
-}
-
-// Complex distance between axis(y) and w(axis(x)) 
-template<typename T>
-const T four_sinh_perp2_sq_ay_wax(const SL2<T>& w, const Params<T>& p) {
-  T z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
-    ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
-  return  z - 2;
-}
-
-// Distance between axis(y) and w(axis(x)) 
-template<typename T>
-const T four_cosh_dist_ay_wax(const SL2<T>& w, const Params<T>& p) {
-  T z = ((w.a * w.a) * p.expmdx - (w.b * w.b) * p.expdx ) * p.expmdyf +
-    ((w.d * w.d) * p.expdx  - (w.c * w.c) * p.expmdx) * p.expdyf;
-  return  abs(z - 2) + abs(z + 2);
+const T sinh_perp2_sq_mp_eye(T& zm, T& zp) {
+  T one = T(1);
+  T eye = eye(one);
+  return (((one - eye * zm) * (zp - eye)) * 0.5) / (zm - zp) ; 
 }
 
 #endif // __IsomH3_h
-
-//  printf("###################################\n");
-//  print_type("4 cosh(margulis) :", four_cosh_marg);
-//  print_type("exp(2t) :", exp_2_t);
-//  printf("absLB(exp(2t)) = %f and absUB(exp(2t)) = %f :\n", absLB(exp_2_t), absUB(exp_2_t));
-//  printf("###################################\n");
-
-//  float_pair result;
-//
-//  if (upper_margulis) {
-//    result.first = absUB(four_cosh_marg);
-//  } else {
-//    result.first = absLB(four_cosh_marg);
-//  }
-//  if (upper_t) {
-//    result.second = absUB(exp_2_t);
-//  } else {
-//    result.second = absLB(exp_2_t);
-//  }
-//  return result;
-
-/*
-#define MAX_LOOPS 10000
-
-template<typename T>
-const float_pair four_cosh_margulis(const SL2<T>& w1, const SL2<T>& w2, bool upper_margulis, bool upper_t) {
-// TODO Optimize for x and y as w1 (or w2)
-T margulis = T() + pow(2,50);
-T exp_2_t;
-int n = 1;
-SL2<T> A(w1);
-// print_SL2(A);
-printf("LB 4cosh(re(A)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
-int loops = 0;
-while (absLB(four_cosh_re_length(A)) < absUB(margulis)) {
-int m = 1;
-SL2<T> B(w2);
-// print_SL2(B);
-printf("LB 4cosh(re(B)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
-while (absLB(four_cosh_re_length(B)) < absUB(margulis)) {
-if (loops > MAX_LOOPS) { break; }
-std::pair<T,T> m_pair = four_cosh_margulis_simple(A,B);
-T margulis_new = m_pair.first;
-T exp_2_t_new = m_pair.second;
-printf("w1^%d and w2^%d give margulis = %f and exp(2t) = %f\n", n, m, absLB(margulis_new), absLB(exp_2_t_new)); 
-if (absLB(margulis_new) == 0) {
-fprintf(stderr, "Margulis LB is zero!\n");
-print_type("Got:", (const T) margulis_new);
-}
-// We use LB for a partial ordering because we assume that size(margulis) is about the same for each comp
-if (absLB(margulis_new) < absLB(margulis) || (absLB(margulis_new) == absLB(margulis) && absUB(margulis_new) < absUB(margulis))) {
-margulis = margulis_new;
-exp_2_t = exp_2_t_new;
-}
-//      } else {
-//        double margulis_f = upper_margulis ? infinity() : 0.0;
-//        double exp_2_t_f = upper_t ? infinity() : 0.0;
-//        return float_pair(margulis_f, exp_2_t_f); 
-//      }
-m += 1;
-B = pow(w2, m); // reducing number of powers needed, might be better to just accumuate
-loops += 1;
-// print_SL2(B);
-printf("LB 4cosh(re(B)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(B)), absUB(margulis));
-}
-if (loops > MAX_LOOPS) { break; }
-n += 1;
-A = pow(w1, n); // reducing the number of powers needed, might be better to just accumulate
-// print_SL2(A);
-printf("LB 4cosh(re(A)) vs UB margulis: %f < %f\n", absLB(four_cosh_re_length(A)), absUB(margulis));
-}
-double margulis_f = upper_margulis ? absUB(margulis) : absLB(margulis);
-double exp_2_t_f = upper_t ? absUB(exp_2_t) : absLB(exp_2_t);
-return float_pair(margulis_f, exp_2_t_f); 
-}
- */
 

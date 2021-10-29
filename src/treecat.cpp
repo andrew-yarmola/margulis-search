@@ -53,13 +53,13 @@ FILE* open_box(char* boxcode, char* file_name)
     return fp;
 	}
   // Look for a gzipped file
-	sprintf(file_name, "%s/%s.out.gz", g_config.tree_location, boxcode_file);
+	sprintf(file_name, "%s/%s.out.tar.gz", g_config.tree_location, boxcode_file);
 	if (0 == stat(file_name, &sb)) {
 		char command_buf[10000];
 		if (g_config.verbose) {
       fprintf(stderr, "opening %s\n", file_name);
     }
-		sprintf(command_buf, "gzcat %s", file_name); // cool trick
+		sprintf(command_buf, "tar -xOzf %s", file_name); // cool trick
 		fp = popen(command_buf, "r");
 		return fp;
 	}
@@ -79,17 +79,21 @@ bool ends_with(const char *str, const char *suffix)
   return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
+#define BUF_SIZE 1048576
+
 bool  put_stream(FILE* dest, FILE* source) {
   size_t size;
   char buf[BUFSIZ];
+  size_t total = 0;
   while ((size = fread(buf, 1, BUFSIZ, source))) {
     fwrite(buf, 1, size, dest);
+    total += size;
   }
-  if (ferror(dest)) {
-    fprintf(stderr, "failed destination\n");
+  if (ferror(dest) != 0) {
+    fprintf(stderr, "failed destination: bytes %d/%d\n", total, BUFSIZ);
     return false;
-  } else if (ferror(source)) {
-    fprintf(stderr, "failed source\n");
+  } else if (ferror(source) != 0) {
+    fprintf(stderr, "failed source: bytes %d/%d\n", total, BUFSIZ);
     return false;
   } else {
     return true;

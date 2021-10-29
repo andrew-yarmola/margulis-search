@@ -13,10 +13,7 @@
 struct ImpossibleRelations
 {
 public:
-	// returns true if this word is impossible regardless of which parabolic element is composed.
-	// If the return value is false, sets mandatoryIdentities to the list of sub-words which must also be identities.
-	virtual bool isAlwaysImpossible(std::string word, std::vector<std::string>& mandatoryIdentities) = 0;
-	// same as isAlwaysImpossible, but in this case the parabolic element is known.
-	virtual bool isImpossible(std::string word, int mCoeff, int nCoeff, std::vector<std::string>& mandatoryIdentities) = 0;
-	static ImpossibleRelations* create(const char* relationsFilePath);
+	// if the return value is false, sets mandatory to the list of subwords which should not be identies.
+	virtual bool is_impossible(std::string word, std::vector<std::string>& required_non_identities) = 0;
+	static ImpossibleRelations* create(const char* file);
 };

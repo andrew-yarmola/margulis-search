@@ -62,6 +62,83 @@ string repeat(string s, int n) {
   return t+r;
 }
 
+string x_strip(string w) {
+  size_t first = -1;
+  for (size_t p = 0; p < w.length(); ++p) {
+    if (w[p] == 'x' || w[p] == 'X') {
+      first = p; 
+    } else {
+      break;
+    }
+  }
+  size_t last = w.length(); 
+  for (size_t p = w.length() - 1; p >= 0; --p) {
+    if (w[p] == 'x' || w[p] == 'X') {
+      last = p; 
+    } else {
+      break;
+    }
+  }
+  return w.substr(first+1, last - first - 1);
+}
+
+string y_strip(string w) {
+  size_t first = -1;
+  for (size_t p = 0; p < w.length(); ++p) {
+    if (w[p] == 'y' || w[p] == 'Y') {
+      first = p; 
+    } else {
+      break;
+    }
+  }
+  size_t last = w.length();
+  for (size_t p = w.length() - 1; p >= 0; --p) {
+    if (w[p] == 'y' || w[p] == 'Y') {
+      last = p; 
+    } else {
+      break;
+    }
+  }
+  return w.substr(first+1, last - first - 1);
+}
+
+string x_rstrip(string w) {
+  size_t last = w.length(); 
+  for (size_t p = w.length() - 1; p >= 0; --p) {
+    if (w[p] == 'x' || w[p] == 'X') {
+      last = p; 
+    } else {
+      break;
+    }
+  }
+  return w.substr(0, last);
+}
+
+string y_rstrip(string w) {
+  size_t last = w.length();
+  for (size_t p = w.length() - 1; p >= 0; --p) {
+    if (w[p] == 'y' || w[p] == 'Y') {
+      last = p; 
+    } else {
+      break;
+    }
+  }
+  return w.substr(0, last);
+}
+
+
+int syllables(string w) {
+  int count = 0;
+  char cur = 'z'; // any char not in list
+  for (string::size_type p = 0; p < w.size(); ++p) {
+      if (w[p] != tolower(cur) && w[p] != toupper(cur)) {
+        ++count;
+        cur = w[p];
+      }
+  }
+  return count;
+} 
+
 int x_power(string w) {
   int count = 0;
   for (string::size_type p = 0; p < w.size(); ++p) {
@@ -84,7 +161,7 @@ bool y_power_sort(string a, string b) { return y_power(a) < y_power(b); }
 
 template<>
 void print_type<const Complex>(const Complex& x) {
-  printf("%f + %f I\n", x.real(), x.imag());
+  fprintf(stderr, "%f + %f I\n", x.real(), x.imag());
 }
 
 template<>
@@ -102,3 +179,14 @@ bool sort_comp<Complex>(const Complex& a, const Complex& b) {
   return absUB(a) < absUB(b);
 }
 
+string double_to_hex(double x)
+{
+  char buf[100];
+  union {
+    double d;
+    long l[2];
+  } u;
+  u.d = x;
+  sprintf(buf, "'%0lx', '%0lx' (%.18f)", u.l[0], u.l[1], u.d);
+  return string(buf);
+}

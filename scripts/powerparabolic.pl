@@ -3,26 +3,22 @@
 
 while ($word = <>) {
 	chomp $word;
-	@possiblePowers = &getPossiblePowers($word);
-	foreach $line (@possiblePowers) {
+	@possible_powers = &get_possible_powers($word);
+	foreach $line (@possible_powers) {
 		print $line, "\n";
 	}
 }
 
-sub getPossiblePowers
+sub get_possible_powers
 {
 	local ($word) = @_;
-	local @x = ();
-	local @y = ();
-	local $m = 0;
-	local $n = 0;
+	local @xs= ();
+	local @ys = ();
+	local $x = 0;
+	local $y = 0;
 	local $i = 0;
-	local $gs = '';
 	local $ch = '';
-    # The list gs will containing the G,g's of the word
-    # The vecotrs x,y will contain the m,n powers between the G,g's of the word.
-    # The m,n powers at the begining+end of the word are at x[0],y[0]
-    # Note: words are usually in canonical form with G,g at the front
+    # The vecotrs xs, ys will contain the x, y powers of the word.
 	for ($i = 0; $i < length $word; ++$i) {
 		$ch = substr $word, $i, 1;
 		if ($ch eq 'g' || $ch eq 'G') {
@@ -112,7 +108,7 @@ N:	for ($n = 1; $n+$n <= $numG; ++$n) {
 				local $subLine = '';
 				if ($subIDAllowed) {
 #					print "sub=$sub\n";
-					local @subLines = &getPossiblePowers($sub); # Might return many lines via recursion
+					local @subLines = &get_possible_powers($sub); # Might return many lines via recursion
 #					print "SUB($sub)=", $#subLines, "\n";
 					foreach (@subLines)  {
 						my @f = split(/ /);

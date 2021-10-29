@@ -2,22 +2,22 @@
 #include "SL2.hh"
 #include "Box.h"
 #include "IsomH3.hh"
-#include "AJ.h"
+#include "AJCC.h"
 #include "types.hh"
-#include "TubeSearch.hh"
+#include "TubeSearch.hh" 
 #include "TestCollection.hh"
 
 #define MAX_DEPTH 200
 
 using namespace std;
 
-void test_AJ() {
-  AJ one =  AJ(1,0,0,0,0,0,0,0);
-  AJ zero = AJ(0,0,0,0,0,0,0,0);
-  AJ x = AJ(XComplex(3,4),0,0,0,0,0,0);
-  AJ y = AJ(6,XComplex(4,3),0,0,0,0,0);
-  AJ z = AJ(15,0,XComplex(5,12),0,0,0,0,0);
-  AJ w = AJ(10,0,0,XComplex(0,1),0,0,0,0);
+void test_AJCC() {
+  AJCC one =  AJCC(1,0,0,0,0,0);
+  AJCC zero = AJCC(0,0,0,0,0,0);
+  AJCC x = AJCC(XComplex(3,4),0,0,0,0);
+  AJCC y = AJCC(6,XComplex(4,3),0,0,0);
+  AJCC z = AJCC(15,0,XComplex(5,12),0,0,0);
+  AJCC w = AJCC(10,0,0,XComplex(0,1),0,0);
   print_type("1+1", one + one); 
   print_type("1/0", one / zero); 
   print_type("abs(3+4i)", abs(x)); 
@@ -48,30 +48,30 @@ int main(int argc,char**argv)
         depth++;
     }
     where[depth] = '\0';
-//  test_AJ();
-//  SL2<Complex> M = SL2<Complex>(1,Complex(7,5),0,1);
-//  printf("%f + i %f\n", (M*M).b.real(), (M*M).b.imag());
-//  printf("%f + i %f\n", inverse(M).b.real(), inverse(M).b.imag());
-//  AJ one =  AJ(1,0,0,0,0,0,0,0);
-//  AJ zero = AJ(0,0,0,0,0,0,0,0);
-//  AJ t = abs(AJ(XComplex(3,4),0,0,0,0,0,0));
-//  printf("%f + i %f with err %f\n", t.f.re, t.f.im, t.e);
-//  SL2<AJ> N = SL2<AJ>(one,AJ(XComplex(7,5),0,0,0,0,0,0),zero,one);
-//  printf("%f + i %f with err %f\n", (N*N).b.f.re, (N*N).b.f.im, (N*N).b.e );
-//  printf("%f + i %f with err %f\n", inverse(N).b.f.re, inverse(N).b.f.im, inverse(N).b.e );
-//  Params<AJ> p;
-//  p.sinhP = AJ(1,1,0,1,0,0,0);
-//  printf("%f + i %f\n", p.sinhP.f.re, p.sinhP.e);
+  test_AJCC();
+  SL2<Complex> M = SL2<Complex>(1,Complex(7,5),0,1);
+  printf("%f + i %f\n", (M*M).b.real(), (M*M).b.imag());
+  printf("%f + i %f\n", inverse(M).b.real(), inverse(M).b.imag());
+  AJCC one =  AJCC(1,0,0,0,0,0);
+  AJCC zero = AJCC(0,0,0,0,0,0);
+  AJCC t = abs(AJCC(XComplex(3,4),0,0,0,0));
+  printf("%f + i %f with err %f\n", t.f.re, t.f.im, t.e);
+  SL2<AJCC> N = SL2<AJCC>(one,AJCC(XComplex(7,5),0,0,0,0),zero,one);
+  printf("%f + i %f with err %f\n", (N*N).b.f.re, (N*N).b.f.im, (N*N).b.e );
+  printf("%f + i %f with err %f\n", inverse(N).b.f.re, inverse(N).b.f.im, inverse(N).b.e );
+  Params<AJCC> p;
+  p.sinhD2 = AJCC(1,1,0,1,0,0);
+  printf("%f + i %f\n", p.sinhD2.f.re, p.sinhD2.e);
 
-//  char code[] = "";
-  // char code[] = "0110111001001001000111001001001001001010110111000110"; 
-//  char code[] = "011011100100100100011100100100100100101011011100011001"; 
-//  char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000"; 
-//  char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000000101000111";
-// char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000000101000111110001110001000100010000001100100010";
-//  char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000000101000111";
-// char code[] = "01101110010010010001110010010010010101100010101011001011010001010111100010100110101100101010011011011000101101010010001001011";
-//  char code[] = "011111100000100100100000011100000110110001000111111101001111101101001011000101010011";
+  /*char code[] = "";
+  char code[] = "0110111001001001000111001001001001001010110111000110"; 
+  char code[] = "011011100100100100011100100100100100101011011100011001"; 
+  char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000"; 
+  char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000000101000111";
+ char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000000101000111110001110001000100010000001100100010";
+  char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000000101000111";
+ char code[] = "01101110010010010001110010010010010101100010101011001011010001010111100010100110101100101010011011011000101101010010001001011";*/
+  char code[] = "011111100000100100100000011100000110110001000111111101001111101101001011000101010011";
 
 	Box box;
 	for (char* dir = (char *) &where; *dir; ++dir) {
@@ -83,58 +83,52 @@ int main(int argc,char**argv)
 		}
   }
 
-  //Params<AJ> params = box.cover();
-  //AJ sinhP = params.sinhP;
-  //AJ coshP = params.coshP;
+  Params<AJCC> params = box.cover();
+  AJCC sinhD2 = params.sinhD2;
+  AJCC coshD2 = params.coshD2;
 
   printf("Box: %s", box.desc().c_str());
 
-}
-  /*SL2<AJ> x = construct_x(params);
-  SL2<AJ> y = construct_y(params);
+  SL2<AJCC> x = construct_x(params);
+  SL2<AJCC> y = construct_y(params);
   SL2<Complex> c_x = construct_x(box.center());
   SL2<Complex> c_y = construct_y(box.center());
 
-  float_pair up_up = four_cosh_margulis(x,y,true,true);
-  float_pair up_lb = four_cosh_margulis(x,y,true,false);
-  float_pair lb_up = four_cosh_margulis(x,y,false,true);
-  float_pair lb_lb = four_cosh_margulis(x,y,false,false);
+  pair<Complex, Complex> c_fcm = four_cosh_margulis_simple(c_x,c_y);
+  pair<AJCC, AJCC> fcm = four_cosh_margulis_simple(x,y);
 
-//  printf("x.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", x.a.f.re, x.a.f.im, x.a.size, absLB(x.a), absUB(x.a));
-//  printf("y.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", y.a.f.re, y.a.f.im, y.a.size, absLB(y.a), absUB(y.a));
-//  printf("re_len(x) LB %f\n", four_cosh_re_length_LB(x));
-//  printf("re_len(y) LB %f\n", four_cosh_re_length_LB(y));
-//  printf("re_len(x) UB %f\n", four_cosh_re_length_UB(x));
-//  printf("re_len(y) UB %f\n", four_cosh_re_length_UB(y));
-//  printf("re_len(p) LB %f\n", absLB(coshP + sinhP));
-//  printf("re_len(p) UB %f\n", absUB(coshP + sinhP));
+  printf("x.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", x.a.f.re, x.a.f.im, x.a.size, absLB(x.a), absUB(x.a));
+  printf("y.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", y.a.f.re, y.a.f.im, y.a.size, absLB(y.a), absUB(y.a));
+  print_type("re_len(x)", four_cosh_re_length(x));
+  print_type("re_len(y)", four_cosh_re_length(x));
+  printf("re_len(p) LB %f\n", absLB(coshD2 + sinhD2));
+  printf("re_len(p) UB %f\n", absUB(coshD2 + sinhD2));
 
-  printf("Margulis xy between %f (%f) and %f (%f)\n", lb_lb.first, lb_up.first, up_up.first, up_lb.first);
-  printf("Exp(2t) xy between %f (%f) and %f (%f)\n", lb_lb.second, up_lb.second, up_up.second, lb_up.second);
-//  printf("Margulis yx between %f and %f\n", m_yx_lower, m_yx_upper);
+  printf("Margulis xy between %f and %f\n", absLB(fcm.first), absUB(fcm.first));
+  printf("Exp(2t) xy between %f and %f\n", absLB(fcm.second), absUB(fcm.second));
 
-  // printf("%s\n",repeat("abc",5).c_str());
-//  SL2<Complex> f = construct_word("YxYYxxyy", box.center());
-//  SL2<AJ> g = construct_word("YxYYxxyy", box.cover());
-//  SL2<AJ> x1 = construct_word("x", box.cover());
-//  SL2<AJ> y1 = construct_word("y", box.cover());
-//  SL2<AJ> xy = construct_word("xy", box.cover());
-//  SL2<AJ> xxxxx = construct_word("xxxxx", box.cover());
-//  printf("f.a is  %f + %f I\n", f.a.real(), f.a.imag());
-//  printf("g.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", g.a.f.re, g.a.f.im, g.a.size, absLB(g.a), absUB(g.a));
-//  printf("x1.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", x1.a.f.re, x1.a.f.im, x1.a.size, absLB(x1.a), absUB(x1.a));
-//  printf("y1.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", y1.a.f.re, y1.a.f.im, y1.a.size, absLB(y1.a), absUB(y1.a));
-//  printf("xy.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", xy.a.f.re, xy.a.f.im, xy.a.size, absLB(xy.a), absUB(xy.a));
-//  printf("(x*y).a is  %f + %f I with size %f, absLB %f, and absUB %f\n", (x*y).a.f.re, (x*y).a.f.im, (x*y).a.size, absLB((x*y).a), absUB((x*y).a));
-//  printf("xxxxx.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", xxxxx.a.f.re, xxxxx.a.f.im, xxxxx.a.size, absLB(xxxxx.a), absUB(xxxxx.a));
-//  printf("(x*x*x*x*x).a is  %f + %f I with size %f, absLB %f, and absUB %f\n", (x*x*x*x*x).a.f.re, (x*x*x*x*x).a.f.im, (x*x*x*x*x).a.size, absLB((x*x*x*x*x).a), absUB((x*x*x*x*x).a));
-//
-//  vector<string> known;
-//  known.push_back("XXYXXY");
-//  vector<word_pair> pairs = findPairs(box.center(), known, 50, 20, vector<string>());  
-// 
-//  vector<word_pair>::iterator it;
-//  for (it = pairs.begin(); it != pairs.end(); ++it) {
-//    printf("(%s, %s)\n", (*it).first.c_str(), (*it).second.c_str());
-//  }  
-}*/
+  printf("%s\n",repeat("abc",5).c_str());
+  SL2<Complex> f = construct_word("YxYYxxyy", box.center());
+  SL2<AJCC> g = construct_word("YxYYxxyy", box.cover());
+  SL2<AJCC> x1 = construct_word("x", box.cover());
+  SL2<AJCC> y1 = construct_word("y", box.cover());
+  SL2<AJCC> xy = construct_word("xy", box.cover());
+  SL2<AJCC> xxxxx = construct_word("xxxxx", box.cover());
+  printf("f.a is  %f + %f I\n", f.a.real(), f.a.imag());
+  printf("g.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", g.a.f.re, g.a.f.im, g.a.size, absLB(g.a), absUB(g.a));
+  printf("x1.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", x1.a.f.re, x1.a.f.im, x1.a.size, absLB(x1.a), absUB(x1.a));
+  printf("y1.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", y1.a.f.re, y1.a.f.im, y1.a.size, absLB(y1.a), absUB(y1.a));
+  printf("xy.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", xy.a.f.re, xy.a.f.im, xy.a.size, absLB(xy.a), absUB(xy.a));
+  printf("(x*y).a is  %f + %f I with size %f, absLB %f, and absUB %f\n", (x*y).a.f.re, (x*y).a.f.im, (x*y).a.size, absLB((x*y).a), absUB((x*y).a));
+  printf("xxxxx.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", xxxxx.a.f.re, xxxxx.a.f.im, xxxxx.a.size, absLB(xxxxx.a), absUB(xxxxx.a));
+  printf("(x*x*x*x*x).a is  %f + %f I with size %f, absLB %f, and absUB %f\n", (x*x*x*x*x).a.f.re, (x*x*x*x*x).a.f.im, (x*x*x*x*x).a.size, absLB((x*x*x*x*x).a), absUB((x*x*x*x*x).a));
+
+  vector<string> known;
+  known.push_back("XXYXXY");
+  vector<word_pair> pairs = find_pairs(box.center(), known, 50, 20, vector<string>());  
+ 
+  vector<word_pair>::iterator it;
+  for (it = pairs.begin(); it != pairs.end(); ++it) {
+    printf("(%s, %s)\n", (*it).first.c_str(), (*it).second.c_str());
+  }  
+}

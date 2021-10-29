@@ -16,4 +16,3 @@ std::vector< word_pair > find_words_v2(
           const Params<Complex>& params,
           int num_words, int max_move_len,
           const std::vector<std::string>& relators, const std::map<std::string, int>& seen);
-
