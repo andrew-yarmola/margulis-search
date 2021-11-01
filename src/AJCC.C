@@ -93,7 +93,8 @@ const AJCC sqrt(const AJCC&x) {
 	double ax = absUB(x.f);
 	double D = ax-(1 + EPS) * (xdist + x.e);
 	if(!(D > 0)) {
-		return AJCC(0,0,0,0,0,(1 + 2 * EPS) * sqrt(ax + (xdist + x.e)));
+		return AJCC(0,0,0,0,0,
+        (1 + 2 * EPS) * sqrt(ax + (xdist + x.e)));
 	} else {
 		AComplex r_f = sqrt(x.f);
 		AComplex t = r_f+r_f;

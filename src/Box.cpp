@@ -32,8 +32,10 @@ Box Box::child(int dir) const
   child.name.append(1, '0'+dir);
 
   child.qr = qr;
+  child.short_words_cache.clear();
 
   child.compute_center_and_size();
+  child.compute_nearer();
   child.compute_cover();
   return child;
 }
@@ -119,3 +121,43 @@ void Box::compute_cover()
   _cover.coshmu = cosh_move_j(_x_cover); 
 }
 
+void Box::compute_nearer()
+{
+	double m[DIM];
+	for (int i = 0; i < DIM; ++i) {
+        m[i] = 0; // inconclusive cases
+        if (center_digits[i] > 0 && // center is positive 
+            center_digits[i] > size_digits[i] &&  // true diff is positive
+            box_center[i]    > box_size[i]) { // machine diff is >= 0
+            // Want lower bound on true_center - true_size.  Assume no overflow or underflow 
+            // Note, sign(center_digits) == sign(box_center), unless box_center == 0. Also, box_size is always >= 0. 
+            // GMT paper page 419 of Annals gives with true arithmetic
+            //      box_center - box_size <= true_center - true_size
+            // Now, in machine arthimetric, by IEEE, if 
+            //      box_center > box_size then box_center (-) box_size >= 0.
+            // Lemma 7 gives,
+            //      (1-EPS)(*)( box_center (-) box_size ) <= box_center - box_size <= true_center - box_size. 
+            m[i] = (1-EPS)*(box_center[i] - box_size[i]);
+        } else if (center_digits[i] < 0 && // center is negative
+                   center_digits[i] < -size_digits[i] && // true sum is negative
+                   box_center[i]    < -box_size[i]) {  // machine sum is negative
+            // Want upper bound on true_center - true_size.  Assume no overflow or underflow
+            // Note, sign(center_digits) == sign(box_center), unless box_center == 0. Also, box_size is always >= 0. 
+            // GMT paper page 419 of Annals gives with true arithmetic
+            //      true_center + true_size <= box_center + box_size
+            // Now, in machine arthimetric, by IEEE, if 
+            //      -box_center > box_size then (-box_center) (-) box_size >= 0.
+            // Lemma 7 gives,
+            //      (1-EPS)(*)( (-box_center) (-) box_size ) <= -box_center - box_size <= -true_center - true_size.
+            // So,
+            //      -((1-EPS)(*)( (-box_center) (-) box_size )) >= true_center + true_size.
+            // Note, negation is exact for machine numbers
+            m[i] = -((1-EPS)*((-box_center[i]) - box_size[i]));
+        }
+	}
+	
+  _nearer.sinhL2 = Complex(m[1], m[3]);
+  _nearer.sinhD2 = Complex(m[0], m[2]);
+
+  fill_derived(_nearer);
+}

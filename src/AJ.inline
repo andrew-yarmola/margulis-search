@@ -1,6 +1,6 @@
 
 inline double re_center(const AJ& z) {
-  return z.f.re; 
+  return z.f.re;
 }
 
 inline const AJ operator-(const AJ&x) {
@@ -130,7 +130,7 @@ inline const double absUB(const AJ&x) {
 
 inline const double absLB(const AJ&x) {
 
-	double v = (1-EPS)*(absLB(x.f)-(1+EPS)*(size(x)+x.e));
+	double v = (1-EPS) * (absLB(x.f)-(1 + EPS) * (size(x) + x.e));
 	return (v > 0) ? v : 0;
 
 }

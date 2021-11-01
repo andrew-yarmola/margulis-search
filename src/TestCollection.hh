@@ -17,7 +17,8 @@ struct ImpossibleRelations;
 struct TestCollection {
   int size();
   box_state evaluate_center(int index, Box& box);
-  box_state evaluate_box(int index, Box& box, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJCC> >& words_cache);
+  TestResult evaluate_box(int index, const Box& box);
+  TestResult evaluate_AJ(word_pair& pair, const Box& box);
   const std::string get_name(int index);
   word_pair get_pair(int index);
   int add(word_pair pair);
@@ -25,8 +26,7 @@ struct TestCollection {
   void load(const char* file_path);
   void load_impossible_relations(const char* file_path);
   ImpossibleRelations *impossible;
-  box_state evaluate_AJCC(word_pair pair, const Box& params, std::string& aux_word, std::vector<std::string>& new_qrs, std::unordered_map<std::string,SL2<AJCC> >& words_cache);
-  private:
+private:
   word_pair parse_word_pair(std::string buf);
   std::map<word_pair, int> pair_index;
   std::vector<word_pair> pair_vector;

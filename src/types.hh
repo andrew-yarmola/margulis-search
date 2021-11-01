@@ -22,31 +22,37 @@ inline const Complex abs_sqrd(const Complex& x) { return Complex(x.real()*x.real
 typedef enum _box_state
 {
   killed_bounds = 1,
-  killed_only_elliptic = 2, // var_nbd of w^k but w not id
+  killed_impossible_relator = 2, // var_nbd of w^k but w not id
   killed_x_hits_y = 3, // w(axis(x)) closer to axis(y) than dx + dy but > 0
   killed_y_hits_x = 4, // w(axis(y)) closer to axis(x) than dx + dy but > 0
-  killed_x_tube = 5, // w(axis(x)) closer to axis(x) than 2dx but further than 0 (i.e. w not x^k)
-  killed_y_tube = 6, // w(axis(y)) closer to axis(y) than 2dy but further than 0 (i.e. w not y^k)
-  killed_x_hits_x = 7, // w(axis(x)) closer to axis(x) than 2dx and provably w not in same cyclic group
-  killed_y_hits_y = 8, // w(axis(y)) closer to axis(y) than 2dy and provably w not in same cyclic group
+  killed_x_hits_x = 5, // w(axis(x)) closer to axis(x) than 2dx but further than 0 (i.e. w not x^k)
+  killed_y_hits_y = 6, // w(axis(y)) closer to axis(y) than 2dy but further than 0 (i.e. w not y^k)
+  killed_x_not_cyclic = 7, // w(axis(x)) closer to axis(x) than 2dx and provably w not in same cyclic group
+  killed_y_not_cyclic = 8, // w(axis(y)) closer to axis(y) than 2dy and provably w not in same cyclic group
   killed_move = 9, // w(1j) moved less than marg, note power not produces by word search
   killed_marg = 10, // w1 and w2 have (simple) margulis less than mu TODO should we do powers?
   killed_nbd_x = 11, // w and x fail Jorgensen and don't commute 
   killed_nbd_y = 12, // w and y fail Jorgensen and don't commute
-  killed_w_ax_hits_elliptic = 13, // only used in symmetric search
-  killed_w_ay_hits_elliptic = 14, // only used in symmetric search
-  killed_via_sym = 15,
-  killed_via_aux = 16,
+  killed_nbd = 13, // w1 and w2 fail Jorgensen and one is not parabolic
+  killed_w_ax_hits_sym_axis = 14, // only used in symmetric search
+  killed_w_ay_hits_sym_axis = 15, // only used in symmetric search
+  killed_via_sym = 16,
   proven_relator = 17,
-  out_of_bounds_center = 18,
-  maybe_killed_center = 19,
-  var_nbd_x = 20, // w and x fail Jorgensen 
-  var_nbd_y = 21, // w and y fail Jorgensen
-  var_nbd = 22, // w1 and w2 fail Jorgensen and one is not parabolic
-  open_with_qr = 23,
-  open = -1
+  out_of_bounds_center = 50,
+  maybe_killed_center = 51,
+  var_nbd_x = 52, // w and x fail Jorgensen 
+  var_nbd_y = 53, // w and y fail Jorgensen
+  var_nbd = 54, // w1 and w2 fail Jorgensen
+  open_with_qr = 99,
+  open = -1,
 } 
 box_state;
+
+struct TestResult {
+  int index;
+  box_state state;
+  word_pair words;
+};
 
 Complex parse_complex(const std::string &complex_str);
 Complex shift_imag_around_zero(const Complex &a);
