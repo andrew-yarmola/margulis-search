@@ -1,4 +1,4 @@
-# nclude <stdio.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "TestCollection.hh"
@@ -36,10 +36,10 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
       if (moves_y_axis_too_close_to_x(w,p)) {
         return maybe_killed_center;
       }
-      if (wx_hits_sym_axis_axis(w,p)) {
+      if (wx_hits_sym_axis(w,p)) {
         return maybe_killed_center;
       }
-      if (wy_hits_sym_axis_axis(w,p)) {
+      if (wy_hits_sym_axis(w,p)) {
         return maybe_killed_center;
       }
     }
@@ -114,7 +114,7 @@ bool proven_is_good(const string& proven, const Box& box) {
   return true;
 }
 
-void print_debug(AJCC& w, Params<AJCC>& p, box_state state) {
+void print_debug(SL2<AJCC>& w, Params<AJCC>& p, box_state state) {
   if (state == killed_x_hits_y) { /*
     fprintf(stderr, "******* MOVED X TOO CLOSE TO Y *********\n");
     AJ diff = p.coshdxdy * 4 - four_cosh_dist_ay_wax(w, p);
@@ -151,7 +151,7 @@ void print_debug(AJCC& w, Params<AJCC>& p, box_state state) {
     print_type("4 sihn^2(perp/2):", fsp2sq);
     fprintf(stderr, "****************************************\n"); */
   }
-  if (state == killed_x_tube) { /*
+  if (state == killed_x_hits_x) { /*
     fprintf(stderr, "********** KILLED  ***********\n");
     fprintf(stderr, "Word %s must but doesn't fix x-axis\n", word_x.c_str());
     print_SL2(w_x);
@@ -169,7 +169,7 @@ void print_debug(AJCC& w, Params<AJCC>& p, box_state state) {
     fprintf(stderr,"Can't fix x axis LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
     fprintf(stderr, "*******************************\n"); */
   }
-  if (state == killed_x_hits_x) { /*
+  if (state == killed_y_hits_y) { /*
     fprintf(stderr, "********** DOES NOT COMMUTE  ***********\n");
     fprintf(stderr, "Word %s must fix x-axis but doesn't commute\n", word_x.c_str());
     print_SL2(w_x);
@@ -189,7 +189,7 @@ void print_debug(AJCC& w, Params<AJCC>& p, box_state state) {
   } 
 }
 
-TestResult TestCollection::evaluate_AJCC(word_pair pair, const Box& box)
+TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
 {
   if (g_debug && false) {
     fprintf(stderr, "+++ Word Pair: %s and %s\n",
@@ -205,11 +205,11 @@ TestResult TestCollection::evaluate_AJCC(word_pair pair, const Box& box)
       result.state = killed_move;
       return result;
     }
-    if (wx_hits_sym_axis_axis(w,p)) {
+    if (wx_hits_sym_axis(w,p)) {
       result.state = killed_w_ax_hits_sym_axis;
       return result;
     }
-    if (wy_hits_sym_axis_axis(w,p)) {
+    if (wy_hits_sym_axis(w,p)) {
       result.state = killed_w_ay_hits_sym_axis;
       return result;
     }
@@ -275,7 +275,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair pair, const Box& box)
           result.state = killed_x_not_cyclic;
           return result;
         }
-        box.qr.get_name(word_yr);
+        box.qr.get_name(word_x);
       }
     }
     if (x_power(word) > 0) {
@@ -300,7 +300,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair pair, const Box& box)
           result.state = killed_y_not_cyclic;
           return result;
         }
-        box.qr.get_name(word_yr);
+        box.qr.get_name(word_y);
       }
     }
     for (auto word : box.qr.word_classes()) {  
@@ -320,15 +320,16 @@ TestResult TestCollection::evaluate_AJCC(word_pair pair, const Box& box)
     SL2<AJCC> w1 = construct_word(pair.first, p);
     SL2<AJCC> w2 = construct_word(pair.second,p);
     if (margulis_smaller_than_xy(w1, w2, p)) {
-      result.words = p;
+      result.words = pair;
       return result;
     }
   }
   if (box.qr.word_classes().size() > 0) {
-    return open_with_qr;
+    result.state = open_with_qr;
   } else {
-    return open;
+    result.state = open;
   }
+  return result;
 }
 
 box_state check_bounds_center(bool ans) {
@@ -377,9 +378,9 @@ box_state TestCollection::evaluate_center(int index, Box& box)
   }
 }
 
-box_state TestCollection::evaluate_box(int index, Box& box)
+TestResult TestCollection::evaluate_box(int index, Box& box)
 {
-  //  fprintf(stderr, "Evaluating box test index %d\n", index);
+  fprintf(stderr, "Evaluating box test index %d\n", index);
   Params<AJCC> cover = box.cover();
   TestResult result = {index, open, word_pair()};
   AJCC one(1);
@@ -389,6 +390,7 @@ box_state TestCollection::evaluate_box(int index, Box& box)
                   absLB(cover.coshmu) > g_cosh_marg_upper_bound, result);
             }
     case 1: {
+              Params<Complex> nearer = box.nearer();
               return check_bounds(absLB(cover.coshreD) > g_cosh_d_bound ||
                       strictly_pos(re(-nearer.sinhL2)) || strictly_pos(re(-nearer.sinhD2)) ||
                       strictly_pos(one - cover.coshreD) || strictly_pos(one - cover.coshreL),

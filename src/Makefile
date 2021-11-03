@@ -1,8 +1,8 @@
-REFINEOBJS= RefineMain.o Refine.o PartialTree.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o QuasiRelators.o ImpossibleRelations.o
-SEARCHTESTOBJS= TestMain.o Testing.o PartialTree.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o QuasiRelators.o ImpossibleRelations.o
-TESTOBJS= test.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
-CENSUSTESTOBJS= census_test.o Refine.o PartialTree.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o QuasiRelators.o ImpossibleRelations.o
-PLAYOBJS= playground.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
+REFINEOBJS= RefineMain.o Refine.o PartialTree.o Box.o AJCC.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o QuasiRelators.o ImpossibleRelations.o
+SEARCHTESTOBJS= TestMain.o Testing.o PartialTree.o Box.o AJCC.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o QuasiRelators.o ImpossibleRelations.o
+TESTOBJS= test.o Box.o AJCC.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
+CENSUSTESTOBJS= census_test.o Refine.o PartialTree.o Box.o AJCC.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o TestCollection.o QuasiRelators.o ImpossibleRelations.o
+PLAYOBJS= playground.o Box.o AJCC.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
 TREECATOBJS= treecat.o
 TREESTATOBJS= treestat.o
 CPLUSPLUS= g++

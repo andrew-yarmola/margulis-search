@@ -31,38 +31,47 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     TestHistory& history, vector< Box >& place,
     int new_depth, int& searched_depth)
 {
+  fprintf(stderr, "Refine box %s\n", box.name.c_str());
   place.push_back(box);
-  int old_test_index = t.test_index;
-  if (t.result.state != open) {
+  int old_result_index = t.result.index;
+  if (t.result.index > 0) {
     t.result = g_tests.evaluate_box(t.result.index, box);
     if (t.result.state != open && t.result.state != open_with_qr) {
       return true;
     } else { 
       fprintf(stderr,
           "FAILED to eliminate %s with test %s with result %d\n",
-          box.name.c_str(), g_tests.get_name(t.test_index).c_str(),
-          result);
+          box.name.c_str(), g_tests.get_name(t.result.index).c_str(),
+          t.result.state);
     }
   }
+  
+
+  fprintf(stderr, "State after old test: %d and fill holes %d\n",
+    t.result.state, g_options.fill_holes);
 
   if (t.result.state == open && !g_options.fill_holes) {
     return true;
   }
 
+  fprintf(stderr, "Should refine\n");
+
   // Check if the box is now small enough that some former qrs actually kill it
   if (depth % QR_MOD == 1) {
-    for (auto qr : box.qr.word_classes()) { 
-      t.result = g_tests.evaluate_AJ(qr, box);
-      if (t.result != open && t.result != open_with_qr) {
+    for (auto qr : box.qr.word_classes()) {
+      word_pair qr_pair(qr, ""); 
+      t.result = g_tests.evaluate_AJCC(qr_pair, box);
+      if (t.result.state != open && t.result.state != open_with_qr) {
         return true;
       }
     }
   }
 
   if (g_options.improve_tree || !t.l_child) {
+    fprintf(stderr, "Trying to improve\n");
     for (int i = 0; i < g_tests.size(); ++i) {
       // only do boundary tests on a regular basis
-      if (i >= num_bound_tests && depth % IMPROVE_MOD == 1) {
+      if (i >= num_bound_tests && depth % IMPROVE_MOD == 0) {
         break;
       } 
       vector<box_state>& th = history[i];
@@ -108,7 +117,6 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
         fprintf(stderr, "search (%s) found (%s,%s) at (%s)\n",
                 search_place.qr.desc(box.cover()).c_str(), new_pair.first.c_str(),
                 new_pair.second.c_str(), search_place.name.c_str());
-        new_qrs.clear();
         t.result = g_tests.evaluate_box(new_index, box);
         if (t.result.state != open && t.result.state != open_with_qr) {
           return true;
@@ -117,7 +125,13 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     }
   }
 
-  t.result.index = open;
+  fprintf(stderr, "Should split now\n");
+
+  if (box.qr.word_classes().size() > 0) {
+    t.result.state = open_with_qr;
+  } else {
+    t.result.state = open;
+  }
 
   if (!t.l_child) {
     if (depth >= g_options.max_depth || ++g_boxes_visited >= g_options.max_size
@@ -145,9 +159,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
   if (is_complete || depth < g_options.truncate_depth)
     is_complete = refine_recursive(box.child(1), *t.r_child, depth + 1, history,
         place, new_depth, searched_depth) && is_complete;
-  if (old_test_index >= 0 && t.test_index != old_test_index) {
+  if (old_result_index >= 0 && t.result.index != old_result_index) {
     fprintf(stderr, "invalid box %s(%s) %d %s\n",
-        g_tests.get_name(old_test_index).c_str(), box.name.c_str(),
+        g_tests.get_name(old_result_index).c_str(), box.name.c_str(),
       tree_size(t), is_complete ? "Patched" : "Unpatched");
   }
   if (!is_complete && depth >= g_options.truncate_depth) {
@@ -176,12 +190,12 @@ void print_tree(PartialTree& t)
           print_tree(*t.l_child);
           print_tree(*t.r_child);
         } else {
-          printf("HOLE (%s)\n", t.qr_desc.c_str());
+          printf("HOLE\n");
         }
         return;
       }
       case killed_bounds : {
-        printf("%s\n", g_tests.get_name(t.test_index).c_str());
+        printf("%s\n", g_tests.get_name(t.result.index).c_str());
         return;
       }
       case killed_impossible_relator : type = 'E'; break; 

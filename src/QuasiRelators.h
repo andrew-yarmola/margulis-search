@@ -37,10 +37,10 @@ std::string QuasiRelators::desc(const Params<T>& p)
   std::string buf;
   std::string word;
   std::set<std::string> words;
-	for (std::vector<std::string>::iterator it = name_vector.begin(); it != name_vector.end(); ++it) {
+	for (auto qr : name_vector) {
 		if (!buf.empty() && buf.back() != ',')
 			buf += ",";
-    word = proven_identity(*it, p);
+    word = proven_identity(qr, p);
     word = canonical_name.get_canonical_name(word);
     if (word.length() > 0) {
       if (words.insert(word).second) {

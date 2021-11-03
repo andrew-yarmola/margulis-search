@@ -17,8 +17,8 @@ struct ImpossibleRelations;
 struct TestCollection {
   int size();
   box_state evaluate_center(int index, Box& box);
-  TestResult evaluate_box(int index, const Box& box);
-  TestResult evaluate_AJ(word_pair& pair, const Box& box);
+  TestResult evaluate_box(int index, Box& box);
+  TestResult evaluate_AJCC(word_pair& pair, Box& box);
   const std::string get_name(int index);
   word_pair get_pair(int index);
   int add(word_pair pair);
@@ -88,7 +88,7 @@ inline const bool tube_hits_axis_four(const T& four_sinh_p2sq, const T& two_cosh
 }
 
 template<typename T>
-inline const bool wx_hits_elliptic_axis(const SL2<T>& w, const Params<T>& p) {
+inline const bool wx_hits_sym_axis(const SL2<T>& w, const Params<T>& p) {
   T tsp2sq_inf = two_sinh_perp2_sq_wax_zero_inf(w, p);
   T fsp2sq_one = four_sinh_perp2_sq_wax_mp_one(w, p);
   T fsp2sq_iye = four_sinh_perp2_sq_wax_mp_iye(w, p);
@@ -98,7 +98,7 @@ inline const bool wx_hits_elliptic_axis(const SL2<T>& w, const Params<T>& p) {
 }
 
 template<typename T>
-inline const bool wy_hits_elliptic_axis(const SL2<T>& w, const Params<T>& p) {
+inline const bool wy_hits_sym_axis(const SL2<T>& w, const Params<T>& p) {
   T tsp2sq_inf = two_sinh_perp2_sq_way_zero_inf(w, p);
   T fsp2sq_one = four_sinh_perp2_sq_way_mp_one(w, p);
   T fsp2sq_iye = four_sinh_perp2_sq_way_mp_iye(w, p);

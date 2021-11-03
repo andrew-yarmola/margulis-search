@@ -37,6 +37,7 @@ private:
   Params<AJCC> _cover;
   void compute_center_and_size();
   void compute_cover();
+  void compute_nearer();
   SL2<Complex> _x_center;
   SL2<Complex> _y_center;
   SL2<AJCC> _x_cover;
