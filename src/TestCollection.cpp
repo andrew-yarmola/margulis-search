@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "TestCollection.hh"
-// #include "ImpossibleRelations.h"
 #include <algorithm>
 using namespace std;
 // using namespace __gnu_cxx;
@@ -13,6 +12,7 @@ extern double g_cosh_d_bound;
 extern bool g_symmetric;
 
 int num_bound_tests = 4;
+int relator_depth= 4;
 
 int TestCollection::size()
 {
@@ -94,24 +94,6 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
     }
   }
   return open;
-}
-
-const vector<string> bad_relators = {
-  "XXXYxxYYYYxxY",
-  "XXXYxxYYYYxxY",
-  "XXXYXYYxYYXY"
-  };
-
-bool proven_is_good(const string& proven, const Box& box) {
-  if (box.name.length() < 42 || proven.length() == 0) {
-    return false;
-  }
-  for (auto& w: bad_relators) {
-    if (proven.compare(w) == 0) {
-      return false;
-    }
-  }
-  return true;
 }
 
 void print_debug(SL2<AJCC>& w, Params<AJCC>& p, box_state state) {
@@ -197,7 +179,6 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
   }
   TestResult result = {-99, open, pair};
   Params<AJCC> p = box.cover();
-  vector<string> required;
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<AJCC> w = construct_word(word, p);
@@ -305,15 +286,27 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
     }
     for (auto word : box.qr.word_classes()) {  
       string proven = proven_identity(word, p);
-      if (proven_is_good(proven, box)) {
-        if(impossible->is_impossible(proven, required) ||
-            syllables(word) < 5) {
-          result.state = killed_impossible_relator;
-        } else {
+      if (relator_test->is_good(proven)) {
+        if (box.name.length() > relator_depth) {
           result.state = proven_relator;
         }
-        result.words.first.assign(proven);
-        return result;
+        vector<string> required;
+        if(relator_test->is_impossible(proven, required)) {
+          if (required.size() == 0) {
+            result.state = killed_impossible_relator;
+          } else {
+            for (auto req : required) {
+              SL2<AJCC> w_req = construct_word(req, p);
+              if (not_identity(w_req)) {
+                result.state = killed_impossible_relator;
+                break;
+              }
+            }
+          }
+        }
+        if (result.state != open) {
+          return result;
+        }
       }
     }
   } else {
@@ -500,8 +493,8 @@ void TestCollection::load(const char* fileName)
   }
 }
 
-void TestCollection::load_impossible_relations(const char* file_name)
+void TestCollection::load_relator_test(const char* file_name)
 {
-  impossible = ImpossibleRelations::create(file_name);
+  relator_test = RelatorTest::create(file_name);
 }
 

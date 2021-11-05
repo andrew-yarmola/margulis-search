@@ -8,11 +8,11 @@
 #include "SL2.hh"
 #include "IsomH3.hh"
 #include "Params.hh"
-#include "ImpossibleRelations.h"
+#include "RelatorTest.hh"
 
 extern bool g_debug;
 
-struct ImpossibleRelations;
+struct RelatorTest;
 
 struct TestCollection {
   int size();
@@ -24,8 +24,8 @@ struct TestCollection {
   int add(word_pair pair);
   int add(std::string pair);
   void load(const char* file_path);
-  void load_impossible_relations(const char* file_path);
-  ImpossibleRelations *impossible;
+  void load_relator_test(const char* file_path);
+  RelatorTest *relator_test;
 private:
   word_pair parse_word_pair(std::string buf);
   std::map<word_pair, int> pair_index;

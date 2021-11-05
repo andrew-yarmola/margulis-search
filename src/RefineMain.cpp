@@ -24,7 +24,7 @@ const char* g_program_name;
 static struct option long_options[] = {
   {"box",  required_argument, NULL, 'b' },
   {"words", required_argument, NULL, 'w' },
-  {"powers", required_argument, NULL, 'p'},
+  {"impossible", required_argument, NULL, 'p'},
   {"max_depth", required_argument, NULL, 'd' },
   {"invent_depth", required_argument, NULL, 'i' },
   {"improve_tree", no_argument, NULL, 'I'},
@@ -63,7 +63,7 @@ Options controlling which relators to use:\n\
     Perform a search for relators when visiting a node at least n levels deep.\n\
 \n\
 Options controlling which relators eliminate boxes:\n\
-  [ --powers <powers_file> ]\n\
+  [ --impossible <impossible_file> ]\n\
     File containing impossible relator definitions.\n\
     See ImpossibleRelators::load(...)\n\
 \n\
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
     switch(ch) {
     case 'b': g_options.box_name = optarg; break;
     case 'w': g_options.words_file = optarg; break;
-    case 'p': g_options.powers_file = optarg; break;
+    case 'p': g_options.impossible_file = optarg; break;
     case 'd': g_options.max_depth = atoi(optarg); break;
     case 'i': g_options.invent_depth = atoi(optarg); break;
     case 'I': g_options.improve_tree = true; break;
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
   }
  
   g_tests.load(g_options.words_file);
-  g_tests.load_impossible_relations(g_options.powers_file);
+  g_tests.load_relator_test(g_options.impossible_file);
 
   fprintf(stderr, "%s", box.desc().c_str());
   fprintf(stderr, "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n   sinh(d) upper %f\n",
