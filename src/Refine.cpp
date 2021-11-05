@@ -113,7 +113,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
     }
     vector<string> required;
     string proven = proven_identity(*it, p);
-    if (proven.length() > 0) {
+    if (proven_is_good(proven, box)) {
       if (g_tests.impossible->is_impossible(proven, required)) {
         t.aux_word.assign(proven);
         t.aux_result = open;
@@ -168,6 +168,13 @@ bool refine_recursive(Box box, PartialTree& t, int depth, TestHistory& history, 
             t.test_index = i;
             t.test_result = result;
             return true;
+          }
+          case killed_failed_qr : {
+              t.test_index = i;
+              t.aux_word.assign(aux_word);
+              t.aux_result = proven_relator;
+              t.test_result = killed_failed_qr;
+              return true;
           }
           case open_with_qr : {
             for (vector<string>::iterator it = new_qrs.begin(); it != new_qrs.end(); ++it) {

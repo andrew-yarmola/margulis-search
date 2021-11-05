@@ -107,19 +107,31 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
 }
 
 const vector<string> bad_relators = {
-  "XXXYxxYYYYxxY",
-  "XXXYxxYYYYxxY",
-  "XXXYXYYxYYXY"
-  };
+  "XXXYxxYYYYxxY", // m142
+  "XXXYXYYxYYXY", // non-realizable
+  "YYXXYXyxyx",   // non-realizable
+  "xxYYxYXyXy",  // non-realizable
+  "yyyyxYXXYx", // m009
+  "yyyXXYXYXX", // m026
+  "yyyxxYxYxx", // m026
+  "xYYxxYxxYY", // m003 too symmetric
+  "YYxxYxxYYx", // m003 too symmetric
+  "YYXXYXXYYX", // m003 too symmetric
+  "XYYXXYXXYY", // m003 too symmetric
+};
 
 bool proven_is_good(const string& proven, const Box& box) {
-  if (box.name.length() < 42 || proven.length() == 0) {
+  if (box.name.length() < 57 || proven.length() == 0) {
     return false;
   }
   for (auto& w: bad_relators) {
     if (proven.compare(w) == 0) {
       return false;
     }
+  }
+  if (g_debug) {
+    fprintf(stderr, "Relator %s is good for box of depth %d\n",
+        proven.c_str(), box.name.length());
   }
   return true;
 }
@@ -394,8 +406,13 @@ box_state TestCollection::evaluate_box(int index, Box& box, string& aux_word, ve
   AJCC one(1);
   switch(index) {
     case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
-              return check_bounds(absUB(cover.coshmu) < g_cosh_marg_lower_bound ||
+              box_state case_zero = check_bounds(absUB(cover.coshmu) < g_cosh_marg_lower_bound ||
                   absLB(cover.coshmu) > g_cosh_marg_upper_bound);
+              if (g_debug && case_zero != open) {
+                  fprintf(stderr, "absUB(cosh_mu) = %f\n absLB(cosh_mu) = %f\n",
+                    absUB(cover.coshmu), absLB(cover.coshmu));
+              }
+              return case_zero;
             } 
     case 1: { // FIXME use nearer and further
               return check_bounds(absLB(cover.coshreL) > g_cosh_d_bound || 
