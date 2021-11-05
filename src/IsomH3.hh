@@ -44,7 +44,9 @@ const T norm(const SL2<T>& w1, const SL2<T>& w2) {
   T tr2 = w2.a + w2.d;
   T sh1 = sqrt((tr1 * tr1 - 4));
   T sh2 = sqrt((tr2 * tr2 - 4));
+  // TODO this might not be reliable
   if (absUB(tr1 + sh1) < 2) { sh1 = -sh1; }
+  // TODO this might not be reliable
   if (absUB(tr2 + sh2) < 2) { sh2 = -sh2; }
   return sh1 * sh2;
 }
@@ -94,6 +96,7 @@ const T sinh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T ch = cosh_perp_normed(w1,w2); 
   T n_sqrd = norm_sqrd(w1,w2);
   T sh = sqrt(ch * ch - n_sqrd);
+  // TODO this might not be reliable
   if (absUB(ch + sh) < absUB(norm(w1,w2))) { sh = -sh; }
   return sh;
 }
@@ -102,6 +105,7 @@ template<typename T>
 const T sinh_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T ch = cosh_perp(w1,w2);
   T sh = sqrt(ch * ch - 1);
+  // TODO this might not be reliable
   if (absUB(ch + sh) < 1) { sh = -sh; }
   return sh;
 }
@@ -134,6 +138,7 @@ template<typename T>
 const T sinh_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T ch = cosh_2_re_perp(w1,w2);
   T sh = sqrt(ch * ch - 1);
+  // TODO this might not be reliable
   if (absUB(ch + sh) < 1) { sh = -sh; }
   return sh;
 }
@@ -144,6 +149,7 @@ const T sinh_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T n = norm_sqrd(w1,w2);
   T abs_n_sqrd = abs_sqrd(n);
   T sh = sqrt(ch * ch - abs_n_sqrd);
+  // TODO this might not be reliable
   if (absUB(ch + sh) < absUB(n)) { sh = -sh; }
   return sh;
 }

@@ -20,13 +20,13 @@ PartialTree read_tree()
     t.l_child = new PartialTree(read_tree());
     t.r_child = new PartialTree(read_tree());
   } else if (strstr(buf, "HOLE") != NULL) {
-    t.test_index = -2;
+    t.result.index = -2;
   } else {
     if (isdigit(buf[0])) {
-      t.test_index = atoi(buf);
+      t.result.index = atoi(buf);
     } else {
       if (strchr("xXyY", buf[2]) != NULL) {
-        t.test_index = g_tests.add(std::string(buf));
+        t.result.index = g_tests.add(std::string(buf));
       }
     }
   }
@@ -55,4 +55,3 @@ int tree_size(PartialTree& t) {
     size += tree_size(*t.r_child);
   return size;
 }
-

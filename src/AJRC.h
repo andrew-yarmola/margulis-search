@@ -6,11 +6,11 @@
 #include "roundoff.h"
 
 struct AJRC {
-	AJRC(consz XComplex& f  = 0,
-	   consz XComplex& z0 = 0,
-	   consz XComplex& z1 = 0,
-	   consz XComplex& z2 = 0,
-	   consz XComplex& z3 = 0,
+	AJRC(const XComplex& f  = 0,
+	   const XComplex& z0 = 0,
+	   const XComplex& z1 = 0,
+	   const XComplex& z2 = 0,
+	   const XComplex& z3 = 0,
 	   double err = 0) : f{f},z0{z0},z1{z1},z2{z2},z3{z3},e{err},
 		size((1 + 2*EPS) * ((absUB(z0) + absUB(z1)) + (absUB(z2) + absUB(z3)))), 
 		size_re((1 + 2*EPS) * 
