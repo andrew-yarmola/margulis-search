@@ -65,16 +65,16 @@ def run_refine(command, dest_dir) :
 
 if __name__ == '__main__' :
   try:
-    opts, args = getopt.getopt(sys.argv[1:],'w:p:c:d:h:r:i:t:s:',['words=','powers=',
+    opts, args = getopt.getopt(sys.argv[1:],'w:p:c:d:h:r:i:t:s:',['words=','impossible=',
       'child_limit=','depth_limit=','holes=','refine=','invent_depth=','truncate_depth','word_search_depth='])
   except getopt.GetoptError as err:
     print(str(err))
-    print('Usage: dosearch [-w,--words <words_file>] [-p,--powers <powers_file>]' +
+    print('Usage: dosearch [-w,--words <words_file>] [-p,--impossible <impossible_file>]' +
         '[-c,--child_limit <limit>] [-d,--depth_limit <limit>] [-h,-holes <holes_file>] src_dir dest_dir')
     sys.exit(2)
 
   if len(args) != 2:
-    print('Usage: dosearch [-w,--words <words_file>] [-p,--powers <powers_file>]' +
+    print('Usage: dosearch [-w,--words <words_file>] [-p,--impossible <impossible_file>]' +
         '[-c,--child_limit <limit>] [-d,--depth_limit <limit>] [-h,-holes <holes_file>] src_dir dest_dir')
     sys.exit(2)
 
@@ -100,7 +100,7 @@ if __name__ == '__main__' :
   word_search_depth = '12'
   fill_holes = ''
   improve_tree = ''
-  powers_file = 'none'
+  impossible_file = 'none'
   words_file = '/u/yarmola/margulis-search/words/'
 
   # Get config
@@ -109,8 +109,8 @@ if __name__ == '__main__' :
   for opt, val in opts:
     if opt in ('-w', '--words'):
       words_file = val
-    if opt in ('-p', '--powers'):
-      powers_file = val
+    if opt in ('-p', '--impossible'):
+      impossible_file = val
     if opt in ('-c', '--child_limit'):
       child_limit = int(val)
     if opt in ('-d', '--depth_limit'):
@@ -263,7 +263,7 @@ if __name__ == '__main__' :
         ' --max_size ' + max_size + \
         ' --words ' + words_file + \
         ' --word_search_depth ' + pid_word_search_depth + \
-        ' --powers ' + powers_file + \
+        ' --impossible ' + impossible_file + \
         ' -m ' + cosh_mu_upper + \
         ' -r ' + sinh_tube_upper + \
         ' > ' + out  + ' 2> ' + err

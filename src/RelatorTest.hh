@@ -25,8 +25,16 @@ private:
   std::set<std::string> always_impossible;
   const std::set<std::string> bad_relators = 
   {
-    "XXXYxxYYYYxxY",
-    "XXXYxxYYYYxxY",
-    "XXXYXYYxYYXY"
+    "XXXYxxYYYYxxY", // m142
+    "XXXYXYYxYYXY", // non-realizable
+    "YYXXYXyxyx",   // non-realizable
+    "xxYYxYXyXy",  // non-realizable
+    "yyyyxYXXYx", // m009
+    "yyyXXYXYXX", // m026
+    "yyyxxYxYxx", // m026
+    "xYYxxYxxYY", // m003 too symmetric
+    "YYxxYxxYYx", // m003 too symmetric
+    "YYXXYXXYYX", // m003 too symmetric
+    "XYYXXYXXYY", // m003 too symmetric
   };
 };

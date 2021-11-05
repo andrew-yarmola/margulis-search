@@ -408,6 +408,8 @@ T cosh_marg_lower_bound(const T& sinh_r) {
   return ((a8 + (a1 + a0)) + (a4 + a5)) + ((a7 + a2) + (a6 + a3)); 
 }
 
+bool proven_is_good(const std::string& proven, const Box& box);
+
 #define MAX_ID_SHIFT 5
 template<typename T>
 std::string proven_identity(std::string word, const Params<T>& p) {

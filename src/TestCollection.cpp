@@ -177,7 +177,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
     fprintf(stderr, "+++ Word Pair: %s and %s\n",
         pair.first.c_str(), pair.second.c_str());
   }
-  TestResult result = {-99, open, pair};
+  TestResult result = {-2, open, pair};
   Params<AJCC> p = box.cover();
   if (pair.second.length() == 0) {
     string word = pair.first;

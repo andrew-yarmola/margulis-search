@@ -139,6 +139,10 @@ int main(int argc, char** argv)
   g_tests.load(g_options.words_file);
   g_tests.load_relator_test(g_options.impossible_file);
 
+  if (g_debug) {
+    fprintf(stderr, "Running in debug mode\n");
+  }
+
   fprintf(stderr, "%s", box.desc().c_str());
   fprintf(stderr, "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n   sinh(d) upper %f\n",
     g_cosh_marg_lower_bound, g_cosh_marg_upper_bound, g_sinh_d_bound);

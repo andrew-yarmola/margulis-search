@@ -6,7 +6,7 @@
 struct PartialTree {
   PartialTree *l_child = NULL;
   PartialTree *r_child = NULL;
-  TestResult result = {-99, open, word_pair()};
+  TestResult result = {-2, open, word_pair()};
 };
 
 // Consume tree from stdin. The tree must be

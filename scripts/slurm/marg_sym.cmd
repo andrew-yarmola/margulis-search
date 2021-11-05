@@ -15,7 +15,7 @@ words_dir=$base_dir
 
 search="$base_dir/scripts/dosearch_small.py"
 words="$words_dir/words"
-powers="$words_dir/powers"
+impossible="$words_dir/impossible"
 
 data_dir="/scratch/network/yarmola/marg_sym_param"
 
@@ -23,4 +23,4 @@ cd $bin_dir
 
 cat "$data_dir/refine.log" >> "$data_dir/refine.log.all"
 
-python3 "$search" -i 24 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$powers" -c 38 "$data_dir/source" "$data_dir/output_live" > "$data_dir/refine.log" 2>&1
+python3 "$search" -i 120 -t 12 -r "$bin_dir/refine_marg" -w "$words" -p "$impossible" -c 38 "$data_dir/source" "$data_dir/output_live" > "$data_dir/refine.log" 2>&1

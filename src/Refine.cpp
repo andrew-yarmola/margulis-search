@@ -31,10 +31,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     TestHistory& history, vector< Box >& place,
     int new_depth, int& searched_depth)
 {
-  fprintf(stderr, "Refine box %s\n", box.name.c_str());
   place.push_back(box);
   int old_result_index = t.result.index;
-  if (t.result.index > 0) {
+  if (t.result.index >= 0) {
     t.result = g_tests.evaluate_box(t.result.index, box);
     if (t.result.state != open && t.result.state != open_with_qr) {
       return true;
@@ -47,14 +46,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
   }
   
 
-  fprintf(stderr, "State after old test: %d and fill holes %d\n",
-    t.result.state, g_options.fill_holes);
-
-  if (t.result.state == open && !g_options.fill_holes) {
+  if (t.result.index == -2 && !g_options.fill_holes) {
     return true;
   }
-
-  fprintf(stderr, "Should refine\n");
 
   // Check if the box is now small enough that some former qrs actually kill it
   if (depth % QR_MOD == 1) {
@@ -124,8 +118,6 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
       }
     }
   }
-
-  fprintf(stderr, "Should split now\n");
 
   if (box.qr.word_classes().size() > 0) {
     t.result.state = open_with_qr;
