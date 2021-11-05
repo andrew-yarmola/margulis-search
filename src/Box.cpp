@@ -54,10 +54,10 @@ Box get_box(std::string code) {
 
 // This is now special to the box mapping
 std::string Box::desc() {
-  AJCC sinhL2 = _cover.sinhL2;
-  AJCC sinhD2 = _cover.sinhD2;
-  AJCC coshL2 = _cover.coshL2;
-  AJCC coshD2 = _cover.coshD2;
+  AJ sinhL2 = _cover.sinhL2;
+  AJ sinhD2 = _cover.sinhD2;
+  AJ coshL2 = _cover.coshL2;
+  AJ coshD2 = _cover.coshD2;
   Complex c_sinhL2 = _center.sinhL2;
   Complex c_sinhD2 = _center.sinhD2;
 
@@ -108,10 +108,10 @@ void Box::compute_cover()
   // sinh(L/2) = (s[1] + i s[3]) z0 + (c[1] + i c[3]) 
   // sinh(D/2) = (s[0] + i s[2]) z1 + (c[0] + i c[2])
 
-  _cover.sinhL2 = AJCC(XComplex(box_center[1], box_center[3]), 
+  _cover.sinhL2 = AJ(XComplex(box_center[1], box_center[3]), 
                      XComplex(box_size[1], box_size[3]), 0, 0);
 
-  _cover.sinhD2 = AJCC(XComplex(box_center[0], box_center[2]), 
+  _cover.sinhD2 = AJ(XComplex(box_center[0], box_center[2]), 
                      0, XComplex(box_size[0], box_size[2]), 0);
 
   fill_derived(_cover);
