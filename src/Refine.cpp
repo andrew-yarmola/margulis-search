@@ -33,7 +33,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
 {
   place.push_back(box);
   int old_result_index = t.result.index;
-  if (t.result.index > 0) {
+  if (t.result.index >= 0) {
     t.result = g_tests.evaluate_box(t.result.index, box);
     if (t.result.state != open && t.result.state != open_with_qr) {
       return true;
@@ -46,7 +46,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
   }
   
 
-  if (t.result.state == open && !g_options.fill_holes) {
+  if (t.result.index == -2 && !g_options.fill_holes) {
     return true;
   }
 
@@ -118,8 +118,6 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
       }
     }
   }
-
-  fprintf(stderr, "Should split now\n");
 
   if (box.qr.word_classes().size() > 0) {
     t.result.state = open_with_qr;

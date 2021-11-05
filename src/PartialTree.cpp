@@ -17,6 +17,7 @@ PartialTree read_tree()
   if (buf[n-1] == '\n')
     buf[n-1] = '\0';
   if (buf[0] == 'X') {
+    t.result.index = -1;
     t.l_child = new PartialTree(read_tree());
     t.r_child = new PartialTree(read_tree());
   } else if (strstr(buf, "HOLE") != NULL) {
@@ -28,6 +29,9 @@ PartialTree read_tree()
       if (strchr("xXyY", buf[2]) != NULL) {
         t.result.index = g_tests.add(std::string(buf));
       }
+    }
+    if (g_debug) {
+      fprintf(stderr, "%d\n", t.result.index);
     }
   }
   return t;
