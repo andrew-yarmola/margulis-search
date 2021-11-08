@@ -77,14 +77,8 @@ inline const bool tube_hits_axis_two(const T& two_sinh_p2sq, const T& two_cosh_r
 template<typename T>
 inline const bool tube_hits_axis_four(const T& four_sinh_p2sq, const T& two_cosh_re_tube) {
   T fcd = four_cosh_dist(four_sinh_p2sq);
-  if (g_debug && 
-      strictly_pos(two_cosh_re_tube * 2 - fcd) && absLB(four_sinh_p2sq + 2) > 0) { 
-    print_type("4coshdist", fcd);
-    print_type("two_cosh_re_tube", two_cosh_re_tube);
-    print_type("four_sinh_p2sq", four_sinh_p2sq);
-  }
   // sinh(I Pi/4)^2 = -1/2 which means axes meet othrogonally
-  return strictly_pos(two_cosh_re_tube * 2 - fcd) && absLB(four_sinh_p2sq + 2) > 0;
+  return result strictly_pos(two_cosh_re_tube * 2 - fcd) && absLB(four_sinh_p2sq + 2) > 0;
 }
 
 template<typename T>
