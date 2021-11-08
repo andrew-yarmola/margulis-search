@@ -8,7 +8,8 @@ from multiprocessing import Process
 def command_output(command):
   try:
     # Note that subprocess.check_output retuns a byte string
-    pipe = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+    pipe = subprocess.Popen(command,
+        stdout=subprocess.PIPE, shell=True)
     out, err = pipe.communicate()
     return out.decode('utf8')
   except:
@@ -16,7 +17,8 @@ def command_output(command):
     sys.exit(1)
 
 def add_holes(holes, treeholes, directory, boxfile):
-  command = '{0} -r {1} \'{2}\''.format(treeholes, directory, boxfile)
+  command = '{0} -r {1} \'{2}\''.format(
+      treeholes, directory, boxfile)
   out_string = command_output(command)
   if not out_string: return
   out_string = out_string.replace('root','')
@@ -65,17 +67,20 @@ def run_refine(command, dest_dir) :
 
 if __name__ == '__main__' :
   try:
-    opts, args = getopt.getopt(sys.argv[1:],'w:p:c:d:h:r:i:t:s:',['words=','powers=',
-      'child_limit=','depth_limit=','holes=','refine=','invent_depth=','truncate_depth','word_search_depth='])
+    opts, args = getopt.getopt(sys.argv[1:],
+      'w:p:c:d:h:r:i:t:s:I',
+      ['words=','impossible=', 'child_limit=','depth_limit=',
+        'holes=','refine=','invent_depth=',
+        'truncate_depth','word_search_depth=', 'improve'])
   except getopt.GetoptError as err:
     print(str(err))
-    print('Usage: dosearch [-w,--words <words_file>] [-p,--powers <powers_file>]' +
-        '[-c,--child_limit <limit>] [-d,--depth_limit <limit>] [-h,-holes <holes_file>] src_dir dest_dir')
-    sys.exit(2)
+    args = []
 
   if len(args) != 2:
-    print('Usage: dosearch [-w,--words <words_file>] [-p,--powers <powers_file>]' +
-        '[-c,--child_limit <limit>] [-d,--depth_limit <limit>] [-h,-holes <holes_file>] src_dir dest_dir')
+    print('Usage: dosearch [-w,--words <words_file>] ' + 
+      '[-p,--impossible <impossible_file>] ' +
+      '[-c,--child_limit <limit>] [-d,--depth_limit <limit>]' +
+      '[-h,--holes <holes_file>] [-I,--improve] src_dir dest_dir')
     sys.exit(2)
 
   # Executables
@@ -90,18 +95,18 @@ if __name__ == '__main__' :
   child_limit = 8
   depth_limit = 330
 
-  cosh_mu_upper = '1.3375'
-  sinh_tube_upper = '1.6153'
+  cosh_mu_upper = '1.32'
+  sinh_tube_upper = '1.48'
 
-  max_size = '1000000'
+  max_size = '500000'
   max_depth = '150'
   truncate_depth = '6'
   invent_depth = '42'
   word_search_depth = '12'
   fill_holes = ''
   improve_tree = ''
-  powers_file = 'none'
-  words_file = '/u/yarmola/margulis-center/margulis-search/words/'
+  impossible_file = 'none'
+  words_file = 'none'
 
   # Get config
   holes_file = None
@@ -109,8 +114,8 @@ if __name__ == '__main__' :
   for opt, val in opts:
     if opt in ('-w', '--words'):
       words_file = val
-    if opt in ('-p', '--powers'):
-      powers_file = val
+    if opt in ('-p', '--impossible'):
+      impossible_file = val
     if opt in ('-c', '--child_limit'):
       child_limit = int(val)
     if opt in ('-d', '--depth_limit'):
@@ -125,13 +130,17 @@ if __name__ == '__main__' :
       truncate_depth = str(int(val))
     if opt in ('-s', '--word_search_depth'):
       word_search_depth = str(int(val))
+    if opt in ('-I', '--improve'):
+      improve_tree = ' --improve_tree'
 
   add_words(seen_words, words_file)
 
   # Check for incomplete trees
-  subprocess.call('{0} -r {1} \'{2}\''.format(treecheck, dest_dir, ''), shell=True)
+  subprocess.call('{0} -r {1} \'{2}\''.format(
+    treecheck, dest_dir, ''), shell=True)
 
-  # Get holes. Note, treecat will check that all files are complete trees
+  # Get holes. Note, treecat will check that all 
+  # files are complete trees
   holes = set();
   if holes_file :
     add_holes_from_file(holes, holes_file)
@@ -141,7 +150,8 @@ if __name__ == '__main__' :
   # Get done words
   done = set()
   try:
-    done = set([os.path.basename(boxfile).replace('.out','') for boxfile in glob.glob(dest_dir + '/*.out')])
+    done = set([os.path.basename(boxfile).replace('.out','')
+      for boxfile in glob.glob(dest_dir + '/*.out')])
   except:
     print('Error reading {0}\n'.format(dest_dir)) 
     sys.exit(1)
@@ -155,7 +165,9 @@ if __name__ == '__main__' :
   wait_for_holes = False
   failed_holes = set()
   while True:
-    sleep(0.001) # We don't need to to run the main loop to death since we aren't using os.wait
+    # We don't need to to run the main loop to death
+    # since we aren't using os.wait
+    sleep(0.001)
     open_holes = holes - done
     if len(open_holes) == 0 and refine_run_count == 0 and len(done) == 0:
       best_hole = 'root'
@@ -175,30 +187,41 @@ if __name__ == '__main__' :
       wait_for_holes = False
 
     # We now check for completed refine processes.
-    if child_count >= child_limit or (child_count > 0 and len(open_holes) == 0) or wait_for_holes:
+    if (child_count >= child_limit or (child_count > 0 and 
+        len(open_holes) == 0) or wait_for_holes):
       iter_dict = dict(active_pid_to_hole)
       for done_pid, done_hole in iter_dict.items():
         pid_file = dest_dir + '/' + str(done_pid) + '.pid'
         status = command_output('tail -1 {0}'.format(pid_file))
         if 'completed' in status :
           # We should check the output either way to make sure it is clean 
-          subprocess.call('{0} {1} \'{2}\''.format(treecheck, dest_dir, done_hole), shell=True)
+          subprocess.call('{0} {1} \'{2}\''.format(
+            treecheck, dest_dir, done_hole), shell=True)
 
           print('Completed {0} {1}\n'.format(done_hole,done_pid))
           add_holes(holes, treeholes, dest_dir, done_hole)
 
-          num_patched = command_output('grep -c Patched {0}/{1}.err; exit 0'.format(dest_dir, done_hole)).rstrip()
-          num_unpatched = command_output('grep -c Unpatched {0}/{1}.err; exit 0'.format(dest_dir, done_hole)).rstrip()
-          hum_holes = command_output('grep -c HOLE {0}/{1}.err; exit 0'.format(dest_dir, done_hole)).rstrip()
+          num_patched = command_output(
+              'grep -c Patched {0}/{1}.err; exit 0'.format(
+                dest_dir, done_hole)).rstrip()
+          num_unpatched = command_output(
+              'grep -c Unpatched {0}/{1}.err; exit 0'.format(
+                dest_dir, done_hole)).rstrip()
+          hum_holes = command_output(
+              'grep -c HOLE {0}/{1}.err; exit 0'.format(
+                dest_dir, done_hole)).rstrip()
 
-          print('Holes: {0} patched, {1} unpatched, {2} open holes\n'.format(num_patched, num_unpatched, int(hum_holes)))
+          print('Holes: {0} patched, {1} unpatched, {2} open holes\n'.format(
+            num_patched, num_unpatched, int(hum_holes)))
 
           box_words = set()
           add_words(box_words, '{0}/{1}.out'.format(dest_dir, done_hole))        
           new_words = box_words - seen_words
           seen_words |= new_words
 
-          bad_holes = command_output('grep HOLE {0}/{1}.err | cut -d " " -f 2; exit 0'.format(dest_dir, done_hole)).rstrip().split('\n')
+          bad_holes = command_output(
+              'grep HOLE {0}/{1}.err | cut -d " " -f 2; exit 0'.format(
+                dest_dir, done_hole)).rstrip().split('\n')
           failed_holes.update(bad_holes)
 
           if len(new_words) > 0: 
@@ -214,7 +237,8 @@ if __name__ == '__main__' :
 
         elif 'failed' in status :
           # We should check the output either way to make sure it is clean 
-          subprocess.call('{0} {1} \'{2}\''.format(treecheck, dest_dir, done_hole), shell=True)
+          subprocess.call('{0} {1} \'{2}\''.format(
+            treecheck, dest_dir, done_hole), shell=True)
           # If there was an error refining
           print('Error with pid {0}\n'.format(done_pid))
           print('Error refining hole {0}\n'.format(done_hole))
@@ -225,7 +249,9 @@ if __name__ == '__main__' :
           continue
         else :
           continue
-      sleep(0.001) # We don't need to to run the main loop to death since we aren't using os.wait
+      # We don't need to to run the main loop to death
+      # since we aren't using os.wait
+      sleep(0.001)
       continue
 
     # If we make it here. We are running refine
@@ -251,7 +277,6 @@ if __name__ == '__main__' :
     else: 
       pid_word_search_depth = word_search_depth
 
-    #treecat_command = '{0} {1} {2} | ./treetrim 500000 12'.format(treecat, src_dir, best_hole)
     treecat_command = '{0} {1} {2}'.format(treecat, src_dir, best_hole)
     refine_command = refine + \
         fill_holes + \
@@ -263,19 +288,20 @@ if __name__ == '__main__' :
         ' --max_size ' + max_size + \
         ' --words ' + words_file + \
         ' --word_search_depth ' + pid_word_search_depth + \
-        ' --powers ' + powers_file + \
+        ' --impossible ' + impossible_file + \
         ' -m ' + cosh_mu_upper + \
         ' -r ' + sinh_tube_upper + \
         ' > ' + out  + ' 2> ' + err
 
-    first_command = treecat_command + ' | head -1'
+    first_command = '{0} {1} {2} | head -1'.format(treecat, src_dir, best_hole)
     first = command_output(first_command).rstrip()
 
     if first[:1] == 'H': # HOLE
       treecat_command = 'echo 1'
 
     command = treecat_command + ' | ' + refine_command
-    print('Running with run count {1}: {0}\n'.format(command, refine_run_count))
+    print('Running with run count {1}: {0}\n'.format(
+      command, refine_run_count))
     refine_run = Process(target=run_refine, args=(command, dest_dir,))
     refine_run.start()
     pid = refine_run.pid

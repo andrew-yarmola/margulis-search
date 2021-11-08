@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <map>
 #include <vector>
 #include <string>
 #include <getopt.h>
@@ -17,6 +18,7 @@ struct Config {
   bool recursive = false;
   bool verbose = false;
   bool silent = false;
+  bool print_stats = true;
   bool start_is_root = false;
   char* tree_location;
   char kill_test[1000];
@@ -25,6 +27,7 @@ struct Config {
 struct Config g_config;
 
 std::vector<std::string> unopened_out_files;
+std::map<std::string, int> elimination_counts;
 
 FILE* open_box(char* boxcode, char* file_name)
 {
@@ -83,17 +86,17 @@ bool ends_with(const char *str, const char *suffix)
 
 bool  put_stream(FILE* dest, FILE* source) {
   size_t size;
-  char buf[BUF_SIZE];
+  char buf[BUFSIZ];
   size_t total = 0;
-  while ((size = fread(buf, 1, BUF_SIZE, source))) {
+  while ((size = fread(buf, 1, BUFSIZ, source))) {
     fwrite(buf, 1, size, dest);
     total += size;
   }
   if (ferror(dest) != 0) {
-    fprintf(stderr, "failed destination: bytes %d/%d\n", total, BUF_SIZE);
+    fprintf(stderr, "failed destination: bytes %d/%d\n", total, BUFSIZ);
     return false;
   } else if (ferror(source) != 0) {
-    fprintf(stderr, "failed source: bytes %d/%d\n", total, BUF_SIZE);
+    fprintf(stderr, "failed source: bytes %d/%d\n", total, BUFSIZ);
     return false;
   } else {
     return true;
@@ -158,6 +161,14 @@ bool process_tree(FILE* fp, FILE* out, char* boxcode) {
 		}
     if (g_config.print_tree && !hole_filled) {
 			fputs(buf, out); // Print the buffer if we are printing out the filled tree
+    }
+    if (g_config.print_stats && !hole_filled) {
+      std::string key(buf);
+      if (elimination_counts.find(key) == elimination_counts.end()) {
+        elimination_counts[key] = 0;
+      }
+      elimination_counts[key] += 1;
+      elimination_counts["total"] += 1;
     }
     if (g_config.print_killed && strncmp(g_config.kill_test, buf, strlen(g_config.kill_test)) == 0) {
       size_t end = strlen(buf);
@@ -241,6 +252,8 @@ int main(int argc, char** argv)
     usage();
     exit(1);
   }
+
+  elimination_counts["total"] = 0;
 
   int ch;
   while ((ch = getopt_long(argc, argv, opt_str, long_options, NULL)) != -1) {
@@ -386,6 +399,12 @@ int main(int argc, char** argv)
     if (!put_success) {
       fprintf(stderr, "failed to write final output\n");
       exit(1);
+    }
+    if (g_config.print_stats) {
+      for (std::map<std::string, int>::iterator it = elimination_counts.begin(); it != elimination_counts.end(); ++it) {
+        printf("%s: %d\n", it->first.c_str(), it->second);
+      }
+
     }
     else exit(0); 
   }

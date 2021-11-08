@@ -11,7 +11,7 @@ Options g_options;
 TestCollection g_tests;
 int g_boxes_visited = 0;
 
-#define IMPROVE_MOD 6 
+#define IMPROVE_MOD 4 
 #define IMPROVE_HIST 7 
 #define QR_MOD 4
 #define WORD_SEARCH_MOD 6
@@ -62,7 +62,6 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
   }
 
   if (g_options.improve_tree || !t.l_child) {
-    fprintf(stderr, "Trying to improve\n");
     for (int i = 0; i < g_tests.size(); ++i) {
       // only do boundary tests on a regular basis
       if (i >= num_bound_tests && depth % IMPROVE_MOD == 0) {
