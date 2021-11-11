@@ -22,4 +22,4 @@ test=0
 m_bnd=1.34
 r_bnd=1.476
 
-echo "xYxyxxyxY" | ../bin/refine_marg --fill_holes --debug --box "$box" --max_depth 150 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > "$data_dir/$name.out" 2> "$data_dir/$name.err"
+echo "K(xxyyxxYxY,)" | ../bin/refine_marg --fill_holes --debug --box "$box" --max_depth 150 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > "$data_dir/$name.out" 2> "$data_dir/$name.err"

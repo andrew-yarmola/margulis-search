@@ -32,6 +32,11 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     int new_depth, int& searched_depth)
 {
   place.push_back(box);
+
+  if (t.result.index == -2 && !g_options.fill_holes) {
+    return true;
+  }
+
   int old_result_index = t.result.index;
   if (t.result.index >= 0) {
     t.result = g_tests.evaluate_box(t.result.index, box);
@@ -45,11 +50,6 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     }
   }
   
-
-  if (t.result.index == -2 && !g_options.fill_holes) {
-    return true;
-  }
-
   // Check if the box is now small enough that some former qrs actually kill it
   if (depth % QR_MOD == 1) {
     for (auto qr : box.qr.word_classes()) {

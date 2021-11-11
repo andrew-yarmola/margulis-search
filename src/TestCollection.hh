@@ -19,6 +19,7 @@ struct TestCollection {
   box_state evaluate_center(int index, Box& box);
   TestResult evaluate_box(int index, Box& box);
   TestResult evaluate_AJCC(word_pair& pair, Box& box);
+  TestResult evaluate_qrs(Box& box);
   const std::string get_name(int index);
   word_pair get_pair(int index);
   int add(word_pair pair);
@@ -78,7 +79,7 @@ template<typename T>
 inline const bool tube_hits_axis_four(const T& four_sinh_p2sq, const T& two_cosh_re_tube) {
   T fcd = four_cosh_dist(four_sinh_p2sq);
   // sinh(I Pi/4)^2 = -1/2 which means axes meet othrogonally
-  return result strictly_pos(two_cosh_re_tube * 2 - fcd) && absLB(four_sinh_p2sq + 2) > 0;
+  return strictly_pos(two_cosh_re_tube * 2 - fcd) && absLB(four_sinh_p2sq + 2) > 0;
 }
 
 template<typename T>
@@ -170,8 +171,8 @@ inline const bool really_cant_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
   if (g_debug && absLB(fsp2sq) > LERR && absLB(fsp2sq + 4) > LERR) {
       fprintf(stderr, "Realy can't fix y_axis");
     print_type(fsp2sq);
-    printf("LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
-    printf("LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
+    fprintf(stderr, "LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
+    fprintf(stderr, "LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
   }
   return absLB(fsp2sq) > LERR && absLB(fsp2sq + 4) > LERR; 
 }
@@ -183,8 +184,8 @@ inline const bool cant_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
       std::is_same<T, AJCC>::value && absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0) {
    fprintf(stderr, "********** CANNOT FIX Y AXIS ***********\n");
    print_type(fsp2sq);
-   printf("LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
-   printf("LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
+   fprintf(stderr, "LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
+   fprintf(stderr, "LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
   }
   return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
 }

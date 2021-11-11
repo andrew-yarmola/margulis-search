@@ -29,6 +29,8 @@ private:
     "XXXYXYYxYYXY", // non-realizable
     "YYXXYXyxyx",   // non-realizable
     "xxYYxYXyXy",  // non-realizable
+    "YYxyxyXYXX", // non-realizable
+    "XXyxyxYXYY", // non-realizable
     "yyyyxYXXYx", // m009
     "yyyXXYXYXX", // m026
     "yyyxxYxYxx", // m026

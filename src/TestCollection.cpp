@@ -12,7 +12,7 @@ extern double g_cosh_d_bound;
 extern bool g_symmetric;
 
 int num_bound_tests = 4;
-int relator_depth= 4;
+int relator_depth= 12;
 
 int TestCollection::size()
 {
@@ -96,6 +96,39 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
   return open;
 }
 
+TestResult TestCollection::evaluate_qrs(Box& box) {
+  TestResult result = {-2, open, word_pair()};
+  Params<AJCC> p = box.cover();
+  for (auto word : box.qr.word_classes()) {  
+    result.state = open_with_qr;
+    string proven = proven_identity(word, p);
+    if (relator_test->is_good(proven)) {
+      if (box.name.length() > relator_depth) {
+        result.state = proven_relator;
+      }
+      vector<string> required;
+      if(relator_test->is_impossible(proven, required)) {
+        if (required.size() == 0) {
+          result.state = killed_impossible_relator;
+        } else {
+          for (auto req : required) {
+            SL2<AJCC> w_req = construct_word(req, p);
+            if (not_identity(w_req)) {
+              result.state = killed_impossible_relator;
+              break;
+            }
+          }
+        }
+      }
+      if (result.state == proven_relator || 
+          result.state == killed_impossible_relator) {
+        result.words.first.assign(proven);
+        break;
+      }
+    }
+  }
+  return result;
+}
 
 TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
 {
@@ -194,32 +227,10 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         box.qr.get_name(word_y);
       }
     }
-    for (auto word : box.qr.word_classes()) {  
-      string proven = proven_identity(word, p);
-      if (relator_test->is_good(proven)) {
-        if (box.name.length() > relator_depth) {
-          result.state = proven_relator;
-        }
-        vector<string> required;
-        if(relator_test->is_impossible(proven, required)) {
-          if (required.size() == 0) {
-            result.state = killed_impossible_relator;
-          } else {
-            for (auto req : required) {
-              SL2<AJCC> w_req = construct_word(req, p);
-              if (not_identity(w_req)) {
-                result.state = killed_impossible_relator;
-                break;
-              }
-            }
-          }
-        }
-        if (result.state == proven_relator || 
-            result.state == killed_impossible_relator) {
-          result.words.first.assign(proven);
-          return result;
-        }
-      }
+    result = evaluate_qrs(box);
+    if (result.state == proven_relator || 
+        result.state == killed_impossible_relator) {
+      return result;
     }
   } else {
     SL2<AJCC> w1 = construct_word(pair.first, p);

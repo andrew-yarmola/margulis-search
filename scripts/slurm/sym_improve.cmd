@@ -25,4 +25,4 @@ cd $bin_dir
 
 cat "$data_dir/$log_file" >> "$data_dir/${log_file}.all"
 
-python3 "$search" --improve -i 120 -t 12 -r "$bin_dir/refine_marg" -w "$words" -p "$impossible" -c 38 "$data_dir/merged" "$data_dir/$output" > "$data_dir/$log_file" 2>&1
+python3 "$search" --improve -i 12 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$impossible" -c 38 "$data_dir/merged" "$data_dir/$output" > "$data_dir/$log_file" 2>&1
