@@ -25,7 +25,8 @@ struct TestCollection {
   int add(word_pair pair);
   int add(std::string pair);
   void load(const char* file_path);
-  void load_relator_test(const char* file_path);
+  void load_relator_test(const char* impos_path,
+                         const char* bad_rel_path);
   RelatorTest *relator_test;
 private:
   word_pair parse_word_pair(std::string buf);

@@ -25,6 +25,7 @@ static struct option long_options[] = {
   {"box",  required_argument, NULL, 'b' },
   {"words", required_argument, NULL, 'w' },
   {"impossible", required_argument, NULL, 'p'},
+  {"bad_relators", required_argument, NULL, 'R'},
   {"max_depth", required_argument, NULL, 'd' },
   {"invent_depth", required_argument, NULL, 'i' },
   {"improve_tree", no_argument, NULL, 'I'},
@@ -64,8 +65,11 @@ Options controlling which relators to use:\n\
 \n\
 Options controlling which relators eliminate boxes:\n\
   [ --impossible <impossible_file> ]\n\
-    File containing impossible relator definitions.\n\
-    See ImpossibleRelators::load(...)\n\
+    file containing impossible relator definitions.\n\
+    see impossiblerelators::load(...)\n\
+  [ --bad_relators <bad_relators_file> ]\n\
+    file containing bad_relators relator definitions.\n\
+    see bad_relatorsrelators::load(...)\n\
 \n\
 Options controlling tree manipulation:\n\
   [ --max_depth <n> ]\n\
@@ -114,6 +118,7 @@ int main(int argc, char** argv)
     case 'b': g_options.box_name = optarg; break;
     case 'w': g_options.words_file = optarg; break;
     case 'p': g_options.impossible_file = optarg; break;
+    case 'R': g_options.bad_relator_file = optarg; break;
     case 'd': g_options.max_depth = atoi(optarg); break;
     case 'i': g_options.invent_depth = atoi(optarg); break;
     case 'I': g_options.improve_tree = true; break;
@@ -137,7 +142,8 @@ int main(int argc, char** argv)
   }
  
   g_tests.load(g_options.words_file);
-  g_tests.load_relator_test(g_options.impossible_file);
+  g_tests.load_relator_test(g_options.impossible_file,
+                            g_options.bad_relator_file);
 
   if (g_debug) {
     fprintf(stderr, "Running in debug mode\n");

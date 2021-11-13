@@ -417,9 +417,10 @@ void TestCollection::load(const char* fileName)
   }
 }
 
-void TestCollection::load_relator_test(const char* file_name)
+void TestCollection::load_relator_test(
+    const char* impos_path, const char* bad_rel_path)
 {
-  relator_test = RelatorTest::create(file_name);
+  relator_test = RelatorTest::create(impos_path, bad_rel_path);
 }
 
 /*

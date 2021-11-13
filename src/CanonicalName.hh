@@ -7,6 +7,9 @@
  *
  */
 
+#ifndef __canonical_h
+#define __canonical_h
+
 #include <string>
 #include <vector>
 #include <map>
@@ -37,3 +40,5 @@ private:
 	CanonicalName* impl;
 	static std::map<std::string, CanonicalName*> cache;
 };
+
+#endif // __canonical_h
