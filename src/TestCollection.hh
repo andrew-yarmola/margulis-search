@@ -422,7 +422,6 @@ std::string proven_identity(std::string word, const Params<T>& p) {
     for (auto s : {"x", "X"}) {
       new_word = x_strip(word);
       for (int i = 0; i < MAX_ID_SHIFT; ++i) {
-        new_word = s + new_word;
         SL2<T> new_w = construct_word(new_word, p); // order matters
         T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
         if (strictly_pos(diff)) {
@@ -431,6 +430,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
           }
           return new_word;
         }      
+        new_word = s + new_word;
       }
     }
   }
@@ -440,7 +440,6 @@ std::string proven_identity(std::string word, const Params<T>& p) {
     for (auto s : {"y", "Y"}) {
       new_word = y_strip(word);
       for (int i = 0; i < MAX_ID_SHIFT; ++i) {
-        new_word = s + new_word;
         SL2<T> new_w = construct_word(new_word, p); // order matters
         T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
         if (strictly_pos(diff)) {
@@ -449,6 +448,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
           }
           return new_word;
         }      
+        new_word = s + new_word;
       }
     }
   }

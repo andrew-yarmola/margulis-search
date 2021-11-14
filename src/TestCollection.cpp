@@ -97,7 +97,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
 }
 
 TestResult TestCollection::evaluate_qrs(Box& box) {
-  TestResult result = {-2, open, word_pair()};
+  TestResult result = {-1, open, word_pair()};
   Params<AJCC> p = box.cover();
   for (auto word : box.qr.word_classes()) {  
     result.state = open_with_qr;
@@ -132,7 +132,7 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
 
 TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
 {
-  TestResult result = {-2, open, pair};
+  TestResult result = {-1, open, pair};
   Params<AJCC> p = box.cover();
   if (pair.second.length() == 0) {
     string word = pair.first;
