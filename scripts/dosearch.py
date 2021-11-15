@@ -68,10 +68,11 @@ def run_refine(command, dest_dir) :
 if __name__ == '__main__' :
   try:
     opts, args = getopt.getopt(sys.argv[1:],
-      'w:p:c:d:h:r:i:t:s:I',
+        'w:p:b:c:d:h:r:i:t:s:IM:R:',
       ['words=','impossible=', 'child_limit=','depth_limit=',
         'holes=','refine=','invent_depth=',
-        'truncate_depth','word_search_depth=', 'improve'])
+        'truncate_depth','word_search_depth=', 'improve',
+        'cosh_marg=', 'sinh_rad='])
   except getopt.GetoptError as err:
     print(str(err))
     args = []
@@ -79,8 +80,10 @@ if __name__ == '__main__' :
   if len(args) != 2:
     print('Usage: dosearch [-w,--words <words_file>] ' + 
       '[-p,--impossible <impossible_file>] ' +
+      '[-b,--bad_relators <bad_relator_file>] ' +
       '[-c,--child_limit <limit>] [-d,--depth_limit <limit>]' +
-      '[-h,--holes <holes_file>] [-I,--improve] src_dir dest_dir')
+      '[-h,--holes <holes_file>] [-I,--improve]' + 
+      '[-M,--cosh_marg <limit>] [-R,--sinh_rad <limit> src_dir dest_dir')
     sys.exit(2)
 
   # Executables
@@ -107,6 +110,7 @@ if __name__ == '__main__' :
   improve_tree = ''
   impossible_file = 'none'
   words_file = 'none'
+  bad_relator_file = 'none'
 
   # Get config
   holes_file = None
@@ -116,6 +120,8 @@ if __name__ == '__main__' :
       words_file = val
     if opt in ('-p', '--impossible'):
       impossible_file = val
+    if opt in ('-b', '--bad_relators'):
+      bad_relator_file = val
     if opt in ('-c', '--child_limit'):
       child_limit = int(val)
     if opt in ('-d', '--depth_limit'):
@@ -132,6 +138,10 @@ if __name__ == '__main__' :
       word_search_depth = str(int(val))
     if opt in ('-I', '--improve'):
       improve_tree = ' --improve_tree'
+    if opt in ('-M', '--cosh_marg'):
+      cosh_mu_upper = val
+    if opt in ('-R', '--sinh_rad'):
+      sinh_tube_upper = val
 
   add_words(seen_words, words_file)
 
@@ -259,7 +269,7 @@ if __name__ == '__main__' :
     print('Best hole: {0}\n'.format(best_hole))
     if len(failed_holes) > 0:
       print('Deepest failed hole: {}\n'.format(sorted(failed_holes, key=len)[-1]))
-      if len(open_holes) % 100 == 0:
+      if False or len(open_holes) % 100 == 0:
         with open('deep_holes_sym', 'w') as fp:
           num = min(len(failed_holes), 10000)
           fp.write('\n'.join(sorted(failed_holes, key=len, reverse=True)[:num]))
@@ -289,6 +299,7 @@ if __name__ == '__main__' :
         ' --words ' + words_file + \
         ' --word_search_depth ' + pid_word_search_depth + \
         ' --impossible ' + impossible_file + \
+        ' --bad_relators ' + bad_relator_file + \
         ' -m ' + cosh_mu_upper + \
         ' -r ' + sinh_tube_upper + \
         ' > ' + out  + ' 2> ' + err

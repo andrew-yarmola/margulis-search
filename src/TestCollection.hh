@@ -409,14 +409,14 @@ bool proven_is_good(const std::string& proven, const Box& box);
 #define MAX_ID_SHIFT 5
 template<typename T>
 std::string proven_identity(std::string word, const Params<T>& p) {
-  SL2<T> w = construct_word(word, p);
   SL2<T> x = construct_x(p);
   SL2<T> y = construct_y(p);
-  std::string new_word;
   if (g_debug) {
     fprintf(stderr, "Testing proven identity for word: %s .\n", word.c_str());
   }
-  if (inside_var_nbd_x(w, p)) {
+  SL2<T> w = construct_word(word, p);
+  std::string new_word;
+  if (y_power(word) > 0 && inside_var_nbd_x(w, p)) {
     T four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, p);
     T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshreL, p.cosimL, four_cosh_x_tube_UB); 
     for (auto s : {"x", "X"}) {
@@ -434,7 +434,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
       }
     }
   }
-  if (inside_var_nbd_y(w, p)) {
+  if (x_power(word) > 0 && inside_var_nbd_y(w, p)) {
     T four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, p);
     T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshreL, p.cosimL, four_cosh_y_tube_UB); 
     for (auto s : {"y", "Y"}) {

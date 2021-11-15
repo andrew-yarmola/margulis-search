@@ -158,12 +158,12 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         w_xr = w;
       }
       if (moves_x_axis_too_close_to_y(w_xr,p)) {
+        box.qr.get_name(word_xr);
         if (moved_x_axis_not_y_axis(w_xr, p)) {
           result.words.first.assign(word_xr);
           result.state = killed_x_hits_y;
           return result;
         }
-        box.qr.get_name(word_xr);
       }
     }
     if (x_power(word) > 0) {
@@ -175,12 +175,12 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         w_yr = w;
       }
       if (moves_y_axis_too_close_to_x(w_yr,p)) {
+        box.qr.get_name(word_yr);
         if (moved_y_axis_not_x_axis(w_yr, p)) {
           result.words.first.assign(word_yr);
           result.state = killed_y_hits_x;
           return result;
         }
-        box.qr.get_name(word_yr);
       }
     }
     if (y_power(word) > 0) {
@@ -192,6 +192,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         w_x = w;
       }
       if (inside_var_nbd_x(w_x, p)) {
+        box.qr.get_name(word_x);
         if (syllables(word_x) < 4 || cant_fix_x_axis(w_x, p)) {
           result.words.first.assign(word_x);
           result.state = killed_x_hits_x;
@@ -202,7 +203,6 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
           result.state = killed_x_not_cyclic;
           return result;
         }
-        box.qr.get_name(word_x);
       }
     }
     if (x_power(word) > 0) {
@@ -214,6 +214,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         w_y = w;
       }
       if (inside_var_nbd_y(w_y, p)) {
+        box.qr.get_name(word_y);
         if (syllables(word_y) < 4 || cant_fix_y_axis(w_y, p)) {
           result.words.first.assign(word_y);
           result.state = killed_y_hits_y;
@@ -224,7 +225,6 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
           result.state = killed_y_not_cyclic;
           return result;
         }
-        box.qr.get_name(word_y);
       }
     }
     result = evaluate_qrs(box);

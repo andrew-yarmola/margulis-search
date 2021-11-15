@@ -14,7 +14,7 @@ bin_dir="$base_dir/bin"
 merge="$base_dir/scripts/merge_trees.py"
 data_dir="/scratch/network/yarmola/marg_sym_param"
 
-src1="/scratch/network/yarmola/marg_sym_param/source"
+src1="/scratch/network/yarmola/marg_sym_param/output_live"
 
 cd $bin_dir
 

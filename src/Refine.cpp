@@ -45,7 +45,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     } else { 
       fprintf(stderr,
           "FAILED to eliminate %s with test %s with result %d\n",
-          box.name.c_str(), g_tests.get_name(t.result.index).c_str(),
+          box.name.c_str(), g_tests.get_name(old_result_index).c_str(),
           t.result.state);
     }
   }

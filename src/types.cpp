@@ -62,6 +62,24 @@ string repeat(string s, int n) {
   return t+r;
 }
 
+string cyclic_strip(string w) {
+  size_t first = -1;
+  size_t last = w.length();
+  for (size_t c = 1; c < w.length(); ++c) {
+    if ((w[first + c] == 'x' &&  w[last - c] == 'X') ||
+        (w[first + c] == 'y' &&  w[last - c] == 'Y') ||
+        (w[first + c] == 'X' &&  w[last - c] == 'x') ||
+        (w[first + c] == 'Y' &&  w[last - c] == 'y')) {
+      continue; 
+    } else {
+      first = first + c - 1; 
+      last = first - c + 1; 
+      break;
+    }
+  }
+  return w.substr(first + 1, last - first - 1);
+}
+
 string x_strip(string w) {
   size_t first = -1;
   for (size_t p = 0; p < w.length(); ++p) {
