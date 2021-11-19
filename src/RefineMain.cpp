@@ -12,8 +12,8 @@ extern int g_boxes_visited;
 
 double g_cosh_marg_upper_bound = 1.2947;
 double g_cosh_marg_lower_bound = 1.0054;
-double g_sinh_d_bound = 1.3426; 
-double g_cosh_d_bound = 1e11; 
+double g_sinh_r_bound = 1.3426; 
+double g_cosh_r_bound = 1e11; 
 
 bool g_debug = false;
 
@@ -127,14 +127,14 @@ int main(int argc, char** argv)
     case 'B': g_options.word_search_depth = atoi(optarg); break;
     case 'f': g_options.fill_holes = true; break;
     case 'm': g_cosh_marg_upper_bound = atof(optarg); break;
-    case 'r': g_sinh_d_bound = atof(optarg); break;
+    case 'r': g_sinh_r_bound = atof(optarg); break;
     case 'v': g_debug = true; break;
     }
   }
-  // Set the cosh_d_bound
-  XComplex shd(g_sinh_d_bound, 0);
-  XComplex chdsq(absUB(shd * shd + 1), 0);
-  g_cosh_d_bound = absUB(sqrt(chdsq));
+  // Set the cosh_r_bound
+  XComplex shr(g_sinh_r_bound, 0);
+  XComplex chrsq(absUB(shr * shr + 1), 0);
+  g_cosh_r_bound = absUB(sqrt(chrsq));
 
   Box box;
   for (const char* boxP = g_options.box_name; *boxP; ++boxP) {
@@ -155,8 +155,8 @@ int main(int argc, char** argv)
 
   fprintf(stderr, "%s", box.desc().c_str());
   fprintf(stderr,
-    "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n   sinh(d) upper %f\n    cosh(d) upper %f\n",
-    g_cosh_marg_lower_bound, g_cosh_marg_upper_bound, g_sinh_d_bound, g_cosh_d_bound);
+    "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n   sinh(r) upper %f\n    cosh(r) upper %f\n",
+    g_cosh_marg_lower_bound, g_cosh_marg_upper_bound, g_sinh_r_bound, g_cosh_r_bound);
   PartialTree t = read_tree();
 	fprintf(stderr, "Loaded tree and %d tests\n", g_tests.size());
   refine_tree(box, t);

@@ -390,17 +390,17 @@ T worst_primitive_cosh_re_len(const T& ch_o, const T& cs_o, const T& four_cosh_t
 }
 
 template<typename T>
-T cosh_marg_lower_bound(const T& sinh_r) {
-  T s = sinh_r;
-  T a8 = powT(s, 8) * (-0.002012744207511); 
-  T a7 = powT(s, 7) *   0.050422869707363; 
-  T a6 = powT(s, 6) * (-0.2800449482233);
-  T a5 = powT(s, 5) *   0.6738467122499;
-  T a4 = powT(s, 4) * (-0.730897277659114);
-  T a3 = powT(s, 3) *   0.1178833280583;
-  T a2 = powT(s, 2) *   0.390674936173773;
-  T a1 = s          *   0.001212870129678;
-  double a0 = 0.999972595620724;
+T cosh_marg_lower_bound(const T& two_sinh_r) {
+  T s = two_sinh_r;
+  T a8 = powT(s, 8) * (-0.0000014461700558); 
+  T a7 = powT(s, 7) *   0.0000365880448817; 
+  T a6 = powT(s, 6) * (-0.0003163830157272);
+  T a5 = powT(s, 5) *   0.0005316504647188;
+  T a4 = powT(s, 4) *   0.0086912125268823;
+  T a3 = powT(s, 3) * (-0.061949675652791);
+  T a2 = powT(s, 2) *   0.151649220047696;
+  T a1 = s          * (-0.01513801009421);
+  double a0 = 0.9999999;
   return ((a8 + (a1 + a0)) + (a4 + a5)) + ((a7 + a2) + (a6 + a3)); 
 }
 

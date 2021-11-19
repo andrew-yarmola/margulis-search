@@ -98,6 +98,7 @@ template<typename T> struct Params {
   T expD2; // derived parameter
   T expmD2; // derived parameter
   T twocoshreD2; // derived parameter
+  T twosinhreD2; // derived parameter
   T coshreD; // derived parameter
   T coshmu; //derived parameter MUST BE SET LATER
   T coshreL; // derived
@@ -119,6 +120,7 @@ void fill_derived(Params<T>& p) {
   p.expmD2 = p.coshD2 - p.sinhD2;
 
   p.twocoshreD2 = abs(p.expD2) + abs(p.expmD2);
+  p.twosinhreD2 = abs(p.expD2) - abs(p.expmD2);
   p.coshreD = abs(p.sinhsqD2) + abs(p.coshsqD2);
   p.coshreL = abs(p.sinhsqL2) + abs(p.coshsqL2);
   p.sinhreL = sqrt(p.coshreL * p.coshreL - one);

@@ -8,7 +8,7 @@ using namespace std;
 
 extern double g_cosh_marg_upper_bound;
 extern double g_cosh_marg_lower_bound;
-extern double g_cosh_d_bound;
+extern double g_cosh_r_bound;
 extern bool g_symmetric;
 
 int num_bound_tests = 4;
@@ -270,7 +270,7 @@ box_state TestCollection::evaluate_center(int index, Box& box)
                   absLB(center.coshmu) > g_cosh_marg_upper_bound);
             }
     case 1: {
-              return check_bounds_center(absLB(center.coshreD) > g_cosh_d_bound ||
+              return check_bounds_center(absLB(center.twocoshreD2) > g_cosh_r_bound * 2 ||
                       strictly_pos(re(-center.sinhL2)) || strictly_pos(re(-center.sinhD2)) ||
                       strictly_pos(one - center.coshreD) || strictly_pos(one - center.coshreL));
             }
@@ -284,8 +284,7 @@ box_state TestCollection::evaluate_center(int index, Box& box)
                   meyerhoff_k_test(center.coshreL, center.cosimL, four_cosh_y_tube_UB));
             }
     case 3: { // 4.26 in bilipschitz paper
-              // FIXME use something other than sinhreL
-              Complex cosh_mu_LB = cosh_marg_lower_bound(center.sinhreL);
+              Complex cosh_mu_LB = cosh_marg_lower_bound(center.twosinhreD2);
               return check_bounds_center(strictly_pos(cosh_mu_LB - center.coshmu));
             }
    default:
@@ -305,7 +304,7 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
             }
     case 1: {
               Params<Complex> nearer = box.nearer();
-              return check_bounds(absLB(cover.coshreD) > g_cosh_d_bound ||
+              return check_bounds(absLB(cover.twocoshreD2) > g_cosh_r_bound * 2 ||
                       strictly_pos(re(-nearer.sinhL2)) ||
                       strictly_pos(re(-nearer.sinhD2)) ||
                       strictly_pos(one - cover.coshreD) ||
@@ -325,7 +324,7 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
             }
     case 3: { // 4.26 in bilipschitz paper
               // FIXME use something other than sinhreL
-              AJCC cosh_mu_LB = cosh_marg_lower_bound(cover.sinhreL);
+              AJCC cosh_mu_LB = cosh_marg_lower_bound(cover.twosinhreD2);
               return check_bounds(strictly_pos(cosh_mu_LB - cover.coshmu), result);
             }
     default:
