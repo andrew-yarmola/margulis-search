@@ -24,7 +24,7 @@ source="source"
 output="output868"
 
 cosh_marg="1.4"
-sinh_rad="2.2571"
+sinh_rad="2.2447"
 
 cd $bin_dir
 

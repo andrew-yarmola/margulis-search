@@ -19,12 +19,12 @@ impossible="$words_dir/impossible"
 bad_relators="$words_dir/bad_relators"
 
 data_dir="/scratch/network/yarmola/marg_sym_param"
-log_file="refine780.log"
+log_file="refine781.log"
 source="source"
-output="output780"
+output="output781"
 
 cosh_marg="1.32"
-sinh_rad="1.48"
+sinh_rad="1.5"
 
 cd $bin_dir
 
