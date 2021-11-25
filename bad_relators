@@ -12,13 +12,46 @@ XXYYXYYXXY
 YXXYYXYYXX
 YxxYYxYYxx
 xxYxxYYxYY
+xxyxxyyxyy
+xxYxxYYxYY
+xxyyxyyxxy
+xyyxxyxxyy
+XyyXXyXXyy
+YXXYXXYYXY
+yyXyyXXyXX
+yyXXyXXyyX
+// m006 too symmetric
+YxYxxxYxYY
+YXYXXXYXYY
+YYYXYXXXYX
+YYYxYxxxYx
+yyyxyxxxyx
+// m007
+XYxxyyxxY
+xyxyXyxyxY
+xYXYxYxyxY
+xYXYXyXYXY
+XyxyxYxyxy
+XyxyXyXYXy
+XyXyxyXyXY
+XyXYXyXyxy
+XyXYXYxYXY
+XYxYxyxYxY
+XYXyXyxyXy
+XYXyXYXYxY
+yXyxyXyXYX
+yxyXyXYXyX
 // m009
 yyyyxYXXYx
 YYYYXyxxyX
 XXXXYxyyxY
 xxxxyXYYXy
+xxYXyyyyXY
+XXYxyyyyxY
+yXXyxYYYYx
 // m010
 xxYxyxxyxY
+yyXXyXXyyX
 // m019
 yyyXXyxxxyXX
 yyyXXyxxxyXXX
@@ -30,8 +63,35 @@ YYYXXyXyXX
 XXXYYxYxYY
 YYYxxyxyxx
 XXXyyxyxyy
+// m034
+XYXyyxxyyXY
+// m036
+xxyxxYxYYxY
+XXyXyyxyyXy
+XXYXYYxYYXY
+xyyXXYXXyy
+XyyxxYxxyy
+YYXXyXXYYx
+yyXXYXXyyx
+// m038
+XXyxYYYxyX
+XXYxyyyxYX
+YYYxyXXXyx
+yyyxYXXXYx
+// m052
+YYYXXyyXyyXX
+// m069
+yyyXXYXXXYXX
+// m125
+XYXYxYxyxyXy
 // m142
 XXXYxxYYYYxxY
+// m147
+yyXXYXYXXYXYXX
+XXYYxYxYYxYxYY
+// s297
+XXXYXXYYxYYXXY
+XXXyXXyyxyyXXy
 // bad syl 6
 yyxYXXYx
 YYxyXXyx
@@ -56,3 +116,47 @@ YYxxyXXXyX
 YYxxYXYx
 YYXXYxYX
 YYxyxyXYXX
+XXXXYYXyXy
+XXXYXXyXyXXY
+XXXYYXyXyX
+XXXYYXYYXXy
+xxYxxyxxyxxY
+XXYXXyXXyXXY
+xxYxxyxxYY
+XXYXXyXXYY
+xYxxyxxxyxxY
+XyxxyxxYY
+XYXyXXyXY
+XYXyXXyXY
+XyXYXyxy
+XYxYXyXY
+yXXXYxyyyx
+YXXXyxYYYx
+yXXXyyyXYX
+YXXXYYYXyX
+yXXyyXXYX
+YXXYYXXyX
+yXYXXyyxyx
+yXYXyxyX
+yyXXXyyyXYX
+YYXXXYYYXyX
+yyXXYYXYYXX
+YYXXyyXyyXX
+yyXXyyyXXyx
+yyyXXyxyx
+YYYYXXYxYx
+yyyyXXyyxyx
+YYYYXXYYxYx
+XXXyXyyxyyXy
+XXXYYXYxYXYY
+XXyXyyxxyyXy
+XXYXYYxxYYXY
+XXyyXYxxYXyy
+xyXXyyXYXY
+XyxxyyxYxY
+xYXYYxYxYYXY
+yXXyyXYXYX
+yyXXYXYYXYXX
+YYXXYxyyxYXX
+yyyXXyXYXyXX
+yyyXXYXYYYXYXX
