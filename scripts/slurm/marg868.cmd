@@ -20,11 +20,11 @@ bad_relators="$words_dir/bad_relators"
 
 data_dir="/scratch/network/yarmola/marg_sym_param"
 log_file="refine868.log"
-source="source"
+source="source868"
 output="output868"
 
 cosh_marg="1.4"
-sinh_rad="2.2447"
+sinh_rad="2.26196"
 
 cd $bin_dir
 

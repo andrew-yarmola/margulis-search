@@ -20,12 +20,38 @@ XyyXXyXXyy
 YXXYXXYYXY
 yyXyyXXyXX
 yyXXyXXyyX
+XXyyXyyXXy
+yxxyyxyyxx
+yXXyyXyyXX
+YXYxYxYXY
+yyxxyxxyyx
+yyxyyxxyxx
+XXyXXyyXyy
 // m006 too symmetric
 YxYxxxYxYY
 YXYXXXYXYY
 YYYXYXXXYX
 YYYxYxxxYx
 yyyxyxxxyx
+xxxyxyyyxy
+XXXyXyyyXy
+XXXYXYYYXY
+XXyXyyyXyX
+XXYXYYYXYX
+xyyyxyxxxy
+xYYYxYxxxY
+yyyXyXXXyX
+xxxYxYYYxY
+yxxxyxyyyx
+YXXXYXYYYX
+yxyyyxyxxx
+YxYYYxYxxx
+xyxxxyxyyy
+XyXXXyXyyy
+XYXXXYXYYY
+XYYYXYXXXY
+yXXXyXyyyX
+YxxxYxYYYx
 // m007
 XYxxyyxxY
 xyxyXyxyxY
@@ -41,6 +67,29 @@ XYXyXyxyXy
 XYXyXYXYxY
 yXyxyXyXYX
 yxyXyXYXyX
+xyxYxYXYxY
+XYXYxYXYXy
+yxyxYxyxyX
+yxYxYXYxYx
+yXyXYXyXyx
+yXYXyXyxyX
+YxyxyXyxyx
+YxYXYxYxyx
+YxYXYXyXYX
+YXYxYxyxYx
+xYxyxyXyxy
+xYxYXYxYxy
+XYxYXYXyXY
+yXYXYxYXYX
+YxyxYxYXYx
+YXyXyxyXyX
+YXYXyXYXYx
+xyXyXYXyXy
+xYxyxYxYXY
+yxYxyxyXyx
+yXyxyxYxyx
+YxYxyxYxYX
+YXYxYXYXyX
 // m009
 yyyyxYXXYx
 YYYYXyxxyX
@@ -52,6 +101,10 @@ yXXyxYYYYx
 // m010
 xxYxyxxyxY
 yyXXyXXyyX
+YXYxYYxYXY
+XyyXyxyyxy
+XyxyyxyXyy
+XYxYYxYXYY
 // m019
 yyyXXyxxxyXX
 yyyXXyxxxyXXX
@@ -63,6 +116,13 @@ YYYXXyXyXX
 XXXYYxYxYY
 YYYxxyxyxx
 XXXyyxyxyy
+XXYYxYxYxYY
+XYYxYxYxYYX
+YYXXYYxYxYx
+xxyyXyXyXyy
+xYYXXYYxYxY
+yyXXYXYXYXX
+yyXXyyxyxyx
 // m034
 XYXyyxxyyXY
 // m036
@@ -73,22 +133,81 @@ xyyXXYXXyy
 XyyxxYxxyy
 YYXXyXXYYx
 yyXXYXXyyx
+XXyXXYYxYY
+XXYXXyyxyy
+xYYXXyXXYY
+YxxyxxYxYYx
+yXXyXyyxyyX
+YXXYXYYxYYX
+yyxyyXXYXX
+yyXyyxxYxx
+XXYXYYXYXXy
+xxyyXyyxxY
+XXyyxyyXXY
+XXYYxYYXXy
+xYxxyxxYxYY
+XyXXyXyyxyy
+XYXXYXYYxYY
+yXXYYxYYXX
+YXXyyxyyXX
+YYxYYXXyXX
+xxYxxyyXyy
+XYYxxyxxYY
+yXXYXYYXYXX
+YxxyyXyyxx
+YYxYxxyxxYx
+yyXyXXyXyyx
+YYXYXXYXYYx
+YYXYYxxyxx
 // m038
 XXyxYYYxyX
 XXYxyyyxYX
 YYYxyXXXyx
 yyyxYXXXYx
+XXXyxYYYxy
+XXXYxyyyxY
+xyyyxYXXXY
+xYYYxyXXXy
+yyyXYxxxYX
+YYYXyxxxyX
+xxxyXYYYXy
+xxxYXyyyXY
+yXXXyxYYYx
+YXXXYxyyyx
+yxYYYxyXXX
+YxyyyxYXXX
+xyXXXyxYYY
+xYXXXYxyyy
+XyyyXYxxxY
+XYYYXyxxxy
+yxxxyXYYYX
+YxxxYXyyyX
 // m052
 YYYXXyyXyyXX
 // m069
 yyyXXYXXXYXX
 // m125
 XYXYxYxyxyXy
+yXYXYxYxyxyX
+XXYYXYxxyyxy
+XyXYXYxYxyxy
+yXXYYXYxxyyx
+XXYxYYxxyXyy
+XXYXyyxxyxYY
+xyXXYYXYxxyy
+yXyXYXYxYxyx
+yyXXyXYYxxYx
+yyXXYxYYxxyX
+YYXXYXyyxxyx
 // m142
 XXXYxxYYYYxxY
 // m147
 yyXXYXYXXYXYXX
 XXYYxYxYYxYxYY
+xxYYXYXYYXYXYY
+YYXXyXyXXyXyXX
+xxyyXyXyyXyXyy
+XXyyxyxyyxyxyy
 // s297
 XXXYXXYYxYYXXY
 XXXyXXyyxyyXXy
@@ -160,3 +279,12 @@ yyXXYXYYXYXX
 YYXXYxyyxYXX
 yyyXXyXYXyXX
 yyyXXYXYYYXYXX
+XXyXXYXXYXXy
+xxYXXYYYXXY
+XXYxxYYYxxY
+XXyXYxYYY
+XXyXyyxyyX
+YYXYYxYYxYYX
+yyyXyXXYXXyX
+xxyxxYxxYxxy
+YYYxYxxyxxYx
