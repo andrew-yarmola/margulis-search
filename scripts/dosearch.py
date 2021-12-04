@@ -131,11 +131,11 @@ if __name__ == '__main__' :
     if opt in ('-r', '--refine'):
       refine = val
     if opt in ('-i', '--invent_depth'):
-      invent_depth = str(int(val))
+      invent_depth = val
     if opt in ('-t', '--truncate_depth'):
-      truncate_depth = str(int(val))
+      truncate_depth = val
     if opt in ('-s', '--word_search_depth'):
-      word_search_depth = str(int(val))
+      word_search_depth = val
     if opt in ('-I', '--improve'):
       improve_tree = ' --improve_tree'
     if opt in ('-M', '--cosh_marg'):

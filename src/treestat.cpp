@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -10,24 +11,33 @@
 #include <string>
 #include <getopt.h>
 
+using namespace std;
+
 struct Config {
-  bool print_tree = true;
-  bool print_holes = false;
   bool print_killed = false;
-  bool mark_incomplete = false;
   bool recursive = false;
   bool verbose = false;
-  bool silent = false;
   bool print_stats = true;
   bool start_is_root = false;
   char* tree_location;
   char kill_test[1000];
 };
 
+#define DIM 4
+#define SCL 2
+#define BAL 16 
+double bounding_volume;
+
 struct Config g_config;
 
-std::vector<std::string> unopened_out_files;
-std::map<std::string, int> elimination_counts;
+vector<string> unopened_out_files;
+map<string, int> elimination_counts;
+map<string, double> elimination_volumes;
+map<string, int> type_counts;
+map<string, double> type_volumes;
+int terminal_node_count = 0;
+int internal_nodes = 0;
+double total_volume = 0;
 
 FILE* open_box(char* boxcode, char* file_name)
 {
@@ -43,14 +53,6 @@ FILE* open_box(char* boxcode, char* file_name)
 	if (0 == stat(file_name, &sb)) {
 		if (g_config.verbose) {
       fprintf(stderr, "opening %s\n", file_name);
-    }
-    if (g_config.start_is_root && g_config.mark_incomplete && g_config.recursive) {
-      for (std::vector<std::string>::iterator it = unopened_out_files.begin() ; it != unopened_out_files.end(); ++it) {
-        if (it->compare(file_name) == 0) {
-          unopened_out_files.erase(it);
-          break;
-        }
-      }
     }
     fp = fopen(file_name, "r");
     return fp;
@@ -103,25 +105,13 @@ bool  put_stream(FILE* dest, FILE* source) {
   }
 }
 
-bool mark_file(char const* file_name, const char* ending_mark) {
-  char marked_file_name[10000];
-  strcpy(marked_file_name,file_name);
-  if (ending_mark != NULL) {
-    strcat(marked_file_name, ending_mark);
-  } else {
-    strcat(marked_file_name, ".incomplete");
-  }
-  return (rename(file_name, marked_file_name) == 0);
-}
-
-bool process_tree(FILE* fp, FILE* out, char* boxcode) {
+bool process_tree(FILE* fp, FILE* out, char* boxcode, double vol) {
 	int boxdepth = strlen(boxcode);
 	char buf[10000];
 	char tmp[10000];
   char file_name[10000];
 	int depth = 0;
 	while (fgets(buf, sizeof(buf), fp)) {
-    // Open HOLE file if exists. If no printing is set, we don't need to traverse HOLEs
 		bool hole_filled = false;
 		if (buf[0] == 'H') {
 		  if (g_config.recursive && depth > 0) {
@@ -129,60 +119,51 @@ bool process_tree(FILE* fp, FILE* out, char* boxcode) {
         if (fp_hole) {
           FILE* hole_out = tmpfile();
           if (hole_out) {
-            bool success = process_tree(fp_hole, hole_out, boxcode);
-            fclose(fp_hole);
+            bool success = process_tree(fp_hole, hole_out, boxcode, vol);
             if (!success) {
-              fclose(hole_out);
-              // The tree is incomplete, so we rename the boxfile to mark as incomplete
-              // TODO: Not sure if treecat should have the power to rename files
-              if (g_config.mark_incomplete) {
-                if (!mark_file(file_name,".incomplete")) {
-                  fprintf(stderr, "failed to mark %s as incomplete\n", file_name);
-                } 
-              }
+              fprintf(stderr, "Error with hole at %s\n", boxcode);
             } else {
-              // If the HOLE subtree is complete, print it to the output stream
-              rewind(hole_out);
-              bool success = put_stream(out, hole_out);
-              fclose(hole_out);
-              if (!success) {
-                fprintf(stderr, "failed to print HOLE %s subtree\n", boxcode);
-                break;
-              } else {
-                hole_filled = true;
-              }
+              hole_filled = true;
             }
+            fclose(fp_hole);
+            fclose(hole_out);
           }
         }
       }
-      if (!hole_filled && g_config.print_holes)  {
-        fprintf(out, "%s\n", boxcode); // Print the missing boxcode to stdout
-      }
 		}
-    if (g_config.print_tree && !hole_filled) {
-			fputs(buf, out); // Print the buffer if we are printing out the filled tree
-    }
+    size_t end = strlen(buf);
+    strncpy(tmp, buf, end);
+    tmp[end-1] = '\0';
     if (g_config.print_stats && !hole_filled) {
-      std::string key(buf);
-      if (elimination_counts.find(key) == elimination_counts.end()) {
-        elimination_counts[key] = 0;
+      if (buf[0] == 'X') {
+        internal_nodes += 1;
+      } else {
+        string key(tmp);  
+        if (elimination_counts.find(key) == elimination_counts.end()) {
+          elimination_counts[key] = 0;
+          elimination_volumes[key] = 0;
+        }
+        elimination_counts[key] += 1;
+        elimination_volumes[key] += vol; 
+        terminal_node_count += 1;
+        total_volume += vol; 
       }
-      elimination_counts[key] += 1;
-      elimination_counts["total"] += 1;
     }
-    if (g_config.print_killed && strncmp(g_config.kill_test, buf, strlen(g_config.kill_test)) == 0) {
-      size_t end = strlen(buf);
-      strncpy(tmp, buf, end);
-      tmp[end-1] = '\0';
+    if (g_config.print_killed && 
+        strncmp(g_config.kill_test, buf, strlen(g_config.kill_test)) == 0) {
       fprintf(out, "%s: %s\n", tmp, boxcode); // Print the killed boxcode to stdout
     }
 		if (buf[0] == 'X') {
-			boxcode[boxdepth + depth] = '0'; // Descend via left branch
-			++depth;
+      // Descend via left branch
+			boxcode[boxdepth + depth] = '0';
+			depth += 1;
+      vol *= 0.5;
 			boxcode[boxdepth + depth] = '\0';
 		} else {
       // Go up as many nodes as necessary
-			for (; depth > 0 && boxcode[boxdepth + depth-1] == '1'; --depth) {}
+			for (; depth > 0 && boxcode[boxdepth + depth-1] == '1'; --depth) {
+        vol *= 2;
+      }
 			if (depth > 0) {
 				boxcode[boxdepth + depth-1] = '1'; // Jump from left to right node
 				boxcode[boxdepth + depth] = '\0'; // Truncate to keep box current
@@ -194,40 +175,23 @@ bool process_tree(FILE* fp, FILE* out, char* boxcode) {
 	}
     
   // If we get to this point, the tree is incomplete
-  if (g_config.print_holes > 0) {
-    // Print the box we "should" be at as missing/hole
-    fprintf(out, "%s\n", boxcode); // Print the missing/hole boxcode to stdout
-
-    // We list all other missing boxes
-    for (int i = depth; i > 0; --i) {
-      if (boxcode[boxdepth + i-1] != '1') {
-        boxcode[boxdepth + i-1] = '1'; // Jump from left to right node
-        boxcode[boxdepth + i] = '\0'; // Truncate to keep box current
-        fprintf(out, "%s\n", boxcode); // Print the missing/hole boxcode to stdout
-      } else {
-        boxcode[boxdepth + i] = '\0'; // Truncate to keep box current
-      } 
-    } 
-  }           
+  fprintf(stderr, "The tree is incomplete, run treecat\n");
   return false; 
 }
 
 void usage() {
-    fprintf(stderr, "Usage: treecat [--only_holes] [--mark_incomplete] [--killed_by] <test> [-s] [-v] [-r] tree_location boxcode\n");
-    fprintf(stderr, "only_holes: do not print the tree but print the holes.\n");
-    fprintf(stderr, "mark_incomplete: rename incomplete (sub)tree file(s) containing given boxcode (sub if -r)\n");
-    fprintf(stderr, "killed_by: give all terminal nodes from boxcode killed by the given test\n");
-    fprintf(stderr, "s: silent, don't print trees or holes\n");
-    fprintf(stderr, "v: verbose\n");
-    fprintf(stderr, "r: recur over all subtree files to prince full subtree of boxcode\n");
-    fprintf(stderr, "WARNING: If --mark_incomplete -r are set and boxcode is root or '', then mark any foreign tree files\n");
+    fprintf(stderr,
+        "Usage: treestat [--killed_by] <test> [-v] [-r] tree_location boxcode\n");
+    fprintf(stderr, 
+        "killed_by: give all terminal nodes from boxcode killed by the given test\n");
+    fprintf(stderr, 
+        "v: verbose\n");
+    fprintf(stderr, 
+        "r: recur over all subtree files to prince full subtree of boxcode\n");
     exit(1);
 }
 		
 static struct option long_options[] = {
-  {"open_holes",  no_argument, NULL, 'o' },
-  {"mark_incomplete", no_argument, NULL, 'm' },
-  {"silent", no_argument, NULL, 's'},
   {"recursive", no_argument, NULL, 'r' },
   {"verbose", no_argument, NULL, 'v' },
   {"killed_by", required_argument, NULL, 'k' },
@@ -252,44 +216,31 @@ int main(int argc, char** argv)
     usage();
     exit(1);
   }
-
-  elimination_counts["total"] = 0;
-
   int ch;
   while ((ch = getopt_long(argc, argv, opt_str, long_options, NULL)) != -1) {
     switch(ch) {
-      case 'o': {
-        g_config.print_tree = false;
-        g_config.print_holes = true;
-        break;
-      }
-      case 'm': g_config.mark_incomplete = true; break; 
-      case 's': g_config.silent = true; break;
       case 'r': g_config.recursive = true; break;
       case 'v': g_config.verbose = true; break;
       case 'k': {
         strncpy(g_config.kill_test, optarg, sizeof(g_config.kill_test));
-        // size_t end = strlen(optarg);
-        // g_config.kill_test[end] = '\0';
-        // g_config.kill_test[end+1] = '\0'; 
         g_config.print_killed = true;
+        g_config.print_stats = false;
         break;
       }
       default: usage(); exit(1);
     }
   }
-  if (g_config.silent) { 
-    g_config.print_tree = false;
-    g_config.print_holes = false;
-    g_config.print_killed = false;
+  double corr = pow(BAL, DIM);
+  bounding_volume = pow(2 * SCL * BAL, DIM);
+  for (int i = 0; i < DIM; ++i) {
+    bounding_volume *= pow(2, -i / float(DIM));
   }
-  if (g_config.print_killed) {
-    g_config.print_tree = false;
-    g_config.print_holes = false;
-  }  
+  fprintf(stderr, "Bounding volume for dim %d and scale %d is %f\n",
+      DIM, SCL, bounding_volume / corr);
 
   // The fullboxcode parameter can specify the file_name and sequetial boxcode
-  // A boxcode is just a sequence of zeros and ones giving a posiiton in a binary tree depth-first traversal
+  // A boxcode is just a sequence of zeros and ones giving
+  // a posiiton in a binary tree depth-first traversal
   // The treeFile will also be in pre-order depth-first
   char fullboxcode[10000];
 	char boxcode_file[10000];
@@ -308,21 +259,9 @@ int main(int argc, char** argv)
     g_config.start_is_root = true;
   }
 
-  // TODO: Taging of foreign files may be dangerous 
-  char file_name[10000];
-  if (g_config.start_is_root && g_config.mark_incomplete && g_config.recursive) {
-    DIR * dirp = opendir(g_config.tree_location);
-    struct dirent * dp;
-    while ((dp = readdir(dirp)) != NULL) {
-      if (ends_with(dp->d_name,"out")) {
-       sprintf(file_name, "%s/%s", g_config.tree_location, dp->d_name);
-         unopened_out_files.push_back(std::string(file_name));
-      }
-    }
-  }   
- 
   // See if a file with the tree for a prefix of the box exists
 	FILE* fp = 0;
+  char file_name[10000];
 	while (code_length >= 0) {
 		boxcode_file[code_length] = '\0';
 		fp = open_box(boxcode_file, file_name);
@@ -348,16 +287,21 @@ int main(int argc, char** argv)
 		if (buf[0] != 'X') { // If not a splitting, print the test failed by the truncated box
 			*boxcode = '\0';
 			fprintf(stderr, "terminal box = %s%s\n", boxcode_file, boxcode_const);
-			if (g_config.print_tree) {
-        fputs(buf, stdout);
-      }
       free(boxcode_const);
       fclose(fp);
 			exit(0);
 		}
-		if (*boxcode == '1') { // Actually have to process the tree if we go right at any point in the boxcode
+		if (*boxcode == '1') { // Actually have to process the tree
+      // if we go right at any point in the boxcode
       FILE* dev_null = fopen("/dev/null","w");
-      int success = process_tree(fp, dev_null, boxcode);
+      bool true_print_stats = g_config.print_stats;
+      bool true_print_killed = g_config.print_killed;
+      // turn off for now
+      g_config.print_stats = false;
+      g_config.print_killed = false;
+      int success = process_tree(fp, dev_null, boxcode, 0);
+      g_config.print_stats = true_print_stats;
+      g_config.print_killed = true_print_killed;
       fclose(dev_null); 
       if (!success) exit(1); // Incomplete tree or boxcode not found
     }
@@ -369,28 +313,14 @@ int main(int argc, char** argv)
   if (!out) {
     exit(1);
   }
-
-	bool success = process_tree(fp, out, fullboxcode);
+  double starting_volume = bounding_volume * pow(0.5, strlen(fullboxcode));
+  fprintf(stderr, "Starting volume is %f for box %s\n",
+      starting_volume / corr, fullboxcode);
+	bool success = process_tree(fp, out, fullboxcode, starting_volume);
   fclose(fp);
 
-  if (g_config.start_is_root && g_config.mark_incomplete && g_config.recursive) { 
-    for (std::vector<std::string>::iterator it = unopened_out_files.begin() ; it != unopened_out_files.end(); ++it) {
-      fprintf(stderr, "unopened/foreign out file = %s\n", it->c_str());
-      // TODO: Not sure if treecat should have the power to rename files
-      if (!mark_file(it->c_str(),".foreign")) {
-        fprintf(stderr, "failed to mark %s as foreign\n", it->c_str());
-      }
-    }
-  }
   if (!success) {
     fclose(out);
-    // The tree is incomplete, so we rename the boxfile to mark as incomplete
-    // TODO: Not sure if treecat should have the power to rename files
-    if (g_config.mark_incomplete) {
-      if (!mark_file(file_name,".incomplete")) {
-        fprintf(stderr, "failed to mark %s as incomplete\n", file_name);
-      }
-    }
     exit(1);
   } else {
     rewind(out);
@@ -401,10 +331,23 @@ int main(int argc, char** argv)
       exit(1);
     }
     if (g_config.print_stats) {
-      for (std::map<std::string, int>::iterator it = elimination_counts.begin(); it != elimination_counts.end(); ++it) {
-        printf("%s: %d\n", it->first.c_str(), it->second);
+      for (auto& it: elimination_counts) {
+        string type = it.first.substr(0,1);
+        if (type_counts.find(type) == type_counts.end()) {
+          type_counts[type] = 0;
+          type_volumes[type] = 0;
+        }
+        double vol = elimination_volumes[it.first];
+        type_counts[type] += it.second;
+        type_volumes[type] += vol;
+        printf("%s: %d: %f\n", it.first.c_str(), it.second, vol/corr);
       }
-
+      for (auto& it: type_counts) {
+        double vol = type_volumes[it.first];
+        printf("%s: %d: %f\n", it.first.c_str(), it.second, vol/corr);
+      }
+      printf("internal nodes: %d\n", internal_nodes);
+      printf("total: %d: %f\n", terminal_node_count, total_volume/corr);
     }
     else exit(0); 
   }
