@@ -110,10 +110,14 @@ void Box::compute_cover()
   // sinh(D/2) = (s[0] + i s[2]) z1 + (c[0] + i c[2])
 
   _cover.sinhL2 = AJCC(XComplex(box_center[1], box_center[3]), 
-                     XComplex(box_size[1], box_size[3]), 0, 0);
+                     XComplex(box_size[1], box_size[3]), 0, 
+                     0, 0,
+                     0);
 
   _cover.sinhD2 = AJCC(XComplex(box_center[0], box_center[2]), 
-                     0, XComplex(box_size[0], box_size[2]), 0);
+                     0, XComplex(box_size[0], box_size[2]),
+                     0, 0,
+                     0);
 
   fill_derived(_cover);
 
