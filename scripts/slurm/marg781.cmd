@@ -20,18 +20,18 @@ bad_relators="$words_dir/bad_relators"
 
 data_dir="/scratch/network/yarmola/marg_sym_param"
 log_file="refine781.log"
-source="source"
-output="output781"
+source="source781"
+output="output781_no_move"
 
-cosh_marg="1.32"
-sinh_rad="1.5"
+cosh_marg="1.3175"
+sinh_rad="1.48"
 
 cd $bin_dir
 
 cat "$data_dir/$log_file" >> "$data_dir/${log_file}.all"
 
 python3 "$search" \
-  -i 18 \
+  -i 12 \
   -t 6 \
   -r "$bin_dir/refine_marg" \
   -w "$words" \

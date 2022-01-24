@@ -88,6 +88,20 @@ inline const bool wx_hits_sym_axis(const SL2<T>& w, const Params<T>& p) {
   T tsp2sq_inf = two_sinh_perp2_sq_wax_zero_inf(w, p);
   T fsp2sq_one = four_sinh_perp2_sq_wax_mp_one(w, p);
   T fsp2sq_iye = four_sinh_perp2_sq_wax_mp_iye(w, p);
+  if (g_debug) {
+    if (tube_hits_axis_two(tsp2sq_inf, p.twocoshreD2)) {
+      fprintf(stderr, "Hit zero inf\n");
+      print_type(tsp2sq_inf);
+    }
+    if (tube_hits_axis_four(fsp2sq_one, p.twocoshreD2)) {
+      fprintf(stderr, "Hit +- one\n");
+      print_type(fsp2sq_one);
+    }
+    if (tube_hits_axis_four(fsp2sq_iye, p.twocoshreD2)){
+      fprintf(stderr, "Hit +- iye\n");
+      print_type(fsp2sq_iye);
+    }
+  }
   return (tube_hits_axis_two(tsp2sq_inf, p.twocoshreD2) ||
           tube_hits_axis_four(fsp2sq_one, p.twocoshreD2) || 
           tube_hits_axis_four(fsp2sq_iye, p.twocoshreD2));
@@ -115,6 +129,18 @@ inline const bool wy_hits_sym_axis(const SL2<T>& w, const Params<T>& p) {
   return (tube_hits_axis_two(tsp2sq_inf, p.twocoshreD2) ||
           tube_hits_axis_four(fsp2sq_one, p.twocoshreD2) || 
           tube_hits_axis_four(fsp2sq_iye, p.twocoshreD2));
+}
+
+template<typename T>
+inline const bool does_not_fix_sym_axis(const SL2<T>& w) {
+  T one(1);
+  T zero(0);
+  T iye(0,1);
+  return (absLB(w.b) > 0 && absLB(w.d) > 0) || (absLB(w.a) && absLB(w.c) > 0) ||
+    (absLB(mobius(w, one) - one) > 0 && absLB(mobius(w, one) + one)) || 
+    (absLB(mobius(w, iye) - iye) > 0 && absLB(mobius(w, iye) + iye)) || 
+    (absLB(mobius(w, -one) - one) > 0 && absLB(mobius(w, -one) + one)) || 
+    (absLB(mobius(w, -iye) - iye) > 0 && absLB(mobius(w, -iye) + iye)); 
 }
 
 template<typename T>

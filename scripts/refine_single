@@ -19,8 +19,11 @@ fi
 
 test="E(XYXY,)"
 
-m_bnd="1.4"
-r_bnd="2.26196"
+#m_bnd="1.4"
+#r_bnd="2.26196"
+#m_bnd="1.3175"
+m_bnd="1.32"
+r_bnd="1.5"
 
 echo "echo $test | ../bin/refine_marg_debug --debug --box $box --max_depth 90 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
 

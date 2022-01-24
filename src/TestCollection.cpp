@@ -137,7 +137,10 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<AJCC> w = construct_word(word, p);
-    if (not_identity(w) && move_less_than_marg(w, p)) {
+    if (not_identity(w) &&
+        move_less_than_marg(w, p)) &&
+        ((x_power(word) == 0 || y_power(word) == 0) ||
+          does_not_fix_sym_axis(w)) {
       result.state = killed_move;
       return result;
     }

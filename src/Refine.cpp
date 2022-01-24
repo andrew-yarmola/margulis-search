@@ -94,7 +94,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     vector<word_pair> search_pairs_v1 = find_pairs(search_place.center(),
         vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
     vector<word_pair> search_pairs_v2 = find_words_v2(search_place.center(),
-        1, 7, box.qr.word_classes(), map<string, int>());
+        5, 20, box.qr.word_classes(), g_tests.seen_words);
     vector<word_pair> search_pairs;
     search_pairs.insert(search_pairs.end(),
         search_pairs_v1.begin(), search_pairs_v1.end());
