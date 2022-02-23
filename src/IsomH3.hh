@@ -15,25 +15,29 @@ inline const T mobius(const SL2<T> &x, const T &p) {
 
 template<typename T>
 const T four_cosh_re_length(const SL2<T>& w) {
-  T tr = w.a + w.d;
-  return abs_sqrd(tr) + abs(tr*tr - 4);
+  return abs_sqrd(tr(w)) + abs(tr(w) * tr(w) - 4);
 }
 
 template<typename T>
-const T two_cosh_dist(T& two_sinh_sq_perp2) {
-  return abs(two_sinh_sq_perp2 + 2) + abs(two_sinh_sq_perp2);
+const T cosh_move_j(const SL2<T>& w) {
+  T q = abs_sqrd(w.c) + abs_sqrd(w.d);
+  T z = w.a * conj(w.c) + w.b * conj(w.d);
+  return (abs_sqrd(z) + (q - 1) * (q - 1))/(q * 2) + 1; 
 }
 
 template<typename T>
-const T four_cosh_dist(T& four_sinh_sq_perp2) {
-  return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
+const T two_cosh_dist(T& two_sh_sq) {
+  return abs(two_sh_sq + 2) + abs(two_sh_sq);
+}
+
+template<typename T>
+const T four_cosh_dist(T& four_sh_sq) {
+  return abs(four_sh_sq + 4) + abs(four_sh_sq);
 }
 
 template<typename T>
 const T norm_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
-  T tr1 = w1.a + w1.d;
-  T tr2 = w2.a + w2.d;
-  return (tr1 * tr1 - 4) * (tr2 * tr2 - 4);
+  return (tr(w1) * tr(w1) - 4) * (tr(w2) * tr(w2) - 4);
 }
 
 // TODO: Check that we do need the product of the square roots and
@@ -42,8 +46,8 @@ template<typename T>
 const T norm(const SL2<T>& w1, const SL2<T>& w2) {
   T tr1 = w1.a + w1.d;
   T tr2 = w2.a + w2.d;
-  T sh1 = sqrt((tr1 * tr1 - 4));
-  T sh2 = sqrt((tr2 * tr2 - 4));
+  T sh1 = sqrt((tr(w1) * tr(w1) - 4));
+  T sh2 = sqrt((tr(w2) * tr(w2) - 4));
   // TODO this might not be reliable
   if (absUB(tr1 + sh1) < 2) { sh1 = -sh1; }
   // TODO this might not be reliable
@@ -53,9 +57,7 @@ const T norm(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 const T cosh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  T td1 = w1.a - w1.d;
-  T td2 = w2.a - w2.d;
-  return td1 * td2 + (w1.b * w2.c + w1.c * w2.b) * 2;
+  return td(w1) * td(w2) + (w1.b * w2.c + w1.c * w2.b) * 2;
 }
 
 template<typename T>
@@ -82,7 +84,9 @@ const T abs_cosh_perp_sqrd_normed(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 const T abs_cosh_perp_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
-  return abs_cosh_perp_sqrd_normed(w1,w2)/abs(norm_sqrd(w1,w2)); // TODO: check if this gives best error as both sqrt and division make error blow up
+  // TODO: check if this gives best error as 
+  // both sqrt and division make error blow up
+  return abs_cosh_perp_sqrd_normed(w1,w2)/abs(norm_sqrd(w1,w2));
 }
 
 template<typename T>
@@ -117,7 +121,9 @@ const T abs_sinh_perp_sqrd_normed(const SL2<T>& w1, const SL2<T>& w2) {
 
 template<typename T>
 const T abs_sinh_perp_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
-  return abs_sinh_perp_sqrd_normed(w1,w2)/abs(norm_sqrd(w1,w2)); // TODO: check if this gives best error
+  // TODO: check if this gives best error as 
+  // both sqrt and division make error blow up
+  return abs_sinh_perp_sqrd_normed(w1,w2)/abs(norm_sqrd(w1,w2));
 }
 
 template<typename T>
@@ -198,7 +204,8 @@ const double e_re_perp_LB(const SL2<T>& w1, const SL2<T>& w2) {
 }
 
 template<typename T>
-const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w2) {
+const std::pair<T,T> four_cosh_margulis_simple(
+    const SL2<T>& w1, const SL2<T>& w2) {
   /*
      print_center("w1.a:", w1.a);
      print_center("w1.b:", w1.b);
@@ -236,48 +243,84 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
      print_center("x2:", x2);
      print_center("y1:", y1);
      print_center("y2:", y2);
-     print_center("cosh(perp)sqrt((tr1^2-4)(tr2^2-4)):", cosh_perp_normed(w1,w2));
-     print_center("sinh(perp)sqrt((tr1^2-4)(tr2^2-4)):", sinh_perp_normed(w1,w2));
+     print_center("cosh(perp)sqrt((tr1^2-4)(tr2^2-4)):",
+        cosh_perp_normed(w1,w2));
+     print_center("sinh(perp)sqrt((tr1^2-4)(tr2^2-4)):",
+        sinh_perp_normed(w1,w2));
      print_center("exp(2re(perp))x2y2:", e_2_re_perp_n);
      print_center("exp(-2re(perp))x2y2:", e_m_2_re_perp_n);
      print_center("cosh(2re(perp))x2y2:", ch_2_re_perp_n);
      print_center("sinh(2re(perp))x2y2:", sh_2_re_perp_n);
      printf("***********************************\n");
-     print_center("e_2_re_perp_n*y1 - x1*y2_sqrd:",e_2_re_perp_n*y1 - x1*y2_sqrd);
+     print_center("e_2_re_perp_n*y1 - x1*y2_sqrd:",
+        e_2_re_perp_n*y1 - x1*y2_sqrd);
      print_center("e_2_re_perp_n - y2_sqrd:", e_2_re_perp_n - y2_sqrd);
-     print_center("a/b:", (e_2_re_perp_n*y1 - x1*y2_sqrd)/(e_2_re_perp_n - y2_sqrd));
+     print_center("a/b:",
+        (e_2_re_perp_n*y1 - x1*y2_sqrd)/(e_2_re_perp_n - y2_sqrd));
      print_center("sinh(2re(perp))x2y2:", sh_2_re_perp_n);
-     print_center("(y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)):", (y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
-     print_center("a/b:", sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
-     print_center("x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))):", x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
+     print_center("(y1-x1)+sqrt((y1-x1)*(y1-x1) +
+        ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)):",
+        (y1-x1)+sqrt((y1-x1)*(y1-x1) +
+        ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
+     print_center("a/b:",
+        sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) +
+        ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
+     print_center("x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) +
+        ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))):",
+        x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) +
+        ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
      print_center("x2_sqrd - e_m_2_re_perp_n:", x2_sqrd - e_m_2_re_perp_n);
-     print_center("a/b:", (x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))))/(x2_sqrd - e_m_2_re_perp_n));
+     print_center("a/b:",
+        (x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) +
+        ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)))) /
+        (x2_sqrd - e_m_2_re_perp_n));
      printf("***********************************\n");
    */
 
   std::vector<T> versions;
-  versions.push_back((e_2_re_perp_n*y1 - x1*y2_sqrd)/(e_2_re_perp_n - y2_sqrd) +
-      sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
+  versions.push_back((e_2_re_perp_n*y1 - x1*y2_sqrd) / 
+      (e_2_re_perp_n - y2_sqrd) +
+      sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) +
+          ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))));
 
-  // swap x and y to hope for better error (formula is symmetric, but not in an obious way)
-  versions.push_back((e_2_re_perp_n*x1 - y1*x2_sqrd)/(e_2_re_perp_n - x2_sqrd) +
-      sh_2_re_perp_n/((x1-y1)+sqrt((x1-y1)*(x1-y1) + ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd))));
+  // swap x and y to hope for better error
+  // (formula is symmetric, but not in an obious way)
+  versions.push_back((e_2_re_perp_n*x1 - y1*x2_sqrd) /
+      (e_2_re_perp_n - x2_sqrd) +
+      sh_2_re_perp_n/((x1-y1) + sqrt((x1-y1)*(x1-y1) +
+          ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd))));
 
-  // Alternate version where first denominator is scaled by e^(-2re(P))y2/x2. The current version should keep the denominator larger
-  //  const T four_cosh_marg_v1_alt1 = (y1*x2_sqrd - x1*e_m_2_re_perp_n)/(x2_sqrd - e_m_2_re_perp_n) +
-  //             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
+  // Alternate version where first denominator
+  // is scaled by e^(-2re(P))y2/x2.
+  // The current version should keep the denominator larger
+  //  const T four_cosh_marg_v1_alt1 = (y1*x2_sqrd - x1*e_m_2_re_perp_n) /
+  //  (x2_sqrd - e_m_2_re_perp_n) +
+  //             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) +
+  //             ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
 
-  // Alternate version where we split off x1. The current version should keep error slightly smaller (since fewer additions)
-  //  const T four_cosh_marg_v1_alt2 = (x1 + ((y1-x1)*x2_sqrd)/(x2_sqrd - e_m_2_re_perp_n)) +
-  //             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
+  // Alternate version where we split off x1.
+  // The current version should keep error slightly smaller
+  // (since fewer additions)
+  //  const T four_cosh_marg_v1_alt2 = (x1 + ((y1-x1)*x2_sqrd) /
+  //  (x2_sqrd - e_m_2_re_perp_n)) +
+  //             sh_2_re_perp_n/((y1-x1)+sqrt((y1-x1)*(y1-x1) +
+  //             ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)));
 
-  // Collect everything as one fraction. Helps when re(P) is very close to zero 
-  versions.push_back(x1 + ((y1-x1)*(e_2_re_perp_n-x2_sqrd) - sh_2_re_perp_n*((y1-x1) -
-          sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))))/((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd));
+  // Collect everything as one fraction.
+  // Helps when re(P) is very close to zero 
+  versions.push_back(x1 + ((y1-x1)*(e_2_re_perp_n-x2_sqrd) -
+        sh_2_re_perp_n*((y1-x1) -
+          sqrt((y1-x1)*(y1-x1) +
+            ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)))) /
+      ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd));
 
-  // swap x and y to hope for better error (formula is symmetric, but not in an obious way)
-  versions.push_back(y1 + ((x1-y1)*(e_2_re_perp_n-y2_sqrd) - sh_2_re_perp_n*((x1-y1) -
-          sqrt((x1-y1)*(x1-y1) + ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd))))/((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd));
+  // swap x and y to hope for better error
+  // (formula is symmetric, but not in an obious way)
+  versions.push_back(y1 + ((x1-y1)*(e_2_re_perp_n-y2_sqrd)
+        - sh_2_re_perp_n*((x1-y1) -
+          sqrt((x1-y1)*(x1-y1) +
+            ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd)))) /
+      ((ch_2_re_perp_n*2 - y2_sqrd) - x2_sqrd));
 
   /* 
      print_type("4cosh(margulis) v1:", versions[0]);
@@ -290,7 +333,9 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
 
   T four_cosh_marg = versions[0];
 
-  T exp_2_t = (x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) + ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd))))/(x2_sqrd - e_m_2_re_perp_n);
+  T exp_2_t = (x2*((y1-x1) + sqrt((y1-x1)*(y1-x1) +
+          ((ch_2_re_perp_n*2 - x2_sqrd) - y2_sqrd)))) /
+    (x2_sqrd - e_m_2_re_perp_n);
   /*
      print_center("exp(2re(perp)):", e_2_re_p);
      print_center("exp(2t):", (const T) exp_2_t);
@@ -298,7 +343,8 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
      print_center("exp(2re(perp)) exp(2t):", e_2_re_p - exp_2_t);
    */
 
-  // if we realize the margulis number outside the ortho segement, it means it is on one of the end point
+  // if we realize the margulis number outside the ortho segement,
+  // it means it is on one of the end point
   const T one = T(1);
   const T zero = T(0);
   T fc_marg_lb = max_local(x2 + x1, y2 + y1);
@@ -339,31 +385,37 @@ template<typename T>
 const T jorgensen(const SL2<T>& w1, const SL2<T>& w2) {
   SL2<T> W1 = inverse(w1); 
   SL2<T> W2 = inverse(w2);
-  SL2<T> C = w1*w2*W1*W2;
-  T tr1 = w1.a + w1.d; 
-  T tr2 = C.a + C.d; 
-  return abs(tr1*tr1 - 4) + abs(tr2 - 2);
+  SL2<T> comm = w1*w2*W1*W2;
+  return abs(tr(w1) * tr(w1) - 4) + abs(tr(comm) - 2);
+}
+
+template<typename T>
+const std::pair<T,T> fixed_points(const SL2<T>& w) {
+  std::pair<T,T> result(
+      (td(w) + sqrt(tr(w) * tr(w) - 4)) / (c * 2),
+      (td(w) - sqrt(tr(w) * tr(w) - 4)) / (c * 2));
+  return result;
 }
 
 // Complex distance between {zm, zp} and {0, infty} 
 template<typename T>
-const T sinh_perp2_sq_zero_inf(T& zm, T& zp) {
+const T sinh_sqrd_half_perp_zero_inf(T& zm, T& zp) {
   return zm / (zp - zm); 
 }
 
 // Complex distance between {zm, zp} and {-1, 1} 
 template<typename T>
-const T sinh_perp2_sq_mp_one(T& zm, T& zp) {
+const T sinh_sqrd_half_perp_mp_one(T& zm, T& zp) {
   T one = T(1);
   return (((zm + one) * (zp - one)) * 0.5) / (zm - zp) ; 
 }
 
 // Complex distance between {zm, zp} and {-1, 1} 
 template<typename T>
-const T sinh_perp2_sq_mp_eye(T& zm, T& zp) {
+const T sinh_sqrd_half_perp_mp_iye(T& zm, T& zp) {
   T one = T(1);
-  T eye = eye(one);
-  return (((one - eye * zm) * (zp - eye)) * 0.5) / (zm - zp) ; 
+  T iye = eye(one);
+  return (((one - iye * zm) * (zp - iye)) * 0.5) / (zm - zp) ; 
 }
 
 #endif // __IsomH3_h

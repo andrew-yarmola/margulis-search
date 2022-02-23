@@ -6,7 +6,10 @@
 template<typename T>
 struct SL2 {
   SL2<T>() : a(1), b(0), c(0), d(1) {}
-  SL2<T>(const T &aa, const T &bb, const T &cc, const T &dd) : a(aa), b(bb), c(cc), d(dd) {}
+  SL2<T>(
+      const T &aa, const T &bb, 
+      const T &cc, const T &dd
+      ) : a(aa), b(bb), c(cc), d(dd) {}
   T a, b, c, d;
 };
 
@@ -19,6 +22,16 @@ const SL2<T> operator*(const SL2<T> &M, const SL2<T> &N) {
 template<typename T>
 const SL2<T> inverse(const SL2<T> &M) {
   return SL2<T>(M.d,-M.b,-M.c,M.a);
+};
+
+template<typename T>
+const T tr(const SL2<T> &M) {
+  return M.a + M.d;
+};
+
+template<typename T>
+const T td(const SL2<T> &M) {
+  return M.a - M.d;
 };
 
 template<typename T>

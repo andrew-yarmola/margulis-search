@@ -7,9 +7,8 @@
 #include <unordered_map>
 
 #define DIM 6
-#define SCL 2   
-// Initial box dimensions are therefore
-// 2 * (2, 2^(5/6), 2^(4/6), 2^(3/6), 2^(2/6), 2^(1/6)). The last is > 2.24
+#define SCL 8   
+// initial box radii are 2^(18/6), 2^(17/6), ..., 2^(13/6). The last is > 4.49
 
 struct Box {
   Box();

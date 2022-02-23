@@ -7,22 +7,15 @@
 #include "types.hh"
 
 template<typename T>
-const T cosh_move_j(const SL2<T>& w) {
-  T q = abs_sqrd(w.c) + abs_sqrd(w.d);
-  T z = w.a * conj(w.c) + w.b * conj(w.d);
-  return (abs_sqrd(z) + (q - 1) * (q - 1))/(q * 2) + 1; 
-}
-
-template<typename T>
 SL2<T> construct_x(const Params<T>& params) {
-	return SL2<T>(params.coshL2, params.expmD2 * params.sinhL2,
-                params.expD2 * params.sinhL2, params.coshL2);
+	return SL2<T>(params.coshLx2, params.expmdx * params.sinhLx2,
+                params.expdx * params.sinhLx2, params.coshLx2);
 };
 
 template<typename T>
 SL2<T> construct_y(const Params<T>& params) {
-	return SL2<T>(params.coshL2, params.expD2 * params.sinhL2,
-                params.expmD2 * params.sinhL2, params.coshL2);
+	return SL2<T>(params.coshLy2, params.expdyf * params.sinhLy2,
+                params.expmdyf * params.sinhLy2, params.coshLy2);
 };
 
 template<typename T>
