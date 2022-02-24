@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <getopt.h>
+#include <inttypes.h>
 
 using namespace std;
 
@@ -31,12 +32,12 @@ double bounding_volume;
 struct Config g_config;
 
 vector<string> unopened_out_files;
-map<string, int> elimination_counts;
+map<string, uint64_t> elimination_counts;
 map<string, double> elimination_volumes;
-map<string, int> type_counts;
+map<string, uint64_t> type_counts;
 map<string, double> type_volumes;
-int terminal_node_count = 0;
-int internal_nodes = 0;
+uint64_t terminal_node_count = 0;
+uint64_t internal_nodes = 0;
 double total_volume = 0;
 
 FILE* open_box(char* boxcode, char* file_name)
@@ -340,14 +341,14 @@ int main(int argc, char** argv)
         double vol = elimination_volumes[it.first];
         type_counts[type] += it.second;
         type_volumes[type] += vol;
-        printf("%s: %d: %f\n", it.first.c_str(), it.second, vol/corr);
+        printf("%s: %" PRIu64 ": %f\n", it.first.c_str(), it.second, vol/corr);
       }
       for (auto& it: type_counts) {
         double vol = type_volumes[it.first];
-        printf("%s: %d: %f\n", it.first.c_str(), it.second, vol/corr);
+        printf("%s: %" PRIu64 ": %f\n", it.first.c_str(), it.second, vol/corr);
       }
-      printf("internal nodes: %d\n", internal_nodes);
-      printf("total: %d: %f\n", terminal_node_count, total_volume/corr);
+      printf("internal nodes: %" PRIu64 "\n", internal_nodes);
+      printf("total: %" PRIu64 ": %f\n", terminal_node_count, total_volume/corr);
     }
     else exit(0); 
   }

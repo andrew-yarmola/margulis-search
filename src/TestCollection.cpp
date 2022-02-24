@@ -138,9 +138,9 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
     string word = pair.first;
     SL2<AJCC> w = construct_word(word, p);
     if (not_identity(w) &&
-        move_less_than_marg(w, p)) &&
+        move_less_than_marg(w, p) &&
         ((x_power(word) == 0 || y_power(word) == 0) ||
-          does_not_fix_sym_axis(w)) {
+          does_not_fix_sym_axis(w))) {
       result.state = killed_move;
       return result;
     }
@@ -401,6 +401,8 @@ int TestCollection::add(word_pair p) {
     // fprintf(stderr, "Adding test: (%s,%s)\n", p.first.c_str(), p.second.c_str());
     pair_index[p] = pair_vector.size();
     pair_vector.push_back(p);
+    seen_words[p.first] = 1;
+    seen_words[p.second] = 1;
     return pair_vector.size() + num_bound_tests - 1;
   } else {
     return it->second + num_bound_tests;

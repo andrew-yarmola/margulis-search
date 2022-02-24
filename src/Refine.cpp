@@ -88,13 +88,13 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
 
   if (g_options.word_search_depth > 0 && depth > 0
       && (g_options.improve_tree || !t.l_child)
-      && box.name.length() > WORD_SEARCH_DEPTH
+      && box.name.length() > g_options.word_search_depth
       && depth % WORD_SEARCH_MOD == 0) {
     Box& search_place = box;
     vector<word_pair> search_pairs_v1 = find_pairs(search_place.center(),
         vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
     vector<word_pair> search_pairs_v2 = find_words_v2(search_place.center(),
-        5, 20, box.qr.word_classes(), g_tests.seen_words);
+        1, 14, box.qr.word_classes(), g_tests.seen_words);
     vector<word_pair> search_pairs;
     search_pairs.insert(search_pairs.end(),
         search_pairs_v1.begin(), search_pairs_v1.end());

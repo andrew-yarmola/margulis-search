@@ -28,6 +28,7 @@ struct TestCollection {
   void load_relator_test(const char* impos_path,
                          const char* bad_rel_path);
   RelatorTest *relator_test;
+  std::map<std::string, int> seen_words;
 private:
   word_pair parse_word_pair(std::string buf);
   std::map<word_pair, int> pair_index;

@@ -524,8 +524,6 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
                 fprintf(stderr, "Word %s has move j %f vs %f\n",
                 h_moved.word.c_str(), c_move_j, absLB(params.coshmu));
                 }*/
-              fprintf(stderr, "Found %s with trace %f + %f I\n",
-                  h_moved.word.c_str(), re_trace, im_trace);
               new_words.push_back(h_moved.word);
             } else {
               seen_count += 1;

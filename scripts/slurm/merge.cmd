@@ -14,8 +14,9 @@ bin_dir="$base_dir/bin"
 merge="$base_dir/scripts/merge_trees.py"
 data_dir="/scratch/network/yarmola/marg_sym_param"
 
-src1="/scratch/network/yarmola/marg_sym_param/output_live"
+src1="$data_dir/output781"
+out="$data_dir/source"
 
 cd $bin_dir
 
-python3 "$merge" -s 1000000 -d 30 -c 38 "$data_dir/merge_live" "$src1" > "$data_dir/merge.log" 2>&1
+python3 "$merge" -s 1000000 -d 30 -c 38 "$out" "$src1" > "$data_dir/merge.log" 2>&1

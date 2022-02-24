@@ -52,7 +52,11 @@ XYXXXYXYYY
 XYYYXYXXXY
 yXXXyXyyyX
 YxxxYxYYYx
+XyyyXyXXXy
+YXYYYXYXXX
 // m007
+YXyXYXYxYX
+xyxYxyxyXy
 XYxxyyxxY
 xyxyXyxyxY
 xYXYxYxyxY
@@ -98,6 +102,8 @@ xxxxyXYYXy
 xxYXyyyyXY
 XXYxyyyyxY
 yXXyxYYYYx
+XXyxYYYYxy
+YxxYXyyyyX
 // m010
 xxYxyxxyxY
 yyXXyXXyyX
@@ -105,6 +111,8 @@ YXYxYYxYXY
 XyyXyxyyxy
 XyxyyxyXyy
 XYxYYxYXYY
+XXYXyXXyXY
+XYXXYXyXXy
 // m019
 yyyXXyxxxyXX
 yyyXXyxxxyXXX
@@ -126,6 +134,8 @@ yyXXyyxyxyx
 // m034
 XYXyyxxyyXY
 // m036
+xxYYXYYxxy
+yyxxYxxyyX
 xxyxxYxYYxY
 XXyXyyxyyXy
 XXYXYYxYYXY
@@ -160,6 +170,8 @@ yyXyXXyXyyx
 YYXYXXYXYYx
 YYXYYxxyxx
 // m038
+XyxxxyXYYY
+YXyyyXYxxx
 XXyxYYYxyX
 XXYxyyyxYX
 YYYxyXXXyx
@@ -186,6 +198,8 @@ YxxxYXyyyX
 YYYXXyyXyyXX
 // m069
 yyyXXYXXXYXX
+YYYXXyXXXyXX
+YYYxxyxxxyxx
 // m125
 XYXYxYxyxyXy
 yXYXYxYxyxyX
@@ -199,6 +213,13 @@ yXyXYXYxYxyx
 yyXXyXYYxxYx
 yyXXYxYYxxyX
 YYXXYXyyxxyx
+XXyXYYxxYxyy
+XyyXXYxYYxxy
+xYYXXYXyyxxy
+xxyXyyXXYxYY
+xxyyxyXXYYXY
+xyyXXyXYYxxY
+yXyyXXYxYYxx
 // m142
 XXXYxxYYYYxxY
 // m147
@@ -211,6 +232,8 @@ XXyyxyxyyxyxyy
 // s297
 XXXYXXYYxYYXXY
 XXXyXXyyxyyXXy
+// s173
+YYYYxyXXyXXyx
 // bad syl 6
 yyxYXXYx
 YYxyXXyx
@@ -288,3 +311,28 @@ YYXYYxYYxYYX
 yyyXyXXYXXyX
 xxyxxYxxYxxy
 YYYxYxxyxxYx
+XXXyyXYXY
+XXYYYXXXYxY
+XXyxxyyyxxy
+XXyxyXYXy
+XYXYYxxy
+XYYYxyXXXy
+XYxYxxYxYY
+XyXXYXYY
+XyXYXYxxY
+XyxyXYXy
+XyyyxYXXXY
+YXXYxxyyxY
+YXyXYxYX
+YYXXYxxyyx
+YYYxxYXyx
+xYxyxYXY
+xxxxyyxYxY
+xxyXXyyyXXy
+xyyxxyyXy
+yXYXYYxYYXYX
+yXYYxxyx
+xxYYXYXXYXYY
+xxyyXyXXyXyy
+yyXXyxYYxyXX
+YYXYxYYxYX

@@ -105,7 +105,7 @@ if __name__ == '__main__' :
   max_depth = '150'
   truncate_depth = '6'
   invent_depth = '42'
-  word_search_depth = '12'
+  word_search_depth = '60'
   fill_holes = ''
   improve_tree = ''
   impossible_file = 'none'
@@ -287,6 +287,12 @@ if __name__ == '__main__' :
     else: 
       pid_word_search_depth = word_search_depth
 
+    # subdivide more at the beginning
+    if len(open_holes) < child_limit - child_count and len(best_hole) < 40:
+      invent_depth_local = str(max(int(invent_depth) // 2, 4))
+    else:
+      invent_depth_local = invent_depth
+
     treecat_command = '{0} {1} {2}'.format(treecat, src_dir, best_hole)
     refine_command = refine + \
         fill_holes + \
@@ -294,7 +300,7 @@ if __name__ == '__main__' :
         ' --box ' + best_hole + \
         ' --max_depth ' + max_depth + \
         ' --truncate_depth ' + truncate_depth + \
-        ' --invent_depth ' + invent_depth + \
+        ' --invent_depth ' + invent_depth_local + \
         ' --max_size ' + max_size + \
         ' --words ' + words_file + \
         ' --word_search_depth ' + pid_word_search_depth + \

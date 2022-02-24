@@ -159,6 +159,9 @@ if __name__ == '__main__' :
         out = dest_dir + '/' + best_hole + '.out'
         err = dest_dir + '/' + best_hole + '.err'
 
+        if best_hole == 'root':
+          best_hole = '""'
+
         command = '{0} {1} {2} {3} {4} > {5} 2> {6}'.format(
             treemerge, size, depth, best_hole, src_dirs, out, err)
 
