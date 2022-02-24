@@ -19,13 +19,16 @@ struct TestCollection {
   box_state evaluate_center(int index, Box& box);
   TestResult evaluate_box(int index, Box& box);
   TestResult evaluate_AJCC(word_pair& pair, Box& box);
+  TestResult evaluate_qrs(Box& box);
   const std::string get_name(int index);
   word_pair get_pair(int index);
   int add(word_pair pair);
   int add(std::string pair);
   void load(const char* file_path);
-  void load_relator_test(const char* file_path);
+  void load_relator_test(const char* impos_path,
+                         const char* bad_rel_path);
   RelatorTest *relator_test;
+  std::map<std::string, int> seen_words;
 private:
   word_pair parse_word_pair(std::string buf);
   std::map<word_pair, int> pair_index;
@@ -130,10 +133,15 @@ inline const bool cant_fix_axis(const SL2<T>& w,
         absLB(f_sh_sq_hf_p), absLB(f_sh_sq_hf_p + 4));
     fprintf(stderr, "LB away from %d and %d\n",
         absLB(f_sh_sq_hf_p) > 0, absLB(f_sh_sq_hf_p + 4) > 0);
-  }
     fprintf(stderr, "*******************************\n");
   }
   return absLB(f_sh_sq_hf_p) > 0 && absLB(f_sh_sq_hf_p + 4) > 0; 
+}
+
+template<typename T>
+inline const bool does_not_fix_zero_inf(const SL2<T>& w) {
+  return (absLB(w.b) > 0 && absLB(w.d) > 0) || 
+    (absLB(w.a) > 0 && absLB(w.c) > 0);
 }
 
 template<typename T>
@@ -324,17 +332,17 @@ T worst_primitive_cosh_re_len(const T& ch_o, const T& cs_o,
 }
 
 template<typename T>
-T cosh_marg_lower_bound(const T& sinh_r) {
-  T s = sinh_r;
-  T a8 = powT(s, 8) * (-0.002012744207511); 
-  T a7 = powT(s, 7) *   0.050422869707363; 
-  T a6 = powT(s, 6) * (-0.2800449482233);
-  T a5 = powT(s, 5) *   0.6738467122499;
-  T a4 = powT(s, 4) * (-0.730897277659114);
-  T a3 = powT(s, 3) *   0.1178833280583;
-  T a2 = powT(s, 2) *   0.390674936173773;
-  T a1 = s          *   0.001212870129678;
-  double a0 = 0.999972595620724;
+T cosh_marg_lower_bound(const T& two_sinh_r) {
+  T s = two_sinh_r;
+  T a8 = powT(s, 8) * (-0.0000014461700558); 
+  T a7 = powT(s, 7) *   0.0000365880448817; 
+  T a6 = powT(s, 6) * (-0.0003163830157272);
+  T a5 = powT(s, 5) *   0.0005316504647188;
+  T a4 = powT(s, 4) *   0.0086912125268823;
+  T a3 = powT(s, 3) * (-0.061949675652791);
+  T a2 = powT(s, 2) *   0.151649220047696;
+  T a1 = s          * (-0.01513801009421);
+  double a0 = 0.9999999;
   return ((a8 + (a1 + a0)) + (a4 + a5)) + ((a7 + a2) + (a6 + a3)); 
 }
 
@@ -343,10 +351,8 @@ bool proven_is_good(const std::string& proven, const Box& box);
 #define MAX_ID_SHIFT 5
 template<typename T>
 std::string proven_identity(std::string word, const Params<T>& p) {
-  SL2<T> w = construct_word(word, p);
   SL2<T> x = construct_x(p);
   SL2<T> y = construct_y(p);
-  std::string new_word;
   if (g_debug) {
     fprintf(stderr,
         "Testing proven identity for word: %s .\n", word.c_str());
@@ -358,7 +364,6 @@ std::string proven_identity(std::string word, const Params<T>& p) {
     for (auto s : {"x", "X"}) {
       new_word = x_strip(word);
       for (int i = 0; i < MAX_ID_SHIFT; ++i) {
-        new_word = s + new_word;
         SL2<T> new_w = construct_word(new_word, p); // order matters
         T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
         if (strictly_pos(diff)) {
@@ -368,6 +373,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
           }
           return new_word;
         }      
+        new_word = s + new_word;
       }
     }
   }
@@ -378,7 +384,6 @@ std::string proven_identity(std::string word, const Params<T>& p) {
     for (auto s : {"y", "Y"}) {
       new_word = y_strip(word);
       for (int i = 0; i < MAX_ID_SHIFT; ++i) {
-        new_word = s + new_word;
         SL2<T> new_w = construct_word(new_word, p); // order matters
         T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
         if (strictly_pos(diff)) {
@@ -388,6 +393,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
           }
           return new_word;
         }      
+        new_word = s + new_word;
       }
     }
   }

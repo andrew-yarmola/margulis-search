@@ -17,6 +17,7 @@ Box::Box() {
   }
   pos = 0;
   compute_center_and_size();
+  compute_nearer();
   compute_cover();
 }
 
@@ -49,7 +50,7 @@ Box get_box(std::string code) {
       box = box.child(1);
     }
   }
-    return box;
+  return box;
 }
 
 std::string Box::desc() {

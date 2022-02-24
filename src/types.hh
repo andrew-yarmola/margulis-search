@@ -9,7 +9,7 @@ typedef std::complex<double> Complex;
 typedef std::pair<double, double> float_pair;
 typedef std::pair<std::string, std::string> word_pair;
 
-inline const Complex iye(const Complex&x) { return Complex(0,1); };
+inline const Complex eye(const Complex&x) { return Complex(0,1); };
 inline const Complex operator+(const Complex&x,double y) { return x + Complex(y,0); };
 inline const Complex operator-(const Complex&x,double y) { return x - Complex(y,0); };
 inline const Complex operator*(const Complex&x,double y) { return x * Complex(y,0); };
@@ -67,6 +67,7 @@ void split_string(const std::string &str, const std::string &delims, std::vector
 int x_power(std::string w);
 int y_power(std::string w);
 int syllables(std::string w);
+std::string cyclic_strip(std::string w);
 std::string x_strip(std::string w);
 std::string y_strip(std::string w);
 std::string x_rstrip(std::string w);
@@ -193,7 +194,7 @@ template<typename T> struct Params {
 template<typename T>
 void fill_derived(Params<T>& p) {
   T one = T(1);
-  T i = iye(one); // HACK
+  T i = eye(one); // HACK
 
   T sinhsdx = p.sinhdx * p.sinhdx;
   T sinhsdy = p.sinhdy * p.sinhdy;

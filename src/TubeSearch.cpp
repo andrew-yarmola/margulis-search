@@ -2,6 +2,7 @@
 #include <map>
 #include <queue>
 #include "TubeSearch.hh"
+#include "TestCollection.hh"
 #include "CanonicalName.hh"
 #include "IsomH3.hh"
 #include "Params.hh"
@@ -504,11 +505,14 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
         axis h_moved = a;
         move(h_moved, h.first, h.second);
         double c_re_orth = cosh_re_orth_LB(fixed, h_moved);
-        // fprintf(stderr, "Axis with word %s has %f distance vs %f\n", h_moved.word.c_str(), c_re_orth, cosh_ortho_bound);
+        // fprintf(stderr, "Axis with word %s has %f distance vs %f\n",
+        // h_moved.word.c_str(), c_re_orth, cosh_ortho_bound);
         double c_move_j = absUB(cosh_move_j(h_moved.gamma));
+        Complex trace = h_moved.gamma.a + h_moved.gamma.d;
         double f_cosh_re_len = absUB(four_cosh_re_length(h_moved.gamma));
 
-        if (c_move_j < absLB(0.98 * params.coshmu) || 
+        if (c_move_j < absLB(0.98 * params.coshmu) ||
+            (absUB(trace - 2) < 0.1 || absUB(trace + 2) < 0.1) || 
             c_re_orth < 0.98 * cosh_ortho_bound ||
             f_cosh_re_len < absLB(params.coshreL * 3.99)) {
           if (find(relators.begin(), relators.end(), h_moved.word) == relators.end()) {
@@ -517,7 +521,8 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
                 fprintf(stderr, "Axis with word %s has %f distance vs %f\n",
                 h_moved.word.c_str(), c_re_orth, cosh_ortho_bound);
                 } else if (c_move_j < absLB(0.98 * params.coshmu)) {
-                fprintf(stderr, "Word %s has move j %f vs %f\n", h_moved.word.c_str(), c_move_j, absLB(params.coshmu));
+                fprintf(stderr, "Word %s has move j %f vs %f\n",
+                h_moved.word.c_str(), c_move_j, absLB(params.coshmu));
                 }*/
               new_words.push_back(h_moved.word);
             } else {

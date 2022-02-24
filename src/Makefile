@@ -5,11 +5,12 @@ CENSUSTESTOBJS= census_test.o Refine.o PartialTree.o Box.o AJ.o Complex.o roundo
 PLAYOBJS= playground.o Box.o AJ.o Complex.o roundoff.o types.o TubeSearch.o CanonicalName.o
 TREECATOBJS= treecat.o
 TREESTATOBJS= treestat.o
-CPLUSPLUS= g++
-CC= g++
+CPLUSPLUS= g++ -std=c++1y
+CC= g++ -std=c++1y
 
-#COPTS=-g -Wall -std=c++1y
-COPTS=-O3 -std=c++1y
+#COPTS=-g -Wall
+COPTS=-O3
+
 
 .cpp.o:
 	$(CPLUSPLUS) $(COPTS) $(CCFLAGS) -c ${@:o=cpp}
@@ -43,3 +44,9 @@ treecat: $(TREECATOBJS)
 
 treestat: $(TREESTATOBJS)
 	$(CPLUSPLUS) $(COPTS) $(TREESTATOBJS) -o ../bin/treestat
+
+treemerge: treemerge.o 
+	$(CPLUSPLUS) $(COPTS) treemerge.o -o ../bin/treemerge
+
+roottreemerge: roottreemerge.o 
+	$(CPLUSPLUS) $(COPTS) roottreemerge.o -o ../bin/roottreemerge

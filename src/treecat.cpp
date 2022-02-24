@@ -83,17 +83,17 @@ bool ends_with(const char *str, const char *suffix)
 
 bool  put_stream(FILE* dest, FILE* source) {
   size_t size;
-  char buf[BUFSIZ];
+  char buf[BUF_SIZE];
   size_t total = 0;
-  while ((size = fread(buf, 1, BUFSIZ, source))) {
+  while ((size = fread(buf, 1, BUF_SIZE, source))) {
     fwrite(buf, 1, size, dest);
     total += size;
   }
   if (ferror(dest) != 0) {
-    fprintf(stderr, "failed destination: bytes %d/%d\n", total, BUFSIZ);
+    fprintf(stderr, "failed destination: bytes %d/%d\n", total, BUF_SIZE);
     return false;
   } else if (ferror(source) != 0) {
-    fprintf(stderr, "failed source: bytes %d/%d\n", total, BUFSIZ);
+    fprintf(stderr, "failed source: bytes %d/%d\n", total, BUF_SIZE);
     return false;
   } else {
     return true;

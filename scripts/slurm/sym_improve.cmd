@@ -18,11 +18,11 @@ words="$words_dir/words"
 impossible="$words_dir/impossible"
 
 data_dir="/scratch/network/yarmola/marg_sym_param"
-log_file="refine.log"
-output="output_live"
+log_file="refine_improve.log"
+output="improve_live"
 
 cd $bin_dir
 
 cat "$data_dir/$log_file" >> "$data_dir/${log_file}.all"
 
-python3 "$search" -i 18 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$impossible" -c 38 "$data_dir/source" "$data_dir/$output" > "$data_dir/$log_file" 2>&1
+python3 "$search" --improve -i 12 -t 6 -s "-1" -r "$bin_dir/refine_marg" -w "$words" -p "$impossible" -c 38 "$data_dir/merged" "$data_dir/$output" > "$data_dir/$log_file" 2>&1

@@ -26,18 +26,19 @@ bool RelatorTest::is_impossible(string word,
     vector<string>& required_non_identities)
 	{
     required_non_identities.clear();
-    if (syllables(word) < 5 ||
-        always_impossible.find(word) != always_impossible.end()) {
+    string canon = canonical_name.get_canonical_name(word);
+    if (syllables(canon) < 5 ||
+        always_impossible.find(canon) != always_impossible.end()) {
       return true;
     }
-    string cycle(word);
+    string cycle(canon);
     int rot = 1;
     // could be optimized
-    while (rot != word.length()) {
+    while (rot != canon.length()) {
       rotate(cycle.begin(), cycle.begin() + 1, cycle.end());
-      if (cycle == word) {
-        string sub = word.substr(0, rot);
-        if (syllables(sub) < 5) {
+      if (cycle == canon) {
+        string sub = canon.substr(0, rot);
+        if (syllables(canonical_name.get_canonical_name(sub)) < 5) {
           return true;
         } else {
           required_non_identities.push_back(sub);
@@ -49,20 +50,34 @@ bool RelatorTest::is_impossible(string word,
 		return false;
 	}
 
-void RelatorTest::load(const char* path)
+void RelatorTest::load(const char* impos_path,
+                       const char* bad_rel_path)
 {
   char buf[1000];
   char word_buf[1000];
-  FILE* fp = fopen(path, "r");
+  FILE* fp = fopen(impos_path, "r");
   while (fp && fgets(buf, sizeof(buf), fp)) {
-    buf[strcspn(buf, "\r\n")] = 0;
-    always_impossible.insert(string(buf));
+    if (buf[0] != '/') {
+      buf[strcspn(buf, "\r\n")] = 0;
+      string canon = canonical_name.get_canonical_name(string(buf));
+      always_impossible.insert(canon);
+    }
+  }
+  fclose(fp);
+  fp = fopen(bad_rel_path, "r");
+  while (fp && fgets(buf, sizeof(buf), fp)) {
+    if (buf[0] != '/') {
+      buf[strcspn(buf, "\r\n")] = 0;
+      string canon = canonical_name.get_canonical_name(string(buf));
+      bad_relators.insert(canon);
+    }
   }
 }
 
-RelatorTest* RelatorTest::create(const char* file_path)
+RelatorTest* RelatorTest::create(const char* impos_path,
+                                 const char* bad_rel_path)
 {
 	RelatorTest* impossible = new RelatorTest();
-	impossible->load(file_path);
+	impossible->load(impos_path, bad_rel_path);
 	return impossible;
 }

@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include "CanonicalName.hh"
 
 struct RelatorTest
 {
@@ -19,22 +20,12 @@ public:
 	bool is_impossible(std::string word,
       std::vector<std::string>& required_non_identities);
 	bool is_good(std::string word);
-	static RelatorTest* create(const char* file);
+	static RelatorTest* create(const char* impos_path,
+                             const char* bad_rel_path);
 private:
-  void load(const char* path);
+  void load(const char* impos_path,
+            const char* bad_rel_path);
+  CanonicalName canonical_name;
   std::set<std::string> always_impossible;
-  const std::set<std::string> bad_relators = 
-  {
-    "XXXYxxYYYYxxY", // m142
-    "XXXYXYYxYYXY", // non-realizable
-    "YYXXYXyxyx",   // non-realizable
-    "xxYYxYXyXy",  // non-realizable
-    "yyyyxYXXYx", // m009
-    "yyyXXYXYXX", // m026
-    "yyyxxYxYxx", // m026
-    "xYYxxYxxYY", // m003 too symmetric
-    "YYxxYxxYYx", // m003 too symmetric
-    "YYXXYXXYYX", // m003 too symmetric
-    "XYYXXYXXYY", // m003 too symmetric
-  };
+  std::set<std::string> bad_relators; 
 };

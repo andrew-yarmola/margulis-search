@@ -16,13 +16,28 @@ words_dir=$base_dir
 search="$base_dir/scripts/dosearch.py"
 words="$words_dir/words"
 impossible="$words_dir/impossible"
+bad_relators="$words_dir/bad_relators"
 
 data_dir="/scratch/network/yarmola/marg_sym_param"
-log_file="refine.log"
-output="output_live"
+log_file="refine781.log"
+source="source781"
+output="output781"
+
+cosh_marg="1.3175"
+sinh_rad="1.48"
 
 cd $bin_dir
 
 cat "$data_dir/$log_file" >> "$data_dir/${log_file}.all"
 
-python3 "$search" -i 18 -t 6 -r "$bin_dir/refine_marg" -w "$words" -p "$impossible" -c 38 "$data_dir/source" "$data_dir/$output" > "$data_dir/$log_file" 2>&1
+python3 "$search" \
+  -i 6 \
+  -t 6 \
+  -r "$bin_dir/refine_marg" \
+  -w "$words" \
+  -p "$impossible" \
+  -b "$bad_relators" \
+  -M "$cosh_marg" \
+  -R "$sinh_rad" \
+  -c 38 \
+  "$data_dir/$source" "$data_dir/$output" > "$data_dir/$log_file" 2>&1

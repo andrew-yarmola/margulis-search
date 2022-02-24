@@ -11,7 +11,7 @@ Options g_options;
 TestCollection g_tests;
 int g_boxes_visited = 0;
 
-#define IMPROVE_MOD 6 
+#define IMPROVE_MOD 4 
 #define IMPROVE_HIST 7 
 #define QR_MOD 4
 #define WORD_SEARCH_MOD 6
@@ -32,6 +32,11 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     int new_depth, int& searched_depth)
 {
   place.push_back(box);
+
+  if (t.result.index == -2 && !g_options.fill_holes) {
+    return true;
+  }
+
   int old_result_index = t.result.index;
   if (t.result.index >= 0) {
     t.result = g_tests.evaluate_box(t.result.index, box);
@@ -40,16 +45,11 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     } else { 
       fprintf(stderr,
           "FAILED to eliminate %s with test %s with result %d\n",
-          box.name.c_str(), g_tests.get_name(t.result.index).c_str(),
+          box.name.c_str(), g_tests.get_name(old_result_index).c_str(),
           t.result.state);
     }
   }
   
-
-  if (t.result.index == -2 && !g_options.fill_holes) {
-    return true;
-  }
-
   // Check if the box is now small enough that some former qrs actually kill it
   if (depth % QR_MOD == 1) {
     for (auto qr : box.qr.word_classes()) {
@@ -62,7 +62,6 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
   }
 
   if (g_options.improve_tree || !t.l_child) {
-    fprintf(stderr, "Trying to improve\n");
     for (int i = 0; i < g_tests.size(); ++i) {
       // only do boundary tests on a regular basis
       if (i >= num_bound_tests && depth % IMPROVE_MOD == 0) {
@@ -89,13 +88,13 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
 
   if (g_options.word_search_depth > 0 && depth > 0
       && (g_options.improve_tree || !t.l_child)
-      && box.name.length() > WORD_SEARCH_DEPTH
+      && box.name.length() > g_options.word_search_depth
       && depth % WORD_SEARCH_MOD == 0) {
     Box& search_place = box;
     vector<word_pair> search_pairs_v1 = find_pairs(search_place.center(),
         vector<string>(), 1, g_options.max_word_length, box.qr.word_classes());
     vector<word_pair> search_pairs_v2 = find_words_v2(search_place.center(),
-        1, 7, box.qr.word_classes(), map<string, int>());
+        1, 14, box.qr.word_classes(), g_tests.seen_words);
     vector<word_pair> search_pairs;
     search_pairs.insert(search_pairs.end(),
         search_pairs_v1.begin(), search_pairs_v1.end());

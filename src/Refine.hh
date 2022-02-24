@@ -8,7 +8,9 @@ struct Options {
   Options() :
   box_name(""), // Binary representation of box
   words_file("words"), // Previously generated words
-  impossible_file("null"), // Output from power parabolic.pl
+  impossible_file("null"), // impossible relators 
+  bad_relator_file(
+      "/u/yarmola/margsym/margulis-search/bad_relators"), // relators that can't be used 
   max_depth(24), // Maximum depth for a file
   truncate_depth(6), 
   invent_depth(12),
@@ -20,6 +22,7 @@ struct Options {
   const char* box_name;
   const char* words_file;
   const char* impossible_file;
+  const char* bad_relator_file;
   int max_depth;
   int truncate_depth;
   int invent_depth;
