@@ -74,7 +74,7 @@ template<typename T>
 inline const bool tube_hits_axis_two(const T& two_sh_sq_hf_p,
     const T& two_ch_re_tube) {
   T t_ch_d = two_cosh_dist(two_sh_sq_hf_p);
-  // sinh(I Pi/4)^2 = -1/2 which means axes meet othrogonally
+  // sinh(I Pi/4)^2 = -1/2 which means axes meet orthogonally
   return strictly_pos(two_ch_re_tube - t_ch_d)
     && absLB(two_sh_sq_hf_p + 1) > 0;
 }
@@ -91,7 +91,7 @@ inline const bool w_in_sym_search(const SL2<T>& w) {
   // This is a general derivation.
   if (absLB(a - d) > 0 && not_identity(w)) {
     SL2<T> normalized(w.a, sqrt(w.b * w.c), sqrt(w.b * w.c), w.d);
-    return absUB(cosh_move_j(normalized)) < g.cosh_sym_mu; 
+    return absUB(cosh_move_j(normalized)) < g_cosh_sym_mu; 
   }
   return false; 
 }
@@ -100,17 +100,22 @@ template<typename T>
 inline const bool w_conj_in_sym_search(const SL2<T>& w,
     const Params<T>& p, const char g) {
   T t_sh_sq_hf_p = two_sinh_sqrd_half_perp_wg_zero_inf(w, p, g);
-  T t_ch_d = two_cosh_dist(two_sh_sq_hf_p);
-  T f_ch_sq_d = t_ch_d * t_ch_d;
-  if (g == 'x') {
-    // Margulis formula from translation lenth + tube radius
-    return absUB(f_ch_sq_d * p.coshlx 
-        - (f_ch_sq_d - 1) * p.costx) < g.cosh_sym_mu * 4;  
-  } else {
-    // Margulis formula from translation lenth + tube radius
-    return absUB(f_ch_sq_d * p.coshly 
-        - (f_ch_sq_d - 1) * p.costy) < g.cosh_sym_mu * 4;  
+  // sinh(I Pi/4)^2 = -1/2 which means axes meet orthogonally
+  return strictly_pos(two_ch_re_tube - t_ch_d)
+  if (absLB(t_sh_sq_hf_p + 1) > 0) {
+    T t_ch_d = two_cosh_dist(two_sh_sq_hf_p);
+    T f_ch_sq_d = t_ch_d * t_ch_d;
+    if (g == 'x') {
+      // Margulis formula from translation lenth + tube radius
+      return absUB(f_ch_sq_d * 
+          (p.coshlx - p.costx) + p.costx * 4) < g_cosh_sym_mu * 4;  
+    } else {
+      // Margulis formula from translation lenth + tube radius
+      return absUB(f_ch_sq_d * 
+          (p.coshly - p.costy) + p.costy * 4) < g_cosh_sym_mu * 4;  
+    }
   }
+  return false;
 }
 
 template<typename T>
