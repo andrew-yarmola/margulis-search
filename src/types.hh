@@ -36,7 +36,7 @@ typedef enum _box_state
   killed_nbd = 13, // w1 and w2 fail Jorgensen and one is not parabolic
   killed_w_ax_hits_sym_axis = 14, // only used in symmetric search
   killed_w_ay_hits_sym_axis = 15, // only used in symmetric search
-  killed_via_sym = 16,
+  killed_sym = 16,
   proven_relator = 17,
   out_of_bounds_center = 50,
   maybe_killed_center = 51,

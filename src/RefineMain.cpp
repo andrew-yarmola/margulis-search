@@ -10,14 +10,17 @@ extern Options g_options;
 extern TestCollection g_tests;
 extern int g_boxes_visited;
 
-double g_cosh_marg_upper_bound = 1.2947;
-double g_cosh_marg_lower_bound = 1.0054;
-double g_sinh_r_bound = 1.3426; 
-double g_cosh_r_bound = 1e11; 
+double g_cosh_marg_upper = 1.2947;
+double g_cosh_marg_lower = 1.0054;
+double g_sinh_r = 1.3426; 
+double g_cosh_r = 1e11; 
+
+double g_cosh_sym_marg = 1.38;
+double g_sinh_r = 1.999;
+double g_cosh_sym_r = 1e11; 
+double g_cosh_sym_2r = 1e11; 
 
 bool g_debug = false;
-
-bool g_symmetric = true;
 
 const char* g_program_name;
 
@@ -126,15 +129,27 @@ int main(int argc, char** argv)
     case 's': g_options.max_size = atoi(optarg); break;
     case 'B': g_options.word_search_depth = atoi(optarg); break;
     case 'f': g_options.fill_holes = true; break;
-    case 'm': g_cosh_marg_upper_bound = atof(optarg); break;
-    case 'r': g_sinh_r_bound = atof(optarg); break;
+    case 'm': g_cosh_marg_upper = atof(optarg); break;
+    case 'r': g_sinh_r = atof(optarg); break;
     case 'v': g_debug = true; break;
     }
   }
-  // Set the cosh_r_bound
-  XComplex shr(g_sinh_r_bound, 0);
+
+  if (g_cosh_marg_upper > g_cosh_sym_marg) {
+    fprintf(stderr,"Margulis upper bound cannot be bigger than symmetric\n");
+    exit(4);
+  }
+
+  // Set the cosh_r_bound. Note, we want UPPER bound here
+  XComplex shr(g_sinh_r, 0);
   XComplex chrsq(absUB(shr * shr + 1), 0);
-  g_cosh_r_bound = absUB(sqrt(chrsq));
+  g_cosh_r = absUB(sqrt(chrsq));
+ 
+  // Set the symmetric ones. Note, we want LOWER bounds here 
+  XComplex shsr(g_sinh_sym_r, 0);
+  XComplex chsrsq(absUB(shsr * shsr + 1), 0);
+  g_cosh_sym_r = absLB(sqrt(chsrsq));
+  g_cosh_sym_2r = absLB(chsrsq * 2 - 1);
 
   Box box;
   for (const char* boxP = g_options.box_name; *boxP; ++boxP) {
@@ -155,8 +170,12 @@ int main(int argc, char** argv)
 
   fprintf(stderr, "%s", box.desc().c_str());
   fprintf(stderr,
-    "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n   sinh(r) upper %f\n    cosh(r) upper %f\n",
-    g_cosh_marg_lower_bound, g_cosh_marg_upper_bound, g_sinh_r_bound, g_cosh_r_bound);
+    "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f
+    sinh(r) upper %f\n    cosh(r) upper %f\n
+    sinh(sym_r) lower %f\n    cosh(sym_r) lower %f
+    cosh(2*sym_r) lower %f\n",
+    g_cosh_marg_lower, g_cosh_marg_upper,
+    g_sinh_r, g_cosh_r, g_sinh_sym_r, g_cosh_sym_r, g_cosh_sym_2r);
   PartialTree t = read_tree();
 	fprintf(stderr, "Loaded tree and %d tests\n", g_tests.size());
   refine_tree(box, t);

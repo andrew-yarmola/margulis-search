@@ -68,7 +68,7 @@ const T jorgsen_wg(const SL2<T>& w, const Params<T>& p, const char g) {
 template<typename T>
 const T four_cosh_dist(const SL2<T>& w, const Params<T>& p, const char g) {
   T four_sh_sq_half_perp = four_sinh_sqrd_half_perp(w, p, g); 
-  return abs(four_sh_sq_half_perp + 4) + abs(four_sh_sq_half_perp);
+  return four_cosh_dist(four_sh_sq_half_perp);
 }
 
 // Complex distance between axis(x) and w(axis(y)) 

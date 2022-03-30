@@ -18,7 +18,7 @@ struct TestCollection {
   int size();
   box_state evaluate_center(int index, Box& box);
   TestResult evaluate_box(int index, Box& box);
-  TestResult evaluate_AJCC(word_pair& pair, Box& box);
+  TestResult evaluate_AJ(word_pair& pair, Box& box);
   TestResult evaluate_qrs(Box& box);
   const std::string get_name(int index);
   word_pair get_pair(int index);
@@ -34,8 +34,8 @@ private:
   std::map<word_pair, int> pair_index;
   std::vector<word_pair> pair_vector;
   box_state evaluate_approx(word_pair pair, const Box& params);
-  bool ready_for_elliptics_test(SL2<AJCC>& w);
-  bool only_elliptics(SL2<AJCC>& w, Params<AJCC>& params);
+  bool ready_for_elliptics_test(SL2<AJ>& w);
+  bool only_elliptics(SL2<AJ>& w, Params<AJ>& params);
 };
 
 template<typename T>
@@ -92,9 +92,10 @@ inline const bool wg_hits_sym_axis(const SL2<T>& w,
 template<typename T>
 inline const bool w_in_sym_search(const SL2<T>& w) {
   // This is a general derivation.
-  if (absLB(a - d) > 0 && not_identity(w)) {
+  if (absLB(w.a - w.d) > 0) { // means axis(w) does meet (0,inf) orthogonally
+    // normalized matrix so that w and sym(w) marg point is j
     SL2<T> normalized(w.a, sqrt(w.b * w.c), sqrt(w.b * w.c), w.d);
-    return absUB(cosh_move_j(normalized)) < g_cosh_sym_mu; 
+    return absUB(cosh_move_j(normalized)) < g_cosh_sym_marg; 
   }
   return false; 
 }
@@ -103,19 +104,31 @@ template<typename T>
 inline const bool w_conj_in_sym_search(const SL2<T>& w,
     const Params<T>& p, const char g) {
   T t_sh_sq_hf_p = two_sinh_sqrd_half_perp_wg_zero_inf(w, p, g);
-  // sinh(I Pi/4)^2 = -1/2 which means axes meet orthogonally
-  return strictly_pos(two_ch_re_tube - t_ch_d)
+  // does not intersect (0,inf) at a right angle
+  // Note, if w(axis(g)) is (0, inf), then the margulis number
+  // is at most len(g) since axis(g) and (0,inf) meet orthogonally
   if (absLB(t_sh_sq_hf_p + 1) > 0) {
     T t_ch_d = two_cosh_dist(two_sh_sq_hf_p);
-    T f_ch_sq_d = t_ch_d * t_ch_d;
-    if (g == 'x') {
-      // Margulis formula from translation lenth + tube radius
-      return absUB(f_ch_sq_d * 
-          (p.coshlx - p.costx) + p.costx * 4) < g_cosh_sym_mu * 4;  
-    } else {
-      // Margulis formula from translation lenth + tube radius
-      return absUB(f_ch_sq_d * 
-          (p.coshly - p.costy) + p.costy * 4) < g_cosh_sym_mu * 4;  
+    // IMPORTANT: we assume that len(g) < g_sym_mu 
+    // Thus, we only check that the distance to the
+    // possible margulis point is small enough
+    if (absUB(t_ch_d) < g_cosh_sym_r) {
+      return true;
+    }
+  return false;
+}
+
+template<typename T>
+inline const bool w_conj_and_g_in_sym_search(const SL2<T>& w,
+    const Params<T>& p, const char g) {
+  T f_sh_sq_hf_p = four_sinh_sqrd_half_perp(w, p, g);
+  if (absLB(f_sh_sq_hf_p) > 0 && absLB(f_sh_sq_hf_p + 4) > 0) {
+    T f_ch_2r = four_cosh_dist(f_sh_sq_hf_p);
+    // IMPORTANT: we assume that len(g) < g_sym_mu 
+    // Thus, we only check that the distance to the
+    // possible margulis point is small enough
+    if (absUB(t_ch_2r) < g_cosh_sym_2r) {
+      return true;
     }
   }
   return false;
@@ -147,7 +160,7 @@ inline const bool does_not_fix_zero_inf(const SL2<T>& w) {
 template<typename T>
 inline const bool must_fix_axis(const SL2<T>& w,
     const Params<T>& p, const char g) {
-  // The "must" part is only valid for AJCC tests
+  // The "must" part is only valid for AJ tests
   T ch_two_re_tube;
   if (g == 'x') {
     ch_two_re_tube = p.cosh2dx;
@@ -172,7 +185,7 @@ inline const bool must_fix_axis(const SL2<T>& w,
 }
 
 template<typename T>
-inline const bool inside_var_nbd(const SL2<T>& w,
+inline const bool inside_var_nbd_g(const SL2<T>& w,
     const Params<T>& p, const char g) {
   // The second test may only work when g has trace close to +/- 2
   if (g_debug &&
@@ -195,7 +208,7 @@ inline const bool moves_y_axis_too_close_to_x(const SL2<T>& w,
   // We know that diff is away from zero and
   // the diff should be conj symmetrix, so
   // we only test if the real part is to one side of the bound
-  if (g_debug && std::is_same<T, AJCC>::value && strictly_pos(diff)) {
+  if (g_debug && std::is_same<T, AJ>::value && strictly_pos(diff)) {
     fprintf(stderr, "****************************************\n");
     fprintf(stderr, "MOVES Y TOO CLOSE TO X\n");
     print_SL2(w);
@@ -249,7 +262,7 @@ inline bool non_cylic_power(const SL2<T>& w, const SL2<T>& g) {
   // Here we check that this is impossible in this box. Must use margulis
   // number to check cut off for roots of x or y
   SL2<T> commutator = g * w * inverse(w * g);
-  if (g_debug && std::is_same<T, AJCC>::value && not_identity(commutator)) {
+  if (g_debug && std::is_same<T, AJ>::value && not_identity(commutator)) {
     fprintf(stderr, "****************************************\n");
     fprintf(stderr, "NOT CYCLIC POWER\n");
     fprintf(stderr, "x or y\n");
@@ -346,18 +359,17 @@ T cosh_marg_lower_bound(const T& two_sinh_r) {
   return ((a8 + (a1 + a0)) + (a4 + a5)) + ((a7 + a2) + (a6 + a3)); 
 }
 
-bool proven_is_good(const std::string& proven, const Box& box);
-
 #define MAX_ID_SHIFT 5
 template<typename T>
 std::string proven_identity(std::string word, const Params<T>& p) {
   SL2<T> x = construct_x(p);
   SL2<T> y = construct_y(p);
   if (g_debug) {
-    fprintf(stderr,
-        "Testing proven identity for word: %s .\n", word.c_str());
+    fprintf(stderr, "Testing proven identity for word: %s .\n", word.c_str());
   }
-  if (inside_var_nbd(w, p, 'x')) {
+  SL2<T> w = construct_word(word, p);
+  std::string new_word;
+  if (y_power(word) > 0 && inside_var_nbd_g(w, p, 'x')) {
     T four_cosh_x_tube_UB = four_cosh_dist(y, p, 'x');
     T cosh_prim_re_len = worst_primitive_cosh_re_len(
         p.coshlx, p.costx, four_cosh_x_tube_UB); 
@@ -368,8 +380,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
         T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
         if (strictly_pos(diff)) {
           if (g_debug) {
-            fprintf(stderr,
-                "Found proven identity: %s .\n", new_word.c_str());
+            fprintf(stderr, "Found proven identity: %s .\n", new_word.c_str());
           }
           return new_word;
         }      
@@ -377,7 +388,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
       }
     }
   }
-  if (inside_var_nbd(w, p, 'y')) {
+  if (x_power(word) > 0 && inside_var_nbd_g(w, p, 'y')) {
     T four_cosh_y_tube_UB = four_cosh_dist(x, p, 'y');
     T cosh_prim_re_len = worst_primitive_cosh_re_len(
         p.coshly, p.costy, four_cosh_y_tube_UB); 
@@ -388,8 +399,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
         T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
         if (strictly_pos(diff)) {
           if (g_debug) {
-            fprintf(stderr,
-                "Found proven identity: %s .\n", new_word.c_str());
+            fprintf(stderr, "Found proven identity: %s .\n", new_word.c_str());
           }
           return new_word;
         }      
@@ -399,5 +409,6 @@ std::string proven_identity(std::string word, const Params<T>& p) {
   }
   return "";
 }
+
 
 #endif //_TestCollection_
