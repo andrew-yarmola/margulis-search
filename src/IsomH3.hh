@@ -53,7 +53,7 @@ const T norm(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(tr1 + sh1) < 2) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign");
+      fprintf(stderr, "Flipping sqrt sign (norm): ");
       T t = tr1 + sh1;
       print_type(t);
     }
@@ -62,7 +62,7 @@ const T norm(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(tr2 + sh2) < 2) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign");
+      fprintf(stderr, "Flipping sqrt sign (norm): ");
       T t = tr2 + sh2;
       print_type(t);
     }
@@ -119,7 +119,7 @@ const T sinh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(ch + sh) < absUB(norm(w1,w2))) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign");
+      fprintf(stderr, "Flipping sqrt sign (sinh_perp_normed): ");
       T t = ch + sh;
       print_type(t);
     }
@@ -135,7 +135,7 @@ const T sinh_perp(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(ch + sh) < 1) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign");
+      fprintf(stderr, "Flipping sqrt sign (sinh_perp): ");
       T t = ch + sh;
       print_type(t);
     }
@@ -177,7 +177,7 @@ const T sinh_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(ch + sh) < 1) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign");
+      fprintf(stderr, "Flipping sqrt sign (sinh_2_re_perp): ");
       T t = ch + sh;
       print_type(t);
     } 
@@ -195,7 +195,7 @@ const T sinh_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(ch + sh) < absUB(n)) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign");
+      fprintf(stderr, "Flipping sqrt sign (sinh_2_re_perp_normed): ");
       T t = ch + sh;
       print_type(t);
     } 
@@ -436,8 +436,8 @@ const T jorgensen(const SL2<T>& w1, const SL2<T>& w2) {
 template<typename T>
 const std::pair<T,T> fixed_points(const SL2<T>& w) {
   std::pair<T,T> result(
-      (td(w) + sqrt(tr(w) * tr(w) - 4)) / (c * 2),
-      (td(w) - sqrt(tr(w) * tr(w) - 4)) / (c * 2));
+      (td(w) + sqrt(tr(w) * tr(w) - 4)) / (w.c * 2),
+      (td(w) - sqrt(tr(w) * tr(w) - 4)) / (w.c * 2));
   return result;
 }
 

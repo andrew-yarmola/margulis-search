@@ -218,8 +218,8 @@ void fill_derived(Params<T>& p) {
   p.costy = one - (p.sinty2 * p.sinty2) * 2;
 
   // main formula relating margulis, real length, twist, and distance to axis
-  p.coshlx = (p.coshmu + p.costx * p.sinhsdx) / p.coshsdx;
-  p.coshly = (p.coshmu + p.costy * p.sinhsdy) / p.coshsdy;
+  p.coshlx = (p.coshmu + p.costx * sinhsdx) / coshsdx;
+  p.coshly = (p.coshmu + p.costy * sinhsdy) / coshsdy;
 
   p.coshlx2 = sqrt((p.coshlx + one) / 2); 
   p.sinhlx2 = sqrt((p.coshlx - one) / 2);

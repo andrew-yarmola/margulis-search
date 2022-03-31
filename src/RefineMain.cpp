@@ -16,7 +16,7 @@ double g_sinh_r = 1.3426;
 double g_cosh_r = 1e11; 
 
 double g_cosh_sym_marg = 1.38;
-double g_sinh_r = 1.999;
+double g_sinh_sym_r = 1.999;
 double g_cosh_sym_r = 1e11; 
 double g_cosh_sym_2r = 1e11; 
 
@@ -170,10 +170,10 @@ int main(int argc, char** argv)
 
   fprintf(stderr, "%s", box.desc().c_str());
   fprintf(stderr,
-    "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f
-    sinh(r) upper %f\n    cosh(r) upper %f\n
-    sinh(sym_r) lower %f\n    cosh(sym_r) lower %f
-    cosh(2*sym_r) lower %f\n",
+    "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n"
+"    sinh(r) upper %f\n    cosh(r) upper %f\n"
+"    sinh(sym_r) lower %f\n    cosh(sym_r) lower %f\n"
+"    cosh(2*sym_r) lower %f\n",
     g_cosh_marg_lower, g_cosh_marg_upper,
     g_sinh_r, g_cosh_r, g_sinh_sym_r, g_cosh_sym_r, g_cosh_sym_2r);
   PartialTree t = read_tree();

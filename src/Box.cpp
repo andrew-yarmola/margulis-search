@@ -17,7 +17,7 @@ Box::Box() {
   }
   pos = 0;
   compute_center_and_size();
-  compute_nearer();
+  // compute_nearer();
   compute_cover();
 }
 
@@ -36,7 +36,7 @@ Box Box::child(int dir) const
   child.short_words_cache.clear();
 
   child.compute_center_and_size();
-  child.compute_nearer();
+  // child.compute_nearer();
   child.compute_cover();
   return child;
 }
@@ -136,23 +136,23 @@ std::string Box::desc() {
       "cosh(ly)) = %f + i %f with size %f, absLB %f, and absUB %f\n",
       coshly.f.re, coshly.f.im, coshly.size, absLB(coshly), absUB(coshly));
   sprintf(_desc + strlen(_desc),
-      "sinh(L_x/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
+      "sinh(Lx/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
       sinhLx2.f.re, sinhLx2.f.im, sinhLx2.size, absLB(sinhLx2), absUB(sinhLx2));
   sprintf(_desc + strlen(_desc),
-      "cosh(L_x/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
+      "cosh(Lx/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
       coshLx2.f.re, coshLx2.f.im, coshLx2.size, absLB(coshLx2), absUB(coshLx2));
   sprintf(_desc + strlen(_desc),
-      "sinh(L_y/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
+      "sinh(Ly/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
       sinhLy2.f.re, sinhLy2.f.im, sinhLy2.size, absLB(sinhLy2), absUB(sinhLy2));
   sprintf(_desc + strlen(_desc),
-      "cosh(L_y/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
+      "cosh(Ly/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
       coshLy2.f.re, coshLy2.f.im, coshLy2.size, absLB(coshLy2), absUB(coshLy2));
 
   sprintf(_desc + strlen(_desc),
-  "Center
-    sinh(d_x) %f | sinh(d_y) %f
-    cosh(mu) %f | cos(phi) % f
-    sin(t_x/2) %f | sin(t_y/2) %f\n",
+  "Center\n"
+"    sinh(d_x) %f | sinh(d_y) %f\n"
+"    cosh(mu) %f | cos(phi) % f\n"
+"    sin(t_x/2) %f | sin(t_y/2) %f\n",
   c_sinhdx.real(), c_sinhdy.real(), c_coshmu.real(),
   c_cosf.real(), c_sintx2.real(), c_sinty2.real() );
 

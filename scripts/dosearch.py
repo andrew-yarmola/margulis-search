@@ -270,10 +270,10 @@ if __name__ == '__main__' :
     if len(failed_holes) > 0:
       print('Deepest failed hole: {}\n'.format(sorted(failed_holes, key=len)[-1]))
       if False or len(open_holes) % 100 == 0:
-        with open('deep_holes_sym', 'w') as fp:
+        with open('deep_holes', 'w') as fp:
           num = min(len(failed_holes), 10000)
           fp.write('\n'.join(sorted(failed_holes, key=len, reverse=True)[:num]))
-        with open('open_holes_sym', 'w') as fp:
+        with open('open_holes', 'w') as fp:
           num = min(len(open_holes), 10000)
           fp.write('\n'.join(sorted(open_holes, key=len, reverse=True)[:num]))
     else:

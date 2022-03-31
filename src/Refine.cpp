@@ -25,7 +25,7 @@ extern int num_bound_tests;
 
 extern bool g_debug;
 
-unordered_map<string, SL2<AJCC> > short_words_cache;
+unordered_map<string, SL2<AJ> > short_words_cache;
 
 bool refine_recursive(Box box, PartialTree& t, int depth,
     TestHistory& history, vector< Box >& place,
@@ -54,7 +54,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
   if (depth % QR_MOD == 1) {
     for (auto qr : box.qr.word_classes()) {
       word_pair qr_pair(qr, ""); 
-      t.result = g_tests.evaluate_AJCC(qr_pair, box);
+      t.result = g_tests.evaluate_AJ(qr_pair, box);
       if (t.result.state != open && t.result.state != open_with_qr) {
         return true;
       }

@@ -18,7 +18,7 @@ struct Box {
   Box child(int dir) const;
   Params<Complex> center() const { return _center; }
   // returns all values closer to 0 than in box or 0 if box overlaps
-	Params<Complex> nearer() const { return _nearer; }
+	// TODO Params<Complex> nearer() const { return _nearer; }
   Params<AJ> cover() const { return _cover; }
   SL2<Complex> x_center() const { return _x_center; }
   SL2<Complex> y_center() const { return _y_center; }
@@ -32,11 +32,11 @@ private:
   double box_center[DIM];
   double box_size[DIM];
   Params<Complex> _center;
-  Params<Complex> _nearer;
+  // Params<Complex> _nearer;
   Params<AJ> _cover;
   void compute_center_and_size();
   void compute_cover();
-  void compute_nearer();
+  // void compute_nearer();
   SL2<Complex> _x_center;
   SL2<Complex> _y_center;
   SL2<AJ> _x_cover;

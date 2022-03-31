@@ -12,6 +12,16 @@
 
 extern bool g_debug;
 
+extern double g_cosh_marg_upper;
+extern double g_cosh_marg_lower;
+extern double g_sinh_r;
+extern double g_cosh_r;
+
+extern double g_cosh_sym_marg;
+extern double g_sinh_sym_r;
+extern double g_cosh_sym_r;
+extern double g_cosh_sym_2r;
+
 struct RelatorTest;
 
 struct TestCollection {
@@ -108,13 +118,14 @@ inline const bool w_conj_in_sym_search(const SL2<T>& w,
   // Note, if w(axis(g)) is (0, inf), then the margulis number
   // is at most len(g) since axis(g) and (0,inf) meet orthogonally
   if (absLB(t_sh_sq_hf_p + 1) > 0) {
-    T t_ch_d = two_cosh_dist(two_sh_sq_hf_p);
+    T t_ch_d = two_cosh_dist(t_sh_sq_hf_p);
     // IMPORTANT: we assume that len(g) < g_sym_mu 
     // Thus, we only check that the distance to the
     // possible margulis point is small enough
-    if (absUB(t_ch_d) < g_cosh_sym_r) {
+    if (absUB(t_ch_d) < g_cosh_sym_r * 2) {
       return true;
     }
+  }
   return false;
 }
 
@@ -127,7 +138,7 @@ inline const bool w_conj_and_g_in_sym_search(const SL2<T>& w,
     // IMPORTANT: we assume that len(g) < g_sym_mu 
     // Thus, we only check that the distance to the
     // possible margulis point is small enough
-    if (absUB(t_ch_2r) < g_cosh_sym_2r) {
+    if (absUB(f_ch_2r) < g_cosh_sym_2r * 4) {
       return true;
     }
   }
@@ -189,16 +200,16 @@ inline const bool inside_var_nbd_g(const SL2<T>& w,
     const Params<T>& p, const char g) {
   // The second test may only work when g has trace close to +/- 2
   if (g_debug &&
-      (absUB(jorgensen_wg(w, params)) < 1 ||
-      absUB(jorgensen_gw(w, params)) < 1 ||
+      (absUB(jorgensen_wg(w, p, g)) < 1 ||
+      absUB(jorgensen_gw(w, p, g)) < 1 ||
       must_fix_axis(w, p, g))) {
       fprintf(stderr, "UB Jwx %f, UB Jxw %f, must_fix %d\n",
           absUB(jorgensen_wg(w, p, g)),
           absUB(jorgensen_gw(w, p, g)),
           must_fix_axis(w, p, g));
   }
-  return absUB(jorgensen_wg(w, params)) < 1 ||
-      absUB(jorgensen_gw(w, params)) < 1 || must_fix_axis(w, p, g);
+  return absUB(jorgensen_wg(w, p, g)) < 1 ||
+      absUB(jorgensen_gw(w, p, g)) < 1 || must_fix_axis(w, p, g);
 }
 
 template<typename T>
@@ -293,10 +304,12 @@ bool meyerhoff_k_test(const T& ch_o, const T& cs_o,
   T cs = cs_o;
   T temp, four_cosh_tube_diam_LB;
   T meyer_k = T(1024); // arbitray large enough number
+  double sqrt_of_2 = absLB(sqrt(Complex(2,0)));
+  double sqrt_of_2_minus_one = absLB(sqrt(Complex(2,0)) - 1);
   int count = 0;
-  while (absUB(ch * ch) < 2 && count < MAX_MEYER) {
+  while (absUB(ch) <= sqrt_of_2 && count < MAX_MEYER) {
     temp = ch - cs; 
-    if (strictly_pos(meyer_k - temp) && absUB((temp + 1) * (temp + 1)) < 2) {
+    if (strictly_pos(meyer_k - temp) && absUB(temp) <= sqrt_of_2_minus_one) {
       meyer_k = temp;
       // See Meyerhoff paper on volume lowerbounds for hyperbolic 3-manifolds
       four_cosh_tube_diam_LB = sqrt(-(meyer_k * 32) + 16) / meyer_k;
@@ -314,7 +327,7 @@ bool meyerhoff_k_test(const T& ch_o, const T& cs_o,
     temp = (ch_o * 2) * ch - ch_prev;
     ch_prev = ch;
     ch = temp;  
-    T temp = (cs_o * 2) * cs - cs_prev;
+    temp = (cs_o * 2) * cs - cs_prev;
     cs_prev = cs;
     cs = temp;
     count +=1;

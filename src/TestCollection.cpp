@@ -6,14 +6,6 @@
 using namespace std;
 // using namespace __gnu_cxx;
 
-extern double g_cosh_marg_upper;
-extern double g_cosh_marg_lower;
-extern double g_cosh_r;
-
-extern bool g_cosh_sym_marg;
-extern double g_cosh_sym_r;
-extern double g_cosh_sym_2r;
-
 int num_bound_tests = 4;
 int relator_depth= 16;
 
@@ -51,7 +43,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
         return maybe_killed_center;
       }
       if (wg_hits_sym_axis(w, p, 'x') || 
-          wg_hits_sym_axis(w, p, 'y') {
+          wg_hits_sym_axis(w, p, 'y')) {
         return maybe_killed_center;
       }
     }
@@ -63,7 +55,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
       }
       if (g == 'x') {
         word_g = x_strip(word);
-      else {
+      } else {
         word_g = y_strip(word);
       }
       SL2<Complex> w_g;
@@ -139,15 +131,40 @@ TestResult TestCollection::evaluate_AJ(word_pair& pair, Box& box)
     string word = pair.first;
     SL2<AJ> w = construct_word(word, p);
     if (w_in_sym_search(w)) {
-      return killed_sym;
+      result.state = killed_sym;
+      if (g_debug) {
+        fprintf(stderr, "%s in sym search\n", word.c_str());
+        print_SL2(w);
+      }
+      return result;
     } 
-    if (w_conj_in_sym_search(w, p, 'x') ||
-        w_conj_in_sym_search(w, p, 'y')) {
-      return killed_sym;
+    if (w_conj_in_sym_search(w, p, 'x')) {
+      if (g_debug) {
+        fprintf(stderr, "%s conj of x in sym search\n", word.c_str());
+      }
+      result.state = killed_sym;
+      return result;
     } 
-    if (w_conj_and_g_in_sym_search(w, p, 'x') ||
-        w_conj_and_g_in_sym_search(w, p, 'y')) {
-      return killed_sym;
+    if (w_conj_in_sym_search(w, p, 'y')) {
+      if (g_debug) {
+        fprintf(stderr, "%s conj of y in sym search\n", word.c_str());
+      }
+      result.state = killed_sym;
+      return result;
+    } 
+    if (w_conj_and_g_in_sym_search(w, p, 'x')) { 
+      if (g_debug) {
+        fprintf(stderr, "%s conj of x and x in sym search\n", word.c_str());
+      }
+      result.state = killed_sym;
+      return result;
+    } 
+    if (w_conj_and_g_in_sym_search(w, p, 'y')) { 
+      if (g_debug) {
+        fprintf(stderr, "%s conj of y and y in sym search\n", word.c_str());
+      }
+      result.state = killed_sym;
+      return result;
     } 
     if (not_identity(w) &&
         move_less_than_marg(w, p) &&
@@ -288,12 +305,14 @@ box_state TestCollection::evaluate_center(int index, Box& box)
               return check_bounds_center(
                   absLB(center.sinhdx) > g_sinh_r ||
                   absLB(center.sinhdy) > g_sinh_r ||
-                  strictly_pos(-center.sinhdx)) ||
-                  strictly_pos(-center.sinhdy)) ||
+                  strictly_pos(-center.sinhdx) ||
+                  strictly_pos(-center.sinhdy) ||
                   strictly_pos(-center.cosf) ||
                   strictly_pos(center.cosf - 1) ||
                   strictly_pos(-(center.coshlx - 1)) ||
-                  strictly_pos(-(center.coshly - 1)));
+                  strictly_pos(-(center.coshly - 1)) ||
+                  strictly_pos(-(center.coshlx - g_cosh_marg_upper)) ||
+                  strictly_pos(-(center.coshly - g_cosh_marg_upper)));
             }
     case 2: { // Meyerhoff tube bound.
               // Check if embeded tube radius is more than rad + marg/2
@@ -332,41 +351,44 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
     case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
               return check_bounds(
                   absUB(cover.coshmu) < g_cosh_marg_lower ||
-                  absLB(cover.coshmu) > g_cosh_marg_upper);
+                  absLB(cover.coshmu) > g_cosh_marg_upper, result);
             }
     case 1: {
               return check_bounds(
                   absLB(cover.sinhdx) > g_sinh_r ||
                   absLB(cover.sinhdy) > g_sinh_r ||
-                  strictly_pos(-cover.sinhdx)) ||
-                  strictly_pos(-cover.sinhdy)) ||
+                  strictly_pos(-cover.sinhdx) ||
+                  strictly_pos(-cover.sinhdy) ||
                   strictly_pos(-cover.cosf) ||
                   strictly_pos(cover.cosf - 1) ||
                   strictly_pos(-(cover.coshlx - 1)) ||
-                  strictly_pos(-(cover.coshly - 1)));
+                  strictly_pos(-(cover.coshly - 1)) ||
+                  strictly_pos(-(cover.coshlx - g_cosh_marg_upper)) ||
+                  strictly_pos(-(cover.coshly - g_cosh_marg_upper)),
+                  result);
             }
     case 2: { // Meyerhoff tube bound.
               // Check if embeded tube radius is more than rad + marg/2
-              SL2<Complex> x = construct_x(cover);
-              SL2<Complex> y = construct_y(cover);
-              Complex four_cosh_x_tube_UB = four_cosh_dist(y, cover, 'x');
-              Complex four_cosh_y_tube_UB = four_cosh_dist(x, cover, 'y');
+              SL2<AJ> x = construct_x(cover);
+              SL2<AJ> y = construct_y(cover);
+              AJ four_cosh_x_tube_UB = four_cosh_dist(y, cover, 'x');
+              AJ four_cosh_y_tube_UB = four_cosh_dist(x, cover, 'y');
               return check_bounds(
                   meyerhoff_k_test(
                     cover.coshlx, cover.costx, four_cosh_x_tube_UB) ||
                   meyerhoff_k_test(
-                    cover.coshly, cover.costy, four_cosh_y_tube_UB)
-                  );
+                    cover.coshly, cover.costy, four_cosh_y_tube_UB),
+                  result);
             }
     case 3: { // 4.26 in bilipschitz paper
-              Complex cosh_marg_x_LB = 
+              AJ cosh_marg_x_LB = 
                 cosh_marg_lower_bound(cover.sinhdx * 2);
-              Complex cosh_marg_y_LB = 
+              AJ cosh_marg_y_LB = 
                 cosh_marg_lower_bound(cover.sinhdy * 2);
               return check_bounds(
                   strictly_pos(cosh_marg_x_LB - cover.coshmu) ||
-                  strictly_pos(cosh_marg_y_LB - cover.coshmu)
-                  );
+                  strictly_pos(cosh_marg_y_LB - cover.coshmu),
+                  result);
             }
     default:
             return evaluate_AJ(pair_vector[index - num_bound_tests], box);

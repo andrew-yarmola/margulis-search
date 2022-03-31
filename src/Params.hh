@@ -10,14 +10,14 @@
 
 // Eliminate bad boxes that can't gerate non-elementay groups
 template<typename T>
-const T jorgsen_xy(const Params<T>& p) {
+const T jorgensen_xy(const Params<T>& p) {
   T z = p.sinhLy2 * p.sinhperp; 
   return (abs_sqrd(z) + 1) * abs_sqrd(p.sinhLx2) * 4;
 }
 
 // Eliminate bad boxes that can't gerate non-elementay groups
 template<typename T>
-const T jorgsen_yx(const Params<T>& p) {
+const T jorgensen_yx(const Params<T>& p) {
   T z = p.sinhLx2 * p.sinhperp; 
   return (abs_sqrd(z) + 1) * abs_sqrd(p.sinhLy2) * 4;
 }
@@ -26,7 +26,7 @@ const T jorgsen_yx(const Params<T>& p) {
 template<typename T>
 const T four_sinh_sqrd_half_perp(const SL2<T>& w,
     const Params<T>& p, const char g) {
-  T b_coeff, c_coeff;
+  T b_coeff, c_coeff, shL2;
   if (g == 'x') {
     shL2 = p.sinhLx2;
     b_coeff = p.expdx;
@@ -42,7 +42,7 @@ const T four_sinh_sqrd_half_perp(const SL2<T>& w,
 }
 
 template<typename T>
-const T jorgsen_gw(const SL2<T>& w, const Params<T>& p, const char g) {
+const T jorgensen_gw(const SL2<T>& w, const Params<T>& p, const char g) {
   T shL2;
   if (g == 'x') {
     shL2 = p.sinhLx2;
@@ -53,7 +53,7 @@ const T jorgsen_gw(const SL2<T>& w, const Params<T>& p, const char g) {
 }
 
 template<typename T>
-const T jorgsen_wg(const SL2<T>& w, const Params<T>& p, const char g) {
+const T jorgensen_wg(const SL2<T>& w, const Params<T>& p, const char g) {
   T shL2;
   if (g == 'x') {
     shL2 = p.sinhLx2;
