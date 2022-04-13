@@ -86,7 +86,8 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
     }
   }
 
-  if (g_options.word_search_depth > 0 && depth > 0
+  // WORD SEARCH IS OFF
+  if (false && g_options.word_search_depth > 0 && depth > 0
       && (g_options.improve_tree || !t.l_child)
       && box.name.length() > g_options.word_search_depth
       && depth % WORD_SEARCH_MOD == 0) {

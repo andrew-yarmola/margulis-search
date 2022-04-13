@@ -31,7 +31,7 @@ cd $bin_dir
 cat "$data_dir/$log_file" >> "$data_dir/${log_file}.all"
 
 python3 "$search" \
-  -i 18 \
+  -i 30 \
   -t 6 \
   -r "$bin_dir/refine_marg" \
   -w "$words" \
@@ -40,4 +40,5 @@ python3 "$search" \
   -M "$cosh_marg" \
   -R "$sinh_rad" \
   -c 38 \
+  -n "marg400" \
   "$data_dir/$source" "$data_dir/$output" > "$data_dir/$log_file" 2>&1

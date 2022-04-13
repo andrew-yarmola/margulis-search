@@ -288,6 +288,8 @@ box_state check_bounds_center(bool ans) {
 TestResult check_bounds(bool ans, TestResult& result) {
   if (ans) {
     result.state = killed_bounds;
+  } else {
+    result.state = open;
   }
   return result;
 }
@@ -303,16 +305,18 @@ box_state TestCollection::evaluate_center(int index, Box& box)
             }
     case 1: {
               return check_bounds_center(
+                  absLB(center.sintx2) > 1 ||
+                  absLB(center.sinty2) > 1 ||
                   absLB(center.sinhdx) > g_sinh_r ||
                   absLB(center.sinhdy) > g_sinh_r ||
-                  strictly_pos(-center.sinhdx) ||
                   strictly_pos(-center.sinhdy) ||
+                  strictly_pos(-center.sinhdx) ||
                   strictly_pos(-center.cosf) ||
                   strictly_pos(center.cosf - 1) ||
                   strictly_pos(-(center.coshlx - 1)) ||
                   strictly_pos(-(center.coshly - 1)) ||
-                  strictly_pos(-(center.coshlx - g_cosh_marg_upper)) ||
-                  strictly_pos(-(center.coshly - g_cosh_marg_upper)));
+                  strictly_pos(center.coshlx - g_cosh_marg_upper) ||
+                  strictly_pos(center.coshly - g_cosh_marg_upper));
             }
     case 2: { // Meyerhoff tube bound.
               // Check if embeded tube radius is more than rad + marg/2
@@ -354,7 +358,47 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   absLB(cover.coshmu) > g_cosh_marg_upper, result);
             }
     case 1: {
+              if (g_debug) {
+                  if(absLB(cover.sintx2) > 1) {
+                     print_type("cover.sintx2", cover.sintx2);
+                  }
+                  if (absLB(cover.sinty2) > 1 ) {
+                     print_type("cover.sinty2", cover.sinty2);
+                  }
+                  if (absLB(cover.sinhdx) > g_sinh_r ) {
+                     print_type("cover.sinhdx", cover.sinhdx);
+                  }
+                  if (absLB(cover.sinhdy) > g_sinh_r ) {
+                     print_type("cover.sinhdy", cover.sinhdy);
+                  }
+                  if (strictly_pos(-cover.sinhdx) ) {
+                     print_type("-cover.sinhdx", -cover.sinhdx);
+                  }
+                  if (strictly_pos(-cover.sinhdy) ) {
+                     print_type("-cover.sinhdy", -cover.sinhdy);
+                  }
+                  if (strictly_pos(-cover.cosf) ) {
+                     print_type("-cover.cosf", -cover.cosf);
+                  }
+                  if (strictly_pos(cover.cosf - 1) ) {
+                     print_type("cover.cosf - 1", cover.cosf - 1);
+                  }
+                  if (strictly_pos(-(cover.coshlx - 1)) ) {
+                     print_type("cover.coshlx - 1", cover.coshlx - 1);
+                  }
+                  if (strictly_pos(-(cover.coshly - 1)) ) {
+                     print_type("cover.coshly - 1", cover.coshly - 1);
+                  }
+                  if (strictly_pos(cover.coshlx - g_cosh_marg_upper) ) {
+                     print_type("cover.coshlx - g_cosh_marg_upper", cover.coshlx - g_cosh_marg_upper);
+                  }
+                  if (strictly_pos(cover.coshly - g_cosh_marg_upper)) {
+                     print_type("cover.coshly - g_cosh_marg_upper", cover.coshly - g_cosh_marg_upper);
+                  }
+              }
               return check_bounds(
+                  absLB(cover.sintx2) > 1 ||
+                  absLB(cover.sinty2) > 1 ||
                   absLB(cover.sinhdx) > g_sinh_r ||
                   absLB(cover.sinhdy) > g_sinh_r ||
                   strictly_pos(-cover.sinhdx) ||
@@ -363,8 +407,8 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   strictly_pos(cover.cosf - 1) ||
                   strictly_pos(-(cover.coshlx - 1)) ||
                   strictly_pos(-(cover.coshly - 1)) ||
-                  strictly_pos(-(cover.coshlx - g_cosh_marg_upper)) ||
-                  strictly_pos(-(cover.coshly - g_cosh_marg_upper)),
+                  strictly_pos(cover.coshlx - g_cosh_marg_upper) ||
+                  strictly_pos(cover.coshly - g_cosh_marg_upper),
                   result);
             }
     case 2: { // Meyerhoff tube bound.

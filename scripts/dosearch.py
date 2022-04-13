@@ -68,11 +68,11 @@ def run_refine(command, dest_dir) :
 if __name__ == '__main__' :
   try:
     opts, args = getopt.getopt(sys.argv[1:],
-        'w:p:b:c:d:h:r:i:t:s:IM:R:',
+        'w:p:b:c:d:h:r:i:t:s:IM:R:n:',
       ['words=','impossible=', 'child_limit=','depth_limit=',
         'holes=','refine=','invent_depth=',
         'truncate_depth','word_search_depth=', 'improve',
-        'cosh_marg=', 'sinh_rad='])
+        'cosh_marg=', 'sinh_rad=', 'name='])
   except getopt.GetoptError as err:
     print(str(err))
     args = []
@@ -83,7 +83,8 @@ if __name__ == '__main__' :
       '[-b,--bad_relators <bad_relator_file>] ' +
       '[-c,--child_limit <limit>] [-d,--depth_limit <limit>]' +
       '[-h,--holes <holes_file>] [-I,--improve]' + 
-      '[-M,--cosh_marg <limit>] [-R,--sinh_rad <limit> src_dir dest_dir')
+      '[-M,--cosh_marg <limit>] [-R,--sinh_rad <limit>]' +
+      '[-n,--name] <name> src_dir dest_dir')
     sys.exit(2)
 
   # Executables
@@ -111,6 +112,7 @@ if __name__ == '__main__' :
   impossible_file = 'none'
   words_file = 'none'
   bad_relator_file = 'none'
+  name = 'none'
 
   # Get config
   holes_file = None
@@ -142,6 +144,8 @@ if __name__ == '__main__' :
       cosh_mu_upper = val
     if opt in ('-R', '--sinh_rad'):
       sinh_tube_upper = val
+    if opt in ('-n', '--name'):
+      name = val
 
   add_words(seen_words, words_file)
 
@@ -217,12 +221,12 @@ if __name__ == '__main__' :
           num_unpatched = command_output(
               'grep -c Unpatched {0}/{1}.err; exit 0'.format(
                 dest_dir, done_hole)).rstrip()
-          hum_holes = command_output(
-              'grep -c HOLE {0}/{1}.err; exit 0'.format(
+          num_holes = command_output(
+              'grep -c HOLE {0}/{1}.out; exit 0'.format(
                 dest_dir, done_hole)).rstrip()
 
           print('Holes: {0} patched, {1} unpatched, {2} open holes\n'.format(
-            num_patched, num_unpatched, int(hum_holes)))
+            num_patched, num_unpatched, int(num_holes)))
 
           box_words = set()
           add_words(box_words, '{0}/{1}.out'.format(dest_dir, done_hole))        
@@ -270,10 +274,10 @@ if __name__ == '__main__' :
     if len(failed_holes) > 0:
       print('Deepest failed hole: {}\n'.format(sorted(failed_holes, key=len)[-1]))
       if False or len(open_holes) % 100 == 0:
-        with open('deep_holes', 'w') as fp:
+        with open('deep_holes_' + name, 'w') as fp:
           num = min(len(failed_holes), 10000)
           fp.write('\n'.join(sorted(failed_holes, key=len, reverse=True)[:num]))
-        with open('open_holes', 'w') as fp:
+        with open('open_holes_', + name, 'w') as fp:
           num = min(len(open_holes), 10000)
           fp.write('\n'.join(sorted(open_holes, key=len, reverse=True)[:num]))
     else:
