@@ -332,14 +332,15 @@ box_state TestCollection::evaluate_center(int index, Box& box)
                   );
             }
     case 3: { // 4.26 in bilipschitz paper
-              Complex cosh_marg_x_LB = 
-                cosh_marg_lower_bound(center.sinhdx * 2);
-              Complex cosh_marg_y_LB = 
-                cosh_marg_lower_bound(center.sinhdy * 2);
-              return check_bounds_center(
-                  strictly_pos(cosh_marg_x_LB - center.coshmu) ||
-                  strictly_pos(cosh_marg_y_LB - center.coshmu)
-                  );
+              Complex cosh_marg_LB; 
+              if (strictly_pos(center.sinhdy - center.sinhdx)) {
+                cosh_marg_LB = cosh_marg_lower_bound(center.sinhdx * 2);
+              } else if (strictly_pos(center.sinhdx - center.sinhdy)) {
+                cosh_marg_LB = cosh_marg_lower_bound(center.sinhdy * 2);
+              } else {
+                return check_bounds_center(false);
+              }
+              return check_bounds_center(strictly_pos(cosh_marg_LB - center.coshmu));
             }
    default:
             return evaluate_approx(pair_vector[index - num_bound_tests], box);
@@ -425,13 +426,16 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   result);
             }
     case 3: { // 4.26 in bilipschitz paper
-              AJ cosh_marg_x_LB = 
-                cosh_marg_lower_bound(cover.sinhdx * 2);
-              AJ cosh_marg_y_LB = 
-                cosh_marg_lower_bound(cover.sinhdy * 2);
+              AJ cosh_marg_LB; 
+              if (strictly_pos(cover.sinhdy - cover.sinhdx)) {
+                cosh_marg_LB = cosh_marg_lower_bound(cover.sinhdx * 2);
+              } else if (strictly_pos(cover.sinhdx - cover.sinhdy)) {
+                cosh_marg_LB = cosh_marg_lower_bound(cover.sinhdy * 2);
+              } else {
+                return check_bounds(false, result);
+              }
               return check_bounds(
-                  strictly_pos(cosh_marg_x_LB - cover.coshmu) ||
-                  strictly_pos(cosh_marg_y_LB - cover.coshmu),
+                  strictly_pos(cosh_marg_LB - cover.coshmu),
                   result);
             }
     default:

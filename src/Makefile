@@ -8,7 +8,7 @@ TREESTATOBJS= treestat.o
 CPLUSPLUS= g++ -std=c++1y
 CC= g++ -std=c++1y
 
-#COPTS=-g -Wall
+#COPTS=-pg -Wall
 COPTS=-O3
 
 

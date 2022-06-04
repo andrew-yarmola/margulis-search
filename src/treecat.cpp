@@ -139,6 +139,12 @@ bool process_tree(FILE* fp, FILE* out, char* boxcode) {
               }
             } else {
               // If the HOLE subtree is complete, print it to the output stream
+              if (g_config.verbose) {
+                fprintf(stderr, "HOLE %s subtree size %ld\n", boxcode, ftell(hole_out));
+              }
+              if (ftell(hole_out) == 0) {
+                  fprintf(stderr, "warning  HOLE %s subtree is empty\n", boxcode);
+              }
               rewind(hole_out);
               bool success = put_stream(out, hole_out);
               fclose(hole_out);

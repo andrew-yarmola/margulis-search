@@ -19,12 +19,12 @@ impossible="$words_dir/impossible"
 bad_relators="$words_dir/bad_relators"
 
 data_dir="/scratch/network/yarmola/margulis"
-log_file="refine400.log"
-source="source400"
-output="output400"
+log_file="refine500.log"
+source="source500"
+output="output500"
 
-cosh_marg="1.081"
-sinh_rad="0.6225"
+cosh_marg="1.27625"
+sinh_rad="0.880098"
 
 cd $bin_dir
 
@@ -41,5 +41,5 @@ python3 "$search" \
   -M "$cosh_marg" \
   -R "$sinh_rad" \
   -c 38 \
-  -n "marg400" \
+  -n "marg500" \
   "$data_dir/$source" "$data_dir/$output" > "$data_dir/$log_file" 2>&1

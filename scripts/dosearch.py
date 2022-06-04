@@ -222,7 +222,7 @@ if __name__ == '__main__' :
               'grep -c Unpatched {0}/{1}.err; exit 0'.format(
                 dest_dir, done_hole)).rstrip()
           num_holes = command_output(
-              'grep -c HOLE {0}/{1}.out; exit 0'.format(
+              'if [ -f {0}/{1}.out ]; then grep -c HOLE {0}/{1}.out; else echo 0; fi; exit 0'.format(
                 dest_dir, done_hole)).rstrip()
 
           print('Holes: {0} patched, {1} unpatched, {2} open holes\n'.format(
@@ -273,11 +273,11 @@ if __name__ == '__main__' :
     print('Best hole: {0}\n'.format(best_hole))
     if len(failed_holes) > 0:
       print('Deepest failed hole: {}\n'.format(sorted(failed_holes, key=len)[-1]))
-      if False or len(open_holes) % 100 == 0:
+      if len(open_holes) % 100 == 0:
         with open('deep_holes_' + name, 'w') as fp:
           num = min(len(failed_holes), 10000)
           fp.write('\n'.join(sorted(failed_holes, key=len, reverse=True)[:num]))
-        with open('open_holes_', + name, 'w') as fp:
+        with open('open_holes_' + name, 'w') as fp:
           num = min(len(open_holes), 10000)
           fp.write('\n'.join(sorted(open_holes, key=len, reverse=True)[:num]))
     else:
@@ -317,12 +317,15 @@ if __name__ == '__main__' :
     first_command = '{0} {1} {2} | head -1'.format(treecat, src_dir, best_hole)
     first = command_output(first_command).rstrip()
 
-    if first[:1] == 'H': # HOLE
+    print('|' + first + '|')
+
+    if first[:1] == 'H' or len(first) == 0: # HOLE
       treecat_command = 'echo 1'
 
     command = treecat_command + ' | ' + refine_command
     print('Running with run count {1}: {0}\n'.format(
       command, refine_run_count))
+    sys.stdout.flush()
     refine_run = Process(target=run_refine, args=(command, dest_dir,))
     refine_run.start()
     pid = refine_run.pid
