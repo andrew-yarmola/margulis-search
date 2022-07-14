@@ -23,7 +23,7 @@ log_file="refine500.log"
 source="source500"
 output="output500"
 
-cosh_marg="1.27625"
+cosh_marg="1.1276259"
 sinh_rad="0.880098"
 
 cd $bin_dir
