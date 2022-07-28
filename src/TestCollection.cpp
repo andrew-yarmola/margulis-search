@@ -309,8 +309,9 @@ box_state TestCollection::evaluate_center(int index, Box& box)
                   absLB(center.sinty2) > 1 ||
                   absLB(center.sinhdx) > g_sinh_r ||
                   absLB(center.sinhdy) > g_sinh_r ||
+                  strictly_pos(center.sinhdx) || // we want dx < 0
                   strictly_pos(-center.sinhdy) ||
-                  strictly_pos(-center.sinhdx) ||
+                  strictly_pos(-center.sinhdx - center.sinhdy) || // we want -dx < dy
                   strictly_pos(-center.cosf) ||
                   strictly_pos(center.cosf - 1) ||
                   strictly_pos(-(center.coshlx - 1)) ||
@@ -372,12 +373,15 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   if (absLB(cover.sinhdy) > g_sinh_r ) {
                      print_type("cover.sinhdy", cover.sinhdy);
                   }
-                  if (strictly_pos(-cover.sinhdx) ) {
-                     print_type("-cover.sinhdx", -cover.sinhdx);
+                  if (strictly_pos(cover.sinhdx) ) {
+                     print_type("cover.sinhdx", cover.sinhdx);
                   }
                   if (strictly_pos(-cover.sinhdy) ) {
                      print_type("-cover.sinhdy", -cover.sinhdy);
                   }
+                  if (strictly_pos(-cover.sinhdx - cover.sinhdy)) {
+                     print_type("-cover.sinhdx - cover.sinhdy", -cover.sinhdx - cover.sinhdy);
+                  } 
                   if (strictly_pos(-cover.cosf) ) {
                      print_type("-cover.cosf", -cover.cosf);
                   }
@@ -402,8 +406,9 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   absLB(cover.sinty2) > 1 ||
                   absLB(cover.sinhdx) > g_sinh_r ||
                   absLB(cover.sinhdy) > g_sinh_r ||
-                  strictly_pos(-cover.sinhdx) ||
+                  strictly_pos(cover.sinhdx) || // we want dx < 0
                   strictly_pos(-cover.sinhdy) ||
+                  strictly_pos(-cover.sinhdx - cover.sinhdy) || // we want -dx < dy
                   strictly_pos(-cover.cosf) ||
                   strictly_pos(cover.cosf - 1) ||
                   strictly_pos(-(cover.coshlx - 1)) ||

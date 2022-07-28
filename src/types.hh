@@ -92,8 +92,9 @@ inline T min_local(const T& x, const T& y) {
  * coshmu = cosh of margulis constat
  * sinhdx = sinh(d_x) where d_x is the hyperbolic distance
  *    from the margulis point to axis(x)
+ *    In this setting, this is NEGATIVE
  * sinhdy = sinh(d_y) where d_y is the hyperbolic distance
- *    from the margulis point to axis(y)
+ *    from the margulis point to axis(y).
  * cosf = cos(phi) where phi is the twist angle
  *    from the oriented axis(x) to axis(y)
  *    Note: we can assume 0 <= phi <= pi/2 by using
@@ -113,7 +114,7 @@ inline T min_local(const T& x, const T& y) {
  * costx = 1 - 2*sin(t_x/2)^2
  * costy = 1 - 2*sin(t_y/2)^2
  *
- * coshlx = (cosh(mu) + cos(tx)*sinh(dx)^2)/cosh(d2)^2
+ * coshlx = cosh(mu)
  * coshly = (cosh(mu) + cos(ty)*sinh(dy)^2)/cosh(d2)^2
  *
  * coshlx2 = sqrt((coshlx + 1)/2)
@@ -218,7 +219,7 @@ void fill_derived(Params<T>& p) {
   p.costy = one - (p.sinty2 * p.sinty2) * 2;
 
   // main formula relating margulis, real length, twist, and distance to axis
-  p.coshlx = (p.coshmu + p.costx * sinhsdx) / coshsdx;
+  p.coshlx = p.coshmu;
   p.coshly = (p.coshmu + p.costy * sinhsdy) / coshsdy;
 
   p.coshlx2 = sqrt((p.coshlx + one) / 2); 

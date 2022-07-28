@@ -17,7 +17,6 @@ Box::Box() {
   }
   pos = 0;
   compute_center_and_size();
-  // compute_nearer();
   compute_cover();
 }
 
@@ -36,7 +35,6 @@ Box Box::child(int dir) const
   child.short_words_cache.clear();
 
   child.compute_center_and_size();
-  // child.compute_nearer();
   child.compute_cover();
   return child;
 }
