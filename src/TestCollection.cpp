@@ -223,7 +223,8 @@ TestResult TestCollection::evaluate_AJ(word_pair& pair, Box& box)
       } else {
         w_x = w;
       }
-      if (inside_var_nbd_g(w_x, p, 'x')) {
+      // Cannot use inside_var_nbd_g since there is no actual tube
+      if (absUB(jorgensen_wg(w_x, p, 'x')) < 1 || absUB(jorgensen_gw(w_x, p, 'x')) < 1) {
         box.qr.get_name(word_x);
         if (syllables(word_x) < 4 || cant_fix_axis(w_x, p, 'x')) {
           result.words.first.assign(word_x);
