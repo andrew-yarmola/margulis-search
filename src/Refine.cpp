@@ -205,6 +205,7 @@ void print_tree(PartialTree& t)
       case killed_w_ay_hits_sym_axis: type = 'N'; break;
       case killed_via_sym: type = 'S'; break; 
       case proven_relator: type = 'R'; break; 
+      case proven_vol3: type = 'T'; break; 
       case var_nbd_x : type = 'v'; break;
       case var_nbd_y : type = 'V'; break;
       case var_nbd : type = 'W'; break;

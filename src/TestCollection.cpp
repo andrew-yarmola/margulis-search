@@ -4,7 +4,141 @@
 #include "TestCollection.hh"
 #include <algorithm>
 using namespace std;
-// using namespace __gnu_cxx;
+
+set<pair<string, string> > vol3_rels = {
+    {"XYXYxYXYXy", "yXYxYxyxYxYY"},
+    {"XYXYxYXYXy", "yxYXYxYxyxYY"},
+    {"XYXYxYXYXy", "yxYxyxYxYXYY"},
+    {"XYXYxYXYXy", "yxyxYxYXYxYY"},
+    {"XYXYxYXYXy", "yyXyXYXyXyxY"},
+    {"XYXyXYXYxY", "yXYxYxyxYxYY"},
+    {"XYXyXYXYxY", "yxYXYxYxyxYY"},
+    {"XYXyXYXYxY", "yxYxyxYxYXYY"},
+    {"XYXyXYXYxY", "yxyxYxYXYxYY"},
+    {"XYXyXYXYxY", "yyXyXYXyXyxY"},
+    {"XYXyXyxyXy", "XYXYxYXYXy"},
+    {"XYXyXyxyXy", "XYXyXYXYxY"},
+    {"XYXyXyxyXy", "XyxyxYxyxy"},
+    {"XYXyXyxyXy", "yXYXyXYXYxYY"},
+    {"XYXyXyxyXy", "yXYxYXYXyXYY"},
+    {"XYXyXyxyXy", "yXyXYXYxYXYY"},
+    {"XYXyXyxyXy", "yxYXYXyXYXYY"},
+    {"XYXyXyxyXy", "yyXyxyxYxyxY"},
+    {"XYXyXyxyXy", "yyxYxyxyXyxY"},
+    {"XYXyXyxyXy", "yyxyXyxyxYxY"},
+    {"XYxYXYXyXY", "XYXyXyxyXy"},
+    {"XYxYXYXyXY", "yXYxYxyxYxYY"},
+    {"XYxYXYXyXY", "yxYXYxYxyxYY"},
+    {"XYxYXYXyXY", "yxYxyxYxYXYY"},
+    {"XYxYXYXyXY", "yxyxYxYXYxYY"},
+    {"XYxYXYXyXY", "yyXyXYXyXyxY"},
+    {"XYxYxyxYxY", "XYXYxYXYXy"},
+    {"XYxYxyxYxY", "XYXyXYXYxY"},
+    {"XYxYxyxYxY", "XYxYXYXyXY"},
+    {"XYxYxyxYxY", "yXYXyXYXYxYY"},
+    {"XYxYxyxYxY", "yXYxYXYXyXYY"},
+    {"XYxYxyxYxY", "yXyXYXYxYXYY"},
+    {"XYxYxyxYxY", "yxYXYXyXYXYY"},
+    {"XYxYxyxYxY", "yyXyxyxYxyxY"},
+    {"XYxYxyxYxY", "yyxYxyxyXyxY"},
+    {"XYxYxyxYxY", "yyxyXyxyxYxY"},
+    {"XyXYXYxYXY", "XYXyXyxyXy"},
+    {"XyXYXYxYXY", "XYxYxyxYxY"},
+    {"XyXYXYxYXY", "yXYxYxyxYxYY"},
+    {"XyXYXYxYXY", "yxYXYxYxyxYY"},
+    {"XyXYXYxYXY", "yxYxyxYxYXYY"},
+    {"XyXYXYxYXY", "yxyxYxYXYxYY"},
+    {"XyXYXYxYXY", "yyXyXYXyXyxY"},
+    {"XyXYXyXyxy", "XYXYxYXYXy"},
+    {"XyXYXyXyxy", "XYXyXYXYxY"},
+    {"XyXYXyXyxy", "XYxYXYXyXY"},
+    {"XyXYXyXyxy", "XyXYXYxYXY"},
+    {"XyXYXyXyxy", "yXYXyXYXYxYY"},
+    {"XyXYXyXyxy", "yXYxYXYXyXYY"},
+    {"XyXYXyXyxy", "yXyXYXYxYXYY"},
+    {"XyXYXyXyxy", "yxYXYXyXYXYY"},
+    {"XyXYXyXyxy", "yyXyxyxYxyxY"},
+    {"XyXYXyXyxy", "yyxYxyxyXyxY"},
+    {"XyXYXyXyxy", "yyxyXyxyxYxY"},
+    {"XyXyxyXyXY", "XYXYxYXYXy"},
+    {"XyXyxyXyXY", "XYXyXYXYxY"},
+    {"XyXyxyXyXY", "XYxYXYXyXY"},
+    {"XyXyxyXyXY", "XyXYXYxYXY"},
+    {"XyXyxyXyXY", "yXYXyXYXYxYY"},
+    {"XyXyxyXyXY", "yXYxYXYXyXYY"},
+    {"XyXyxyXyXY", "yXyXYXYxYXYY"},
+    {"XyXyxyXyXY", "yxYXYXyXYXYY"},
+    {"XyXyxyXyXY", "yyXyxyxYxyxY"},
+    {"XyXyxyXyXY", "yyxYxyxyXyxY"},
+    {"XyXyxyXyXY", "yyxyXyxyxYxY"},
+    {"XyxyXyXYXy", "XYXYxYXYXy"},
+    {"XyxyXyXYXy", "XYXyXYXYxY"},
+    {"XyxyXyXYXy", "XYxYXYXyXY"},
+    {"XyxyXyXYXy", "XyXYXYxYXY"},
+    {"XyxyXyXYXy", "yXYXyXYXYxYY"},
+    {"XyxyXyXYXy", "yXYxYXYXyXYY"},
+    {"XyxyXyXYXy", "yXyXYXYxYXYY"},
+    {"XyxyXyXYXy", "yxYXYXyXYXYY"},
+    {"XyxyXyXYXy", "yyXyxyxYxyxY"},
+    {"XyxyXyXYXy", "yyxYxyxyXyxY"},
+    {"XyxyXyXYXy", "yyxyXyxyxYxY"},
+    {"XyxyxYxyxy", "XYXyXyxyXy"},
+    {"XyxyxYxyxy", "XYxYxyxYxY"},
+    {"XyxyxYxyxy", "XyXYXyXyxy"},
+    {"XyxyxYxyxy", "XyXyxyXyXY"},
+    {"XyxyxYxyxy", "XyxyXyXYXy"},
+    {"XyxyxYxyxy", "yXYxYxyxYxYY"},
+    {"XyxyxYxyxy", "yxYXYxYxyxYY"},
+    {"XyxyxYxyxy", "yxYxyxYxYXYY"},
+    {"XyxyxYxyxy", "yxyxYxYXYxYY"},
+    {"XyxyxYxyxy", "yyXyXYXyXyxY"},
+    {"xYxYXYxYxy", "XYXYxYXYXy"},
+    {"xYxYXYxYxy", "XYXyXYXYxY"},
+    {"xYxYXYxYxy", "XYxYXYXyXY"},
+    {"xYxYXYxYxy", "XyXYXYxYXY"},
+    {"xYxYXYxYxy", "XyxyxYxyxy"},
+    {"xYxYXYxYxy", "yXYXyXYXYxYY"},
+    {"xYxYXYxYxy", "yXYxYXYXyXYY"},
+    {"xYxYXYxYxy", "yXyXYXYxYXYY"},
+    {"xYxYXYxYxy", "yxYXYXyXYXYY"},
+    {"xYxYXYxYxy", "yyXyxyxYxyxY"},
+    {"xYxYXYxYxy", "yyxYxyxyXyxY"},
+    {"xYxYXYxYxy", "yyxyXyxyxYxY"},
+    {"xYxyxyXyxy", "XYXyXyxyXy"},
+    {"xYxyxyXyxy", "XYxYxyxYxY"},
+    {"xYxyxyXyxy", "XyXYXyXyxy"},
+    {"xYxyxyXyxy", "XyXyxyXyXY"},
+    {"xYxyxyXyxy", "XyxyXyXYXy"},
+    {"xYxyxyXyxy", "xYxYXYxYxy"},
+    {"xYxyxyXyxy", "yXYxYxyxYxYY"},
+    {"xYxyxyXyxy", "yxYXYxYxyxYY"},
+    {"xYxyxyXyxy", "yxYxyxYxYXYY"},
+    {"xYxyxyXyxy", "yxyxYxYXYxYY"},
+    {"xYxyxyXyxy", "yyXyXYXyXyxY"},
+    {"xxyxYxxYxy", "XyxyxYxyxy"},
+    {"xyXyxyxYxy", "XYXyXyxyXy"},
+    {"xyXyxyxYxy", "XYxYxyxYxY"},
+    {"xyXyxyxYxy", "XyXYXyXyxy"},
+    {"xyXyxyxYxy", "XyXyxyXyXY"},
+    {"xyXyxyxYxy", "XyxyXyXYXy"},
+    {"xyXyxyxYxy", "xYxYXYxYxy"},
+    {"xyXyxyxYxy", "yXYxYxyxYxYY"},
+    {"xyXyxyxYxy", "yxYXYxYxyxYY"},
+    {"xyXyxyxYxy", "yxYxyxYxYXYY"},
+    {"xyXyxyxYxy", "yxyxYxYXYxYY"},
+    {"xyXyxyxYxy", "yyXyXYXyXyxY"},
+    {"xyxYxyxyXy", "XYXyXyxyXy"},
+    {"xyxYxyxyXy", "XYxYxyxYxY"},
+    {"xyxYxyxyXy", "XyXYXyXyxy"},
+    {"xyxYxyxyXy", "XyXyxyXyXY"},
+    {"xyxYxyxyXy", "XyxyXyXYXy"},
+    {"xyxYxyxyXy", "xYxYXYxYxy"},
+    {"xyxYxyxyXy", "yXYxYxyxYxYY"},
+    {"xyxYxyxyXy", "yxYXYxYxyxYY"},
+    {"xyxYxyxyXy", "yxYxyxYxYXYY"},
+    {"xyxYxyxyXy", "yxyxYxYXYxYY"},
+    {"xyxYxyxyXy", "yyXyXYXyXyxY"}
+};
 
 extern double g_cosh_marg_upper_bound;
 extern double g_cosh_marg_lower_bound;
@@ -96,6 +230,24 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
   return open;
 }
 
+TestResult TestCollection::evaluate_vol3(Box& box) {
+  TestResult result = {-1, open, word_pair()};
+  Params<AJCC> p = box.cover();
+  for (auto wp : vol3_rels) {  
+    string first = proven_identity(wp.first, p);
+    if (first == wp.first) {
+      string second = proven_identity(wp.second, p);
+      if (second == wp.second) {
+          result.state = proven_vol3; 
+          result.words.first.assign(first);
+          result.words.second.assign(second);
+          return result;
+      }
+    }
+  }
+  return result;
+}
+
 TestResult TestCollection::evaluate_qrs(Box& box) {
   TestResult result = {-1, open, word_pair()};
   Params<AJCC> p = box.cover();
@@ -104,7 +256,11 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
     string proven = proven_identity(word, p);
     if (relator_test->is_good(proven)) {
       if (box.name.length() > relator_depth) {
-        result.state = proven_relator;
+        if (relator_test->is_sym(proven)) {
+          result.state = killed_via_sym; 
+        } else {
+          result.state = proven_relator;
+        }
       }
       vector<string> required;
       if(relator_test->is_impossible(proven, required)) {
@@ -120,8 +276,8 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
           }
         }
       }
-      if (result.state == proven_relator || 
-          result.state == killed_impossible_relator) {
+      if (result.state != open &&
+          result.state != open_with_qr) {
         result.words.first.assign(proven);
         break;
       }
@@ -231,8 +387,14 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
       }
     }
     result = evaluate_qrs(box);
-    if (result.state == proven_relator || 
-        result.state == killed_impossible_relator) {
+    if (result.state != open && 
+        result.state == open_with_qr) {
+      return result;
+    }
+    // test vol3
+    result = evaluate_vol3(box);
+    if (result.state != open && 
+        result.state == open_with_qr) {
       return result;
     }
   } else {
@@ -286,9 +448,10 @@ box_state TestCollection::evaluate_center(int index, Box& box)
                   meyerhoff_k_test(center.coshreL, center.cosimL, four_cosh_x_tube_UB) ||
                   meyerhoff_k_test(center.coshreL, center.cosimL, four_cosh_y_tube_UB));
             }
-    case 3: { // 4.26 in bilipschitz paper
-              Complex cosh_mu_LB = cosh_marg_lower_bound(center.twosinhreD2);
-              return check_bounds_center(strictly_pos(cosh_mu_LB - center.coshmu));
+    case 3: { // OFF 4.26 in bilipschitz paper
+              return check_bounds_center(false);
+              // Complex cosh_mu_LB = cosh_marg_lower_bound(center.twosinhreD2);
+              // return check_bounds_center(strictly_pos(cosh_mu_LB - center.coshmu));
             }
    default:
             return evaluate_approx(pair_vector[index - num_bound_tests], box);
@@ -325,10 +488,10 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   meyerhoff_k_test(cover.coshreL, cover.cosimL, four_cosh_y_tube_UB),
                   result);
             }
-    case 3: { // 4.26 in bilipschitz paper
-              // FIXME use something other than sinhreL
-              AJCC cosh_mu_LB = cosh_marg_lower_bound(cover.twosinhreD2);
-              return check_bounds(strictly_pos(cosh_mu_LB - cover.coshmu), result);
+    case 3: { // OFF 4.26 in bilipschitz paper
+              return check_bounds(false, result); 
+              // AJCC cosh_mu_LB = cosh_marg_lower_bound(cover.twosinhreD2);
+              // return check_bounds(strictly_pos(cosh_mu_LB - cover.coshmu), result);
             }
     default:
             return evaluate_AJCC(pair_vector[index - num_bound_tests], box);

@@ -38,6 +38,7 @@ typedef enum _box_state
   killed_w_ay_hits_sym_axis = 15, // only used in symmetric search
   killed_via_sym = 16,
   proven_relator = 17,
+  proven_vol3 = 18,
   out_of_bounds_center = 50,
   maybe_killed_center = 51,
   var_nbd_x = 52, // w and x fail Jorgensen 

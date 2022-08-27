@@ -2,6 +2,7 @@
 #define _TestCollection_
 #include <unordered_map>
 #include <string>
+#include <set>
 #include <vector>
 #include "types.hh"
 #include "Box.h"
@@ -20,6 +21,7 @@ struct TestCollection {
   TestResult evaluate_box(int index, Box& box);
   TestResult evaluate_AJCC(word_pair& pair, Box& box);
   TestResult evaluate_qrs(Box& box);
+  TestResult evaluate_vol3(Box& box);
   const std::string get_name(int index);
   word_pair get_pair(int index);
   int add(word_pair pair);
