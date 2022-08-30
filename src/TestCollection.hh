@@ -141,10 +141,10 @@ inline const bool does_not_fix_sym_axis(const SL2<T>& w) {
   T iye(0,1);
   return (absLB(w.b) > 0 && absLB(w.d) > 0) 
     || (absLB(w.a) > 0 && absLB(w.c) > 0) ||
-    (absLB(mobius(w, one) - one) > 0 && absLB(mobius(w, one) + one)) || 
-    (absLB(mobius(w, iye) - iye) > 0 && absLB(mobius(w, iye) + iye)) || 
-    (absLB(mobius(w, -one) - one) > 0 && absLB(mobius(w, -one) + one)) || 
-    (absLB(mobius(w, -iye) - iye) > 0 && absLB(mobius(w, -iye) + iye)); 
+    (absLB(mobius(w, one) - one) > 0 && absLB(mobius(w, one) + one) > 0) || 
+    (absLB(mobius(w, iye) - iye) > 0 && absLB(mobius(w, iye) + iye) > 0) || 
+    (absLB(mobius(w, -one) - one) > 0 && absLB(mobius(w, -one) + one) > 0) || 
+    (absLB(mobius(w, -iye) - iye) > 0 && absLB(mobius(w, -iye) + iye) > 0); 
 }
 
 template<typename T>

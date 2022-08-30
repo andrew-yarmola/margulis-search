@@ -6,6 +6,15 @@
 using namespace std;
 
 set<pair<string, string> > vol3_rels = {
+    {"XyxyXyXYXy", "XyxyxYxyxy"},
+    {"XyxyXyXYXy", "XYXyXYXYxY"},
+    {"XyxyXyXYXy", "XyXYXYxYXY"},
+    {"XyxyXyXYXy", "XYXYxYXYXy"},
+    {"XyxyxYxyxy", "XyXyxyXyXY"},
+    {"XyxyxYxyxy", "XYxYxyxYxY"},
+    {"XyxyxYxyxy", "XyXYXyXyxy"},
+    {"YYXYxYYxYX", "YYXYxYYxYX"},
+    {"yxYxyxxyxYxY", "yxYxyxxyxYxY"},
     {"XYXYxYXYXy", "yXYxYxyxYxYY"},
     {"XYXYxYXYXy", "yxYXYxYxyxYY"},
     {"XYXYxYXYXy", "yxYxyxYxYXYY"},
@@ -257,30 +266,30 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
     if (relator_test->is_good(proven)) {
       if (box.name.length() > relator_depth) {
         if (relator_test->is_sym(proven)) {
-          result.state = killed_via_sym; 
+          result.state = killed_via_sym;
         } else {
           result.state = proven_relator;
         }
       }
-      vector<string> required;
-      if(relator_test->is_impossible(proven, required)) {
-        if (required.size() == 0) {
-          result.state = killed_impossible_relator;
-        } else {
-          for (auto req : required) {
-            SL2<AJCC> w_req = construct_word(req, p);
-            if (not_identity(w_req)) {
-              result.state = killed_impossible_relator;
-              break;
-            }
+    }
+    vector<string> required;
+    if(relator_test->is_impossible(proven, required)) {
+      if (required.size() == 0) {
+        result.state = killed_impossible_relator;
+      } else {
+        for (auto req : required) {
+          SL2<AJCC> w_req = construct_word(req, p);
+          if (not_identity(w_req)) {
+            result.state = killed_impossible_relator;
+            break;
           }
         }
       }
-      if (result.state != open &&
-          result.state != open_with_qr) {
-        result.words.first.assign(proven);
-        break;
-      }
+    }
+    if (result.state != open &&
+        result.state != open_with_qr) {
+      result.words.first.assign(proven);
+      break;
     }
   }
   return result;
@@ -388,13 +397,13 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
     }
     result = evaluate_qrs(box);
     if (result.state != open && 
-        result.state == open_with_qr) {
+        result.state != open_with_qr) {
       return result;
     }
     // test vol3
     result = evaluate_vol3(box);
     if (result.state != open && 
-        result.state == open_with_qr) {
+        result.state != open_with_qr) {
       return result;
     }
   } else {
@@ -448,10 +457,9 @@ box_state TestCollection::evaluate_center(int index, Box& box)
                   meyerhoff_k_test(center.coshreL, center.cosimL, four_cosh_x_tube_UB) ||
                   meyerhoff_k_test(center.coshreL, center.cosimL, four_cosh_y_tube_UB));
             }
-    case 3: { // OFF 4.26 in bilipschitz paper
-              return check_bounds_center(false);
-              // Complex cosh_mu_LB = cosh_marg_lower_bound(center.twosinhreD2);
-              // return check_bounds_center(strictly_pos(cosh_mu_LB - center.coshmu));
+    case 3: { // 4.26 in bilipschitz paper
+              Complex cosh_mu_LB = cosh_marg_lower_bound(center.twosinhreD2);
+              return check_bounds_center(strictly_pos(cosh_mu_LB - center.coshmu));
             }
    default:
             return evaluate_approx(pair_vector[index - num_bound_tests], box);
@@ -488,10 +496,9 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   meyerhoff_k_test(cover.coshreL, cover.cosimL, four_cosh_y_tube_UB),
                   result);
             }
-    case 3: { // OFF 4.26 in bilipschitz paper
-              return check_bounds(false, result); 
-              // AJCC cosh_mu_LB = cosh_marg_lower_bound(cover.twosinhreD2);
-              // return check_bounds(strictly_pos(cosh_mu_LB - cover.coshmu), result);
+    case 3: { // 4.26 in bilipschitz paper
+              AJCC cosh_mu_LB = cosh_marg_lower_bound(cover.twosinhreD2);
+              return check_bounds(strictly_pos(cosh_mu_LB - cover.coshmu), result);
             }
     default:
             return evaluate_AJCC(pair_vector[index - num_bound_tests], box);

@@ -18,6 +18,19 @@ set<string> sym_manifold_rels = {
     "xxYxyxyxY",
     "xxyyxxYxY",
     "yxyyxyXyX",
+    "XXYXyXyXY",
+    "XXYYXXyXy",
+    "XXYYxYxYY",
+    "XXyyXXYXY",
+    "XyXyXYXXY",
+    "XyxyyxyXy",
+    "XyyxxyyXy",
+    "YXYxYYxYX",
+    "YxYXYXYxY",
+    "xYxyxxyxY",
+    "xxYxyxyxY",
+    "xxyyxxYxY",
+    "yxyyxyXyX",
     "XYxYXyXyyyyyyyXy",
     "XXXXXYYXXYYYXXYY",
     "XXXyyXXyyyyyXXyy",
@@ -473,8 +486,11 @@ bool RelatorTest::is_good(string word)
 
 bool RelatorTest::is_sym(string word)
 {
-  if (sym_manifold_rels.find(word) != sym_manifold_rels.end()) {
-    return true;
+  for(auto sym_rel: sym_manifold_rels) { 
+    if (canonical_name.get_canonical_name(word) ==
+        canonical_name.get_canonical_name(sym_rel)) {
+      return true;
+    }
   }
   return false;
 }
