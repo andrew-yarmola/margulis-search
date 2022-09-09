@@ -472,13 +472,22 @@ set<string> sym_manifold_rels = {
     "XYXYXYYxYxYY",
     "XYXYYxYxYxYY",
     "XXYXYXYXXyXy",
-    "XYXyxYYYYYYxy"
+    "XYXyxYYYYYYxy",
+    "yxYxxYxyXYxYX",
+    "XYxYYxYXyxYxy",
+    "yxyXYxyxxyxYX",
+    "XYXyxYXYYXYxy",
+    "XXyXYxyXyxYXy",
+    "yyXyxYXyXYxyX",
+    "XXYXyxYXYxyXY",
+    "yyxyXYxyxYXyx"
 };
 
 bool RelatorTest::is_good(string word)
 {
   if (word.length() == 0 ||
-      bad_relators.find(word) != bad_relators.end()) {
+      bad_relators.find(word) != bad_relators.end() ||
+      bad_relators.find(canonical_name.get_canonical_name(word)) != bad_relators.end()) {
     return false;
   }
   return true;
@@ -499,10 +508,16 @@ bool RelatorTest::is_sym(string word)
 bool RelatorTest::is_impossible(string word,
     vector<string>& required_non_identities)
 	{
+    if (word.length() == 0) {
+      return false;
+    }
+    // fprintf(stderr, "Testing impossible %s\n", word.c_str());
     required_non_identities.clear();
     string canon = canonical_name.get_canonical_name(word);
     if (syllables(canon) < 5 ||
+        always_impossible.find(word) != always_impossible.end() ||
         always_impossible.find(canon) != always_impossible.end()) {
+      fprintf(stderr, "Always impossible %s and size %d\n", word.c_str(), required_non_identities.size());
       return true;
     }
     string cycle(canon);
@@ -534,6 +549,7 @@ void RelatorTest::load(const char* impos_path,
     if (buf[0] != '/') {
       buf[strcspn(buf, "\r\n")] = 0;
       string canon = canonical_name.get_canonical_name(string(buf));
+      always_impossible.insert(buf);
       always_impossible.insert(canon);
     }
   }
@@ -543,9 +559,11 @@ void RelatorTest::load(const char* impos_path,
     if (buf[0] != '/') {
       buf[strcspn(buf, "\r\n")] = 0;
       string canon = canonical_name.get_canonical_name(string(buf));
+      bad_relators.insert(buf);
       bad_relators.insert(canon);
     }
   }
+  fprintf(stderr, "Loaded %d impossible and %d bad relators\n", always_impossible.size(),  bad_relators.size());
 }
 
 RelatorTest* RelatorTest::create(const char* impos_path,

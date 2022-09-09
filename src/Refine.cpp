@@ -129,6 +129,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
         || ++new_depth > g_options.invent_depth) {
       fprintf(stderr, "HOLE %s (%s)\n", box.name.c_str(),
           box.qr.desc(box.cover()).c_str());
+      box.qr.print_traces(box.cover());
       return false;
     }
     t.l_child = new PartialTree();

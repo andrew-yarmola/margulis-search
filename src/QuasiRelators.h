@@ -7,6 +7,7 @@
 #include <vector>
 #include "types.hh"
 #include "SL2.hh"
+#include "AJCC.h"
 #include "CanonicalName.hh"
 
 class QuasiRelators {
@@ -22,6 +23,9 @@ public:
 
   template<typename T>
   std::string desc(const Params<T>& p);
+  
+  template<typename T>
+  void print_traces(const Params<T>& p);
 
 private:
   CanonicalName canonical_name;
@@ -49,6 +53,18 @@ std::string QuasiRelators::desc(const Params<T>& p)
     }
 	}
 	return buf;
+}
+
+template<typename T>
+void QuasiRelators::print_traces(const Params<T>& p)
+{
+  std::string word;
+	for (auto qr : name_vector) {
+    word = proven_identity(qr, p);
+    SL2<AJCC> w = construct_word(word, p);
+    fprintf(stderr, "trace of %s\n", word.c_str()); 
+    print_type(w.a + w.d);
+	}
 }
 
 #endif

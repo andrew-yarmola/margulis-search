@@ -147,6 +147,8 @@ inline const bool does_not_fix_sym_axis(const SL2<T>& w) {
     (absLB(mobius(w, -iye) - iye) > 0 && absLB(mobius(w, -iye) + iye) > 0); 
 }
 
+#define LERR 0.00000000001
+
 template<typename T>
 inline const bool really_cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
   T fsp2sq = four_sinh_perp2_sq_ax_wax(w, p);
@@ -156,7 +158,7 @@ inline const bool really_cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
     fprintf(stderr, "LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
     fprintf(stderr, "LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
   }
-  return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
+  return absLB(fsp2sq) > LERR && absLB(fsp2sq + 4) > LERR;
 }
 
 template<typename T>
@@ -173,7 +175,8 @@ inline const bool cant_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
       absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
     fprintf(stderr, "*******************************\n");
   }
-  return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
+  // return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
+  return absLB(fsp2sq) > 0; 
 }
 
 template<typename T>
@@ -193,8 +196,6 @@ inline const bool must_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
   // we only test if the real part is to one side of the bound
   return strictly_pos(diff);
 }
-
-#define LERR 0.00000000001
 
 template<typename T>
 inline const bool really_cant_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
@@ -218,7 +219,8 @@ inline const bool cant_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
    fprintf(stderr, "LB values %f and %f\n", absLB(fsp2sq), absLB(fsp2sq + 4));
    fprintf(stderr, "LB away from %d and %d\n", absLB(fsp2sq) > 0, absLB(fsp2sq + 4) > 0);
   }
-  return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
+  // return absLB(fsp2sq) > 0 && absLB(fsp2sq + 4) > 0; 
+  return absLB(fsp2sq) > 0; 
 }
 
 template<typename T>
@@ -337,7 +339,7 @@ inline bool move_less_than_marg(const SL2<T>& w, const Params<T>& p) {
 }
 
 template<typename T>
-inline bool non_cylic_power(const SL2<T>& w, const SL2<T>& x_or_y) {
+inline bool non_cyclic_power(const SL2<T>& w, const SL2<T>& x_or_y) {
   // Assume word fixes the same axis as x or y, so it must live in a cyclic group with x or y.
   // Here we check that this is impossible in this box. Must use margulis
   // number to check cut off for roots of x or y
@@ -433,8 +435,6 @@ T cosh_marg_lower_bound(const T& two_sinh_r) {
   double a0 = 0.9999999;
   return ((a8 + (a1 + a0)) + (a4 + a5)) + ((a7 + a2) + (a6 + a3)); 
 }
-
-bool proven_is_good(const std::string& proven, const Box& box);
 
 #define MAX_ID_SHIFT 5
 template<typename T>

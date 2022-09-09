@@ -157,6 +157,10 @@ int main(int argc, char** argv)
   fprintf(stderr,
     "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n   sinh(r) upper %f\n    cosh(r) upper %f\n",
     g_cosh_marg_lower_bound, g_cosh_marg_upper_bound, g_sinh_r_bound, g_cosh_r_bound);
+  fprintf(stderr, "generator x is\n");
+  print_SL2(construct_x(box.cover()));
+  fprintf(stderr, "generator y is\n");
+  print_SL2(construct_y(box.cover()));
   PartialTree t = read_tree();
 	fprintf(stderr, "Loaded tree and %d tests\n", g_tests.size());
   refine_tree(box, t);

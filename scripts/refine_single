@@ -17,12 +17,12 @@ if [[ $# > 1 ]]; then
     box="$2"
 fi
 
-test="0"
+test="E\(YYYYxxxYxxYYYYxxxYxx,\)"
 
 m_bnd="1.38"
 r_bnd="1.999"
 
-cmd="echo $test | ../bin/refine_marg --debug --box $box --max_depth 90 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
+cmd="echo $test | ../bin/refine_marg --box $box --max_depth 200 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
 
 echo "$cmd"
 

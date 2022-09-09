@@ -201,7 +201,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
         if (cant_fix_x_axis(w_x,p)) {
           return maybe_killed_center;
         }
-        if (non_cylic_power(w_x, box.x_center())) {
+        if (non_cyclic_power(w_x, box.x_center())) {
           return maybe_killed_center;
         }
       }
@@ -221,7 +221,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
         if (cant_fix_y_axis(w_y,p)) {
           return maybe_killed_center;
         }
-        if (non_cylic_power(w_y, box.y_center())) {
+        if (non_cyclic_power(w_y, box.y_center())) {
           return maybe_killed_center;
         }
       }
@@ -268,14 +268,41 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
         if (relator_test->is_sym(proven)) {
           result.state = killed_via_sym;
         } else {
-          result.state = proven_relator;
+          SL2<AJCC> w = construct_word(proven, p);
+          if (inside_var_nbd_x(w, p)) {
+            if (syllables(proven) < 5) {
+              result.state = killed_impossible_relator;
+            } else if (cant_fix_x_axis(w, p)) {
+              result.state = killed_x_hits_x;
+            } else if (non_cyclic_power(w, box.x_cover())) {
+              result.state = killed_x_not_cyclic;
+            }
+            // result.state = proven_relator;
+            // fprintf(stderr, "Proven relator %s\n", proven.c_str());
+            // print_SL2(construct_word(proven, p));
+          } else if (inside_var_nbd_y(w, p)) {
+            if (syllables(proven) < 5) {
+              result.state = killed_impossible_relator;
+            } else if (cant_fix_y_axis(w, p)) {
+              result.state = killed_y_hits_y;
+            } else if (non_cyclic_power(w, box.y_cover())) {
+              result.state = killed_y_not_cyclic;
+            }
+            // result.state = proven_relator;
+            // fprintf(stderr, "Proven relator %s\n", proven.c_str());
+            // print_SL2(construct_word(proven, p));
+          }
         }
       }
     }
     vector<string> required;
-    if(relator_test->is_impossible(proven, required)) {
+    if (relator_test->is_impossible(proven, required)) {
+      fprintf(stderr, "impossible with %s and size %d\n", proven.c_str(), required.size());
       if (required.size() == 0) {
         result.state = killed_impossible_relator;
+        fprintf(stderr, "Impossible with %s\n", proven.c_str());
+        fprintf(stderr, "Impossible relator:\n");
+        print_SL2(construct_word(proven, p));
       } else {
         for (auto req : required) {
           SL2<AJCC> w_req = construct_word(req, p);
@@ -366,7 +393,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
           result.state = killed_x_hits_x;
           return result;
         }
-        if (non_cylic_power(w_x, box.x_cover())) {
+        if (non_cyclic_power(w_x, box.x_cover())) {
           result.words.first.assign(word_x);
           result.state = killed_x_not_cyclic;
           return result;
@@ -388,7 +415,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
           result.state = killed_y_hits_y;
           return result;
         }
-        if (non_cylic_power(w_y, box.y_cover())) {
+        if (non_cyclic_power(w_y, box.y_cover())) {
           result.words.first.assign(word_y);
           result.state = killed_y_not_cyclic;
           return result;
@@ -497,8 +524,9 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   result);
             }
     case 3: { // 4.26 in bilipschitz paper
-              AJCC cosh_mu_LB = cosh_marg_lower_bound(cover.twosinhreD2);
-              return check_bounds(strictly_pos(cosh_mu_LB - cover.coshmu), result);
+              return check_bounds(false, result);
+              // AJCC cosh_mu_LB = cosh_marg_lower_bound(cover.twosinhreD2);
+              // return check_bounds(strictly_pos(cosh_mu_LB - cover.coshmu), result);
             }
     default:
             return evaluate_AJCC(pair_vector[index - num_bound_tests], box);
