@@ -101,7 +101,7 @@ if __name__ == '__main__' :
   cosh_mu_upper = '1.32'
   sinh_tube_upper = '1.48'
 
-  max_size = '500000'
+  max_size = '100000'
   max_depth = '200'
   truncate_depth = '6'
   invent_depth = '42'

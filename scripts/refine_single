@@ -2,6 +2,7 @@
 
 data_dir="single"
 name="box"
+tst="0"
 
 if [ ! -d "$data_dir" ]; then
     mkdir "$data_dir"
@@ -9,20 +10,20 @@ fi
 
 if [[ $# > 0 ]]; then
     box="$1"
-    #name="$1"
 fi
 
 if [[ $# > 1 ]]; then
-    name="$1"
-    box="$2"
+    tst="$2"
 fi
 
-test="E\(YYYYxxxYxxYYYYxxxYxx,\)"
+if [[ $# > 2 ]]; then
+    name="$3"
+fi
 
 m_bnd="1.38"
 r_bnd="1.999"
 
-cmd="echo $test | ../bin/refine_marg --box $box --max_depth 200 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
+cmd="echo $tst | ../bin/refine_marg --debug --box $box --max_depth 200 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
 
 echo "$cmd"
 

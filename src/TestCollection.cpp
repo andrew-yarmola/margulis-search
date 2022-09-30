@@ -14,7 +14,6 @@ set<pair<string, string> > vol3_rels = {
     {"XyxyxYxyxy", "XYxYxyxYxY"},
     {"XyxyxYxyxy", "XyXYXyXyxy"},
     {"YYXYxYYxYX", "YYXYxYYxYX"},
-    {"yxYxyxxyxYxY", "yxYxyxxyxYxY"},
     {"XYXYxYXYXy", "yXYxYxyxYxYY"},
     {"XYXYxYXYXy", "yxYXYxYxyxYY"},
     {"XYXYxYXYXy", "yxYxyxYxYXYY"},
@@ -284,6 +283,10 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
             if (syllables(proven) < 5) {
               result.state = killed_impossible_relator;
             } else if (cant_fix_y_axis(w, p)) {
+              if (g_debug) {
+                fprintf(stderr, "Word %s is\n", word.c_str());
+                print_SL2(w);
+              }
               result.state = killed_y_hits_y;
             } else if (non_cyclic_power(w, box.y_cover())) {
               result.state = killed_y_not_cyclic;
@@ -412,6 +415,10 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         box.qr.get_name(word_y);
         if (syllables(word_y) < 4 || cant_fix_y_axis(w_y, p)) {
           result.words.first.assign(word_y);
+          if (g_debug) {
+            fprintf(stderr, "Word %s is\n", word_y.c_str());
+            print_SL2(w_y);
+          }
           result.state = killed_y_hits_y;
           return result;
         }
@@ -434,6 +441,11 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
       return result;
     }
   } else {
+    result = evaluate_vol3(box);
+    if (result.state != open && 
+        result.state != open_with_qr) {
+      return result;
+    }
     SL2<AJCC> w1 = construct_word(pair.first, p);
     SL2<AJCC> w2 = construct_word(pair.second,p);
     if (margulis_smaller_than_xy(w1, w2, p)) {
@@ -500,6 +512,9 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
   AJCC one(1);
   switch(index) {
     case 0:	{ // 1.0052 < cosh(0.104) <= cosh(mu) <= 0.
+              if (g_debug) {
+                print_type(cover.coshmu);
+              }
               return check_bounds(absUB(cover.coshmu) < g_cosh_marg_lower_bound ||
                   absLB(cover.coshmu) > g_cosh_marg_upper_bound, result);
             }
