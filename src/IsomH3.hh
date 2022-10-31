@@ -28,13 +28,13 @@ const T cosh_move_j(const SL2<T>& w) {
 }
 
 template<typename T>
-const T two_cosh_dist(T& two_sh_sq) {
-  return abs(two_sh_sq + 2) + abs(two_sh_sq);
+const T two_cosh_dist(T& two_sh_sq_half) {
+  return abs(two_sh_sq_half + 2) + abs(two_sh_sq_half);
 }
 
 template<typename T>
-const T four_cosh_dist(T& four_sh_sq) {
-  return abs(four_sh_sq + 4) + abs(four_sh_sq);
+const T four_cosh_dist(T& four_sh_sq_half) {
+  return abs(four_sh_sq_half + 4) + abs(four_sh_sq_half);
 }
 
 template<typename T>

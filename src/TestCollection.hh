@@ -113,16 +113,28 @@ inline const bool w_in_sym_search(const SL2<T>& w) {
 template<typename T>
 inline const bool w_conj_in_sym_search(const SL2<T>& w,
     const Params<T>& p, const char g) {
-  T t_sh_sq_hf_p = two_sinh_sqrd_half_perp_wg_zero_inf(w, p, g);
+  T t_sh_sq_hf_p = two_sinh_sqrd_half_perp_wg_zero_inf(w, p, g); 
   // does not intersect (0,inf) at a right angle
   // Note, if w(axis(g)) is (0, inf), then the margulis number
   // is at most len(g) since axis(g) and (0,inf) meet orthogonally
   if (absLB(t_sh_sq_hf_p + 1) > 0) {
-    T t_ch_d = two_cosh_dist(t_sh_sq_hf_p);
-    // IMPORTANT: we assume that len(g) < g_sym_mu 
-    // Thus, we only check that the distance to the
-    // possible margulis point is small enough
-    if (absUB(t_ch_d) < g_cosh_sym_r * 2) {
+    T ch_d = two_cosh_dist(t_sh_sq_hf_p) / 2;
+    T coshl, cost;
+    if (g == 'x') {
+      coshl = p.coshlx;
+      cost = p.costx;
+    } else {
+      coshl = p.coshly;
+      cost = p.costy;
+    }
+    T cosh_mu = (ch_d * ch_d) * (coshl - cost) + cost;
+    if (absUB(cosh_mu) < g_cosh_sym_marg) {
+      if (g_debug && std::is_same<T, AJ>::value) {
+        fprintf(stderr, "********** w_conj_in_sym_search: %c ***********\n", g);
+        print_type("two_sinh_sqrd_half_perp_wga_zero_inf", t_sh_sq_hf_p);
+        print_type("cosh_dist_wga_zero_inf", ch_d);
+        print_type("cosh_mu", cosh_mu);
+      }
       return true;
     }
   }
@@ -134,11 +146,24 @@ inline const bool w_conj_and_g_in_sym_search(const SL2<T>& w,
     const Params<T>& p, const char g) {
   T f_sh_sq_hf_p = four_sinh_sqrd_half_perp(w, p, g);
   if (absLB(f_sh_sq_hf_p) > 0 && absLB(f_sh_sq_hf_p + 4) > 0) {
-    T f_ch_2r = four_cosh_dist(f_sh_sq_hf_p);
+    T ch_2r = four_cosh_dist(f_sh_sq_hf_p) / 4;
     // IMPORTANT: we assume that len(g) < g_sym_mu 
     // Thus, we only check that the distance to the
     // possible margulis point is small enough
-    if (absUB(f_ch_2r) < g_cosh_sym_2r * 4) {
+    T tr;
+    if (g == 'x') {
+      tr = p.coshLx2;
+    } else {
+      tr = p.coshLy2;
+    }
+    T four_cosh_mu = ch_2r * (tr - 2) * (tr + 2) + abs_sqrd(tr); 
+    if (absUB(four_cosh_mu) < g_cosh_sym_marg * 4) {
+      if (g_debug && std::is_same<T, AJ>::value) {
+        fprintf(stderr, "********** w_conj_in_sym_search: %c ***********\n", g);
+        print_type("four_sinh_sqrd_half_perp_ga_wga", f_sh_sq_hf_p);
+        print_type("cosh_dist_ga_wga", ch_2r);
+        print_type("four_cosh_mu", four_cosh_mu);
+      }
       return true;
     }
   }

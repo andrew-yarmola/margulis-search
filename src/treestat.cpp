@@ -24,8 +24,8 @@ struct Config {
   char kill_test[1000];
 };
 
-#define DIM 4
-#define SCL 2
+#define DIM 6
+#define SCL 8   
 #define BAL 16 
 double bounding_volume;
 
