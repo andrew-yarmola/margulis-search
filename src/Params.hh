@@ -103,6 +103,39 @@ const T two_sinh_sqrd_half_perp_wg_zero_inf(const SL2<T>& w,
   return (w.b * w.d) * bd_coeff - (w.a * w.c) * ac_coeff - one; 
 }
 
+template<typename T>
+const T cosh_sqrd_perp_wg_zero_inf(const SL2<T>& w,
+    const Params<T>& p, const char g) {
+  T ac_coeff, bd_coeff;
+  if (g == 'x') {
+    ac_coeff = p.expmdx;
+    bd_coeff = p.expdx;
+  } else {
+    ac_coeff = p.expdyf;
+    bd_coeff = p.expmdyf;
+ }
+  T z = (w.b * w.d) * bd_coeff - (w.a * w.c) * ac_coeff;
+  return z * z; 
+}
+
+template<typename T>
+const T sinh_sqrd_perp_wg_zero_inf(const SL2<T>& w,
+    const Params<T>& p, const char g) {
+  T ac_coeff, bd_coeff;
+  if (g == 'x') {
+    ac_coeff = p.expmdx;
+    bd_coeff = p.expdx;
+  } else {
+    ac_coeff = p.expdyf;
+    bd_coeff = p.expmdyf;
+ }
+  T ad = w.a * w.d;
+  T bc = w.b * w.c;
+  T aco = (w.a * w.c) * ac_coeff;
+  T bdo = (w.b * w.d) * bd_coeff;
+  return (aco * aco + bdo * bdo) - (ad * ad + bc * bc); 
+}
+
 // Complex distance between w(axis(g)) and {-1, 1} 
 template<typename T>
 const T four_sinh_sqrd_half_perp_wg_mp_one(const SL2<T>& w,
