@@ -102,7 +102,7 @@ inline const bool wg_hits_sym_axis(const SL2<T>& w,
 template<typename T>
 inline const bool w_in_sym_search(const SL2<T>& w) {
   // This is a general derivation.
-  if (absLB(w.a - w.d) > 0) { // means axis(w) does meet (0,inf) orthogonally
+  if (absLB(w.a - w.d) > 0) { // means axis(w) does not meet (0,inf) orthogonally
     // normalized matrix so that w and sym(w) marg point is j
     SL2<T> normalized(w.a, sqrt(w.b * w.c), sqrt(w.b * w.c), w.d);
     return absUB(cosh_move_j(normalized)) < g_cosh_sym_marg; 
