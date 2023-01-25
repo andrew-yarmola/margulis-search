@@ -24,7 +24,7 @@ def add_holes(holes, treeholes, directory, boxfile):
   out_string = out_string.replace('root','')
   if len(out_string) == 0 : out_string = 'root'
   new_holes = set(out_string.rstrip().split('\n'))
-  holes |= set(h for h in new_holes if len(h) < 121)
+  holes |= set(h for h in new_holes if len(h) < 145)
 
 def add_holes_from_file(holes,fp):
   try:
@@ -161,7 +161,7 @@ if __name__ == '__main__' :
   else :
     add_holes(holes, treeholes, dest_dir, '')
 
-  # Get done words
+  # Get done holes
   done = set()
   try:
     done = set([os.path.basename(boxfile).replace('.out','')
@@ -170,7 +170,7 @@ if __name__ == '__main__' :
     print('Error reading {0}\n'.format(dest_dir)) 
     sys.exit(1)
 
-  print("Launching Refine")
+  print(f"Launching Refine: {len(holes)} holes and {len(done)} done files")
 
   # Launch the refine runs
   active_pid_to_hole = {};
@@ -183,13 +183,13 @@ if __name__ == '__main__' :
     # since we aren't using os.wait
     sleep(0.001)
     open_holes = holes - done
+    best_hole = '1'*400
     if len(open_holes) == 0 and refine_run_count == 0 and len(done) == 0:
       best_hole = 'root'
-    else : 
-      best_hole = '1'*400
-    for hole in open_holes:
-      if len(hole) < len(best_hole) :
-        best_hole = hole    
+    elif len(open_holes) > 0:
+      def len_and_lex(x):
+        return f"{len(x):10b}" + x
+      best_hole = min(open_holes, key=len_and_lex)
 
     if len(best_hole) > depth_limit:
       if child_count > 0 :
@@ -275,11 +275,11 @@ if __name__ == '__main__' :
       print('Deepest failed hole: {}\n'.format(sorted(failed_holes, key=len)[-1]))
       if len(open_holes) % 100 == 0:
         with open('deep_holes_' + name, 'w') as fp:
-          num = min(len(failed_holes), 10000)
-          fp.write('\n'.join(sorted(failed_holes, key=len, reverse=True)[:num]))
+          num = min(len(failed_holes), 1000000)
+          fp.write('\n'.join(sorted(failed_holes, key=len_and_lex)[:num]))
         with open('open_holes_' + name, 'w') as fp:
-          num = min(len(open_holes), 10000)
-          fp.write('\n'.join(sorted(open_holes, key=len, reverse=True)[:num]))
+          num = min(len(open_holes), 1000000)
+          fp.write('\n'.join(sorted(open_holes, key=len_and_lex)[:num]))
     else:
       print('Deepest failed hole: None\n')
 

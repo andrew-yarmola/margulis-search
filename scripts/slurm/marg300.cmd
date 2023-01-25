@@ -9,7 +9,7 @@
 #SBATCH --mail-type=end
 #SBATCH --mail-user=yarmola@princeton.edu
 
-base_dir="/u/yarmola/margulis-search"
+base_dir="/u/yarmola/margulis/margulis-search"
 bin_dir="$base_dir/bin"
 words_dir=$base_dir
 
@@ -23,17 +23,17 @@ log_file="refine300.log"
 source="source300"
 output="output300"
 
-cosh_marg="1.04534"
-sinh_rad="0.43038"
+cosh_marg="1.045338"
+sinh_rad="0.4302792"
 
 cd $bin_dir
 
 cat "$data_dir/$log_file" >> "$data_dir/${log_file}.all"
 
 python3 "$search" \
-  -i 24 \
+  -i 18 \
   -t 6 \
-  -s 70 \
+  -s 60 \
   -r "$bin_dir/refine_marg" \
   -w "$words" \
   -p "$impossible" \
