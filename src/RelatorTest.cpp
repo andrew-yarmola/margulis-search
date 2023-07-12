@@ -15,6 +15,11 @@ using namespace std;
 
 bool RelatorTest::is_good(string word)
 {
+  if (word.length() == 0) {
+    return false;
+  }
+  return true;
+
   if (word.length() == 0 ||
       bad_relators.find(word) != bad_relators.end()) {
     return false;

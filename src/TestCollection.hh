@@ -103,13 +103,18 @@ template<typename T>
 inline const bool w_in_sym_search(const SL2<T>& w) {
   // This is a general derivation.
   if (absLB(w.a - w.d) > 0) { // means axis(w) does meet (0,inf) orthogonally
-    // normalized matrix so that w and sym(w) marg point is j
-    SL2<T> normalized(w.a, sqrt(w.b * w.c), sqrt(w.b * w.c), w.d);
-    if (g_debug && std::is_same<T, AJ>::value) {
-      fprintf(stderr, "********** w_in_sym_search ***********\n");
-      print_type("cosh_mu", cosh_move_j(normalized));
+    std::pair<T,T> pts = fixed_points(w);
+    T t_sh_sq_hf_p = sinh_sqrd_half_perp_zero_inf(pts.first, pts.second);
+    T t_ch_d = two_cosh_dist(t_sh_sq_hf_p);
+    if (absUB(t_ch_d) < 2 * g_cosh_sym_r) {
+      // normalized matrix so that w and sym(w) marg point is j
+      SL2<T> normalized(w.a, sqrt(w.b * w.c), sqrt(w.b * w.c), w.d);
+      if (g_debug && std::is_same<T, AJ>::value) {
+        fprintf(stderr, "********** w_in_sym_search ***********\n");
+        print_type("cosh_mu", cosh_move_j(normalized));
+      }
+      return absUB(cosh_move_j(normalized)) < g_cosh_sym_marg; 
     }
-    return absUB(cosh_move_j(normalized)) < g_cosh_sym_marg; 
   }
   return false; 
 }
@@ -122,24 +127,27 @@ inline const bool w_conj_in_sym_search(const SL2<T>& w,
   // Note, if w(axis(g)) is (0, inf), then the margulis number
   // is at most len(g) since axis(g) and (0,inf) meet orthogonally
   if (absLB(t_sh_sq_hf_p + 1) > 0) {
-    T ch_d = two_cosh_dist(t_sh_sq_hf_p) / 2;
-    T coshl, cost;
-    if (g == 'x') {
-      coshl = p.coshlx;
-      cost = p.costx;
-    } else {
-      coshl = p.coshly;
-      cost = p.costy;
-    }
-    T cosh_mu = (ch_d * ch_d) * (coshl - cost) + cost;
-    if (g_debug && std::is_same<T, AJ>::value) {
-      fprintf(stderr, "********** w_conj_in_sym_search: %c ***********\n", g);
-      print_type("two_sinh_sqrd_half_perp_wga_zero_inf", t_sh_sq_hf_p);
-      print_type("cosh_dist_wga_zero_inf", ch_d);
-      print_type("cosh_mu", cosh_mu);
-    }
-    if (absUB(cosh_mu) < g_cosh_sym_marg) {
-      return true;
+    T t_ch_d = two_cosh_dist(t_sh_sq_hf_p) / 2;
+    if (absUB(t_ch_d) < 2 * g_cosh_sym_r) { 
+      T ch_d = t_ch_d / 2;
+      T coshl, cost;
+      if (g == 'x') {
+        coshl = p.coshlx;
+        cost = p.costx;
+      } else {
+        coshl = p.coshly;
+        cost = p.costy;
+      }
+      T cosh_mu = (ch_d * ch_d) * (coshl - cost) + cost;
+      if (g_debug && std::is_same<T, AJ>::value) {
+        fprintf(stderr, "********** w_conj_in_sym_search: %c ***********\n", g);
+        print_type("two_sinh_sqrd_half_perp_wga_zero_inf", t_sh_sq_hf_p);
+        print_type("cosh_dist_wga_zero_inf", ch_d);
+        print_type("cosh_mu", cosh_mu);
+      }
+      if (absUB(cosh_mu) < g_cosh_sym_marg) {
+        return true;
+      }
     }
   }
   return false;
@@ -150,25 +158,28 @@ inline const bool w_conj_and_g_in_sym_search(const SL2<T>& w,
     const Params<T>& p, const char g) {
   T f_sh_sq_hf_p = four_sinh_sqrd_half_perp(w, p, g);
   if (absLB(f_sh_sq_hf_p) > 0 && absLB(f_sh_sq_hf_p + 4) > 0) {
-    T ch_2r = four_cosh_dist(f_sh_sq_hf_p) / 4;
-    // IMPORTANT: we assume that len(g) < g_sym_mu 
-    // Thus, we only check that the distance to the
-    // possible margulis point is small enough
-    T tr;
-    if (g == 'x') {
-      tr = p.coshLx2;
-    } else {
-      tr = p.coshLy2;
-    }
-    T four_cosh_mu = ch_2r * (tr - 2) * (tr + 2) + abs_sqrd(tr); 
-    if (g_debug && std::is_same<T, AJ>::value) {
-      fprintf(stderr, "********** w_conj_in_sym_search: %c ***********\n", g);
-      print_type("four_sinh_sqrd_half_perp_ga_wga", f_sh_sq_hf_p);
-      print_type("cosh_dist_ga_wga", ch_2r);
-      print_type("four_cosh_mu", four_cosh_mu);
-    }
-    if (absUB(four_cosh_mu) < g_cosh_sym_marg * 4) {
-      return true;
+    T f_ch_2r = four_cosh_dist(f_sh_sq_hf_p);
+    if (absUB(f_ch_2r) < 4 * g_cosh_sym_2r) {
+      T ch_2r = f_ch_2r / 4;
+      // IMPORTANT: we assume that len(g) < g_sym_mu 
+      // Thus, we only check that the distance to the
+      // possible margulis point is small enough
+      T tr;
+      if (g == 'x') {
+        tr = p.coshLx2;
+      } else {
+        tr = p.coshLy2;
+      }
+      T four_cosh_mu = ch_2r * (tr - 2) * (tr + 2) + abs_sqrd(tr); 
+      if (g_debug && std::is_same<T, AJ>::value) {
+        fprintf(stderr, "********** w_conj_in_sym_search: %c ***********\n", g);
+        print_type("four_sinh_sqrd_half_perp_ga_wga", f_sh_sq_hf_p);
+        print_type("cosh_dist_ga_wga", ch_2r);
+        print_type("four_cosh_mu", four_cosh_mu);
+      }
+      if (absUB(four_cosh_mu) < g_cosh_sym_marg * 4) {
+        return true;
+      }
     }
   }
   return false;

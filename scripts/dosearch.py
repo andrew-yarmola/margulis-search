@@ -181,7 +181,7 @@ if __name__ == '__main__' :
   while True:
     # We don't need to to run the main loop to death
     # since we aren't using os.wait
-    sleep(0.001)
+    sleep(0.0001)
     open_holes = holes - done
     best_hole = '1'*400
     if len(open_holes) == 0 and refine_run_count == 0 and len(done) == 0:
@@ -216,10 +216,10 @@ if __name__ == '__main__' :
           add_holes(holes, treeholes, dest_dir, done_hole)
 
           num_patched = command_output(
-              'grep -c Patched {0}/{1}.err; exit 0'.format(
+              'grep -c Patched {0}_err/{1}.err; exit 0'.format(
                 dest_dir, done_hole)).rstrip()
           num_unpatched = command_output(
-              'grep -c Unpatched {0}/{1}.err; exit 0'.format(
+              'grep -c Unpatched {0}_err/{1}.err; exit 0'.format(
                 dest_dir, done_hole)).rstrip()
           num_holes = command_output(
               'if [ -f {0}/{1}.out ]; then grep -c HOLE {0}/{1}.out; else echo 0; fi; exit 0'.format(
@@ -234,7 +234,7 @@ if __name__ == '__main__' :
           seen_words |= new_words
 
           bad_holes = command_output(
-              'grep HOLE {0}/{1}.err | cut -d " " -f 2; exit 0'.format(
+              'grep HOLE {0}_err/{1}.err | cut -d " " -f 2; exit 0'.format(
                 dest_dir, done_hole)).rstrip().split('\n')
           failed_holes.update(bad_holes)
 
@@ -265,7 +265,7 @@ if __name__ == '__main__' :
           continue
       # We don't need to to run the main loop to death
       # since we aren't using os.wait
-      sleep(0.001)
+      sleep(0.0001)
       continue
 
     # If we make it here. We are running refine
@@ -283,8 +283,8 @@ if __name__ == '__main__' :
     else:
       print('Deepest failed hole: None\n')
 
-    out = dest_dir + '/' + best_hole + '.out'
-    err = dest_dir + '/' + best_hole + '.err'
+    fout = dest_dir + '/' + best_hole + '.out'
+    ferr = dest_dir + '_err/' + best_hole + '.err'
 
     if best_hole == 'root':
       pid_word_search_depth = '-1'
@@ -312,7 +312,7 @@ if __name__ == '__main__' :
         ' --bad_relators ' + bad_relator_file + \
         ' -m ' + cosh_mu_upper + \
         ' -r ' + sinh_tube_upper + \
-        ' > ' + out  + ' 2> ' + err
+        ' > ' + fout  + ' 2> ' + ferr
 
     first_command = '{0} {1} {2} | head -1'.format(treecat, src_dir, best_hole)
     first = command_output(first_command).rstrip()

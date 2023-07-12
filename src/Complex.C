@@ -64,8 +64,10 @@ double d= (x.im/s)*0.5;
 double e= EPS*((1+4*EPS)*(1.25*s+1.75*fabs(d)));
 if(x.re> 0.0)
 return AComplex(s,d,e);
-else
+else if(d> 0.0)
 return AComplex(d,s,e);
+else
+return AComplex(-d,-s,e);
 
 /*:20*/
 #line 83 "./glue.w"

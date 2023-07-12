@@ -15,8 +15,8 @@ double g_cosh_marg_lower = 1.0054;
 double g_sinh_r = 1.3426; 
 double g_cosh_r = 1e11; 
 
-double g_cosh_sym_marg = 1.38;
-double g_sinh_sym_r = 1.999;
+double g_cosh_sym_marg = 1.55;
+double g_sinh_sym_r = 2.8554;
 double g_cosh_sym_r = 1e11; 
 double g_cosh_sym_2r = 1e11; 
 
@@ -127,7 +127,8 @@ int main(int argc, char** argv)
     case 'I': g_options.improve_tree = true; break;
     case 't': g_options.truncate_depth = atoi(optarg); break;
     case 's': g_options.max_size = atoi(optarg); break;
-    case 'B': g_options.word_search_depth = atoi(optarg); break;
+    case 'B': g_options.word_search_depth = 120; break;
+    // case 'B': g_options.word_search_depth = atoi(optarg); break;
     case 'f': g_options.fill_holes = true; break;
     case 'm': g_cosh_marg_upper = atof(optarg); break;
     case 'r': g_sinh_r = atof(optarg); break;
@@ -173,9 +174,9 @@ int main(int argc, char** argv)
     "Bounds:\n  cosh(mu) lower %f\n  cosh(mu) upper %f\n"
 "    sinh(r) upper %f\n    cosh(r) upper %f\n"
 "    sinh(sym_r) lower %f\n    cosh(sym_r) lower %f\n"
-"    cosh(2*sym_r) lower %f\n",
+"    cosh(2*sym_r) lower %f\n    cosh(sym_marg) lower %f\n",
     g_cosh_marg_lower, g_cosh_marg_upper,
-    g_sinh_r, g_cosh_r, g_sinh_sym_r, g_cosh_sym_r, g_cosh_sym_2r);
+    g_sinh_r, g_cosh_r, g_sinh_sym_r, g_cosh_sym_r, g_cosh_sym_2r, g_cosh_sym_marg);
   PartialTree t = read_tree();
 	fprintf(stderr, "Loaded tree and %d tests\n", g_tests.size());
   refine_tree(box, t);
