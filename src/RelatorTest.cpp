@@ -4,14 +4,23 @@
 
 using namespace std;
 
-set<string> sym_manifold_rels = {
+set<string> sym_manifold_rels_weeks = {
   "XXyyXXYXY",
+  "XyxyyxyXy",
   "YXYxYYxYX",
   "xxyyxxYxY",
   "yxyyxyXyX"
 };
 
-set<string> sym_manifold_rels_old = {
+set<string> sym_manifold_rels = {
+    "yXyxyyxyX",
+    "YXXYYXXYxYx",
+    "YYXXYYXyXyX",
+    "yyXXyyXYXYX",
+    "XXyyXXYXY",
+    "YXYxYYxYX",
+    "xxyyxxYxY",
+    "yxyyxyXyX",
     "XXYXyXyXY",
     "XXYYXXyXy",
     "XXYYxYxYY",

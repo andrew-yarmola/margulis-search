@@ -1,6 +1,6 @@
 #!/bin/bash
 
-data_dir="single"
+data_dir="/scratch/network/yarmola/data/single"
 name="box"
 tst="0"
 
@@ -20,10 +20,12 @@ if [[ $# > 2 ]]; then
     name="$3"
 fi
 
-m_bnd="1.38"
-r_bnd="1.999"
+m_bnd="1.48623"
+r_bnd="2.8554"
 
-cmd="echo "$tst" | ../bin/refine_marg --debug --box $box --max_depth 200 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
+cmd="echo "$tst" | ../bin/refine_marg --debug --box $box --max_depth 140 --truncate_depth 6 --invent_depth 18 --max_size 30000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
+
+# cmd="../bin/treecat /scratch/network/yarmola/verify_marg_sym/source868 "$box" | ../bin/refine_marg --box $box --max_depth 200 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
 
 echo "$cmd"
 

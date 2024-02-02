@@ -39,6 +39,7 @@ typedef enum _box_state
   killed_via_sym = 16,
   proven_relator = 17,
   proven_vol3 = 18,
+  proven_sym3 = 19,
   out_of_bounds_center = 50,
   maybe_killed_center = 51,
   var_nbd_x = 52, // w and x fail Jorgensen 
@@ -108,11 +109,20 @@ template<typename T> struct Params {
 };
 
 template<typename T>
+void print_type(T& x); 
+
+template<typename T>
+void print_center(const T& x); 
+template<typename T>
+
 void fill_derived(Params<T>& p) {
   T one = T(1);
   p.sinhsqL2 = p.sinhL2 * p.sinhL2;
+  // print_type(p.sinhsqL2);
   p.coshsqL2 = p.sinhsqL2 + one;
+  // print_type(p.coshsqL2);
   p.coshL2 = sqrt(p.coshsqL2); // TODO check if correct branch
+  // print_type(p.coshL2);
   p.sinhsqD2 = p.sinhD2 * p.sinhD2;
   p.coshsqD2 = p.sinhsqD2 + one;
   p.coshD2 = sqrt(p.coshsqD2); // TODO check if correct branch
@@ -131,12 +141,6 @@ void fill_derived(Params<T>& p) {
 inline double re_center(const Complex& x) {
   return x.real();
 }
-
-template<typename T>
-void print_type(T& x); 
-
-template<typename T>
-void print_center(const T& x); 
 
 template<typename T>
 bool sort_comp(const T& a, const T& b); 

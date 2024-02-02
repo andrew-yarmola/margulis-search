@@ -22,6 +22,7 @@ struct TestCollection {
   TestResult evaluate_AJCC(word_pair& pair, Box& box);
   TestResult evaluate_qrs(Box& box);
   TestResult evaluate_vol3(Box& box);
+  TestResult evaluate_sym3(Box& box);
   const std::string get_name(int index);
   word_pair get_pair(int index);
   int add(word_pair pair);
@@ -228,8 +229,8 @@ inline const bool must_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
   // The "must" part is only valid for AJCC tests
   T diff = p.coshreD * 4 - four_cosh_dist_ay_way(w, p);
   if (g_debug && 
-      //std::is_same<T, AJCC>::value && strictly_pos(diff)) {
-      std::is_same<T, AJCC>::value) {
+      std::is_same<T, AJCC>::value && strictly_pos(diff)) {
+      // std::is_same<T, AJCC>::value) {
     fprintf(stderr, "********** MUST FIX Y AXIS ***********\n");
     print_SL2(w);
     print_type("4 cosh 2 dy:", p.coshreD * 4);
@@ -336,6 +337,18 @@ inline bool margulis_smaller_than_xy(const SL2<T>& w1, const SL2<T>& w2, const P
 template<typename T>
 inline bool move_less_than_marg(const SL2<T>& w, const Params<T>& p) {
   T diff = p.coshmu - cosh_move_j(w);
+  if (g_debug && std::is_same<T, AJCC>::value && strictly_pos(diff)) {
+    fprintf(stderr, "****************************************\n");
+    fprintf(stderr, "MOVE J\n");
+    fprintf(stderr, "word");
+    print_SL2(w);
+    fprintf(stderr, "cosh_move_j(w)\n");
+    print_type("cosh_move_j(w):", cosh_move_j(w));
+    print_type("cosh(mu):", p.coshmu);
+    print_type("diff:", diff);
+    fprintf(stderr, "diff is positive: %d\n", strictly_pos(diff));
+    fprintf(stderr, "****************************************\n");
+  }
   return strictly_pos(diff); 
 }
 
@@ -443,7 +456,7 @@ std::string proven_identity(std::string word, const Params<T>& p) {
   SL2<T> x = construct_x(p);
   SL2<T> y = construct_y(p);
   if (g_debug && std::is_same<T, AJCC>::value) {
-    fprintf(stderr, "Testing proven identity for word: %s .\n", word.c_str());
+    // fprintf(stderr, "Testing proven identity for word: %s .\n", word.c_str());
   }
   SL2<T> w = construct_word(word, p);
   std::string new_word;

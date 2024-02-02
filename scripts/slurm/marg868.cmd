@@ -19,19 +19,19 @@ impossible="$words_dir/impossible"
 bad_relators="$words_dir/bad_relators"
 
 data_dir="/scratch/network/yarmola/verify_marg_sym"
-log_file="refine868.log"
-source="source868"
-output="output868"
+log_file="refine860.log"
+source="source860"
+output="output860"
 
-cosh_marg="1.4"
-sinh_rad="2.26196"
+cosh_marg="1.394"
+sinh_rad="2.2571"
 
 cd $bin_dir
 
 cat "$data_dir/$log_file" >> "$data_dir/${log_file}.all"
 
 python3 "$search" \
-  -i 18 \
+  -i 12 \
   -t 6 \
   -r "$bin_dir/refine_marg" \
   -w "$words" \
@@ -40,4 +40,5 @@ python3 "$search" \
   -M "$cosh_marg" \
   -R "$sinh_rad" \
   -c 38 \
+  -s 180 \
   "$data_dir/$source" "$data_dir/$output" > "$data_dir/$log_file" 2>&1

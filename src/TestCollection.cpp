@@ -5,6 +5,54 @@
 #include <algorithm>
 using namespace std;
 
+set<pair<string, string> > sym3_rels = {
+    {"XXyXXyyXyy", "XXyyXXYXYXY"},
+    {"XXyXXyyXyy", "xyyXXyyxyxy"},
+    {"XXyXXyyXyy", "yXXYXYXYXXy"},
+    {"XXyXXyyXyy", "YXYXXyyXXYX"},
+    {"XXyXXyyXyy", "yxyyXXyyxyx"},
+    {"XXYXXYYXYY", "XXYYXXyXyXy"},
+    {"XXYXXYYXYY", "XXYYxYxYxYY"},
+    {"XXYXXYYXYY", "xYYXXYYxYxY"},
+    {"XXYXXYYXYY", "yXXYYXXyXyX"},
+    {"XXYXXYYXYY", "YXXYYxYxYxY"},
+    {"XXYXXYYXYY", "YxYxxyyxxYx"},
+    {"XXYXXYYXYY", "YxYYXXYYxYx"},
+    {"XXYXXYYXYY", "yyxxyyXyXyX"},
+    {"XXYXXYYXYY", "YYXXYYxYxYx"},
+    {"XXYXXYYXYY", "yYYxYxxyyxxYx"},
+    {"XXYXXYYXYY", "YyYxYYXXYYxYx"},
+    {"XXYYXYYXXY", "XXYYXXyXyXy"},
+    {"XXYYXYYXXY", "XXYYxYxYxYY"},
+    {"XXYYXYYXXY", "xYYXXYYxYxY"},
+    {"XXYYXYYXXY", "yXXYYXXyXyX"},
+    {"XXYYXYYXXY", "YXXYYxYxYxY"},
+    {"XXYYXYYXXY", "YxYxxyyxxYx"},
+    {"XXYYXYYXXY", "YxYYXXYYxYx"},
+    {"XXYYXYYXXY", "yyxxyyXyXyX"},
+    {"XXYYXYYXXY", "YYXXYYxYxYx"},
+    {"XXYXXyyxyy", "XXYXXYXXyy"},
+    {"XXYXXyyxyy", "XXYXYYXYXXy"},
+    {"XYXyXyXxxyXy", "XyxyxYxyxy"},
+    {"XYXyXyXxxyXy", "XYXYxYXYXy"},
+    {"XXYYxxyxxYYx", "XXYXXYXXyy"},
+    {"XXYYxxyxxYYx", "XXYXYYXYXXy"},
+    {"XYXyxYxy", "XXYxyXyxY"},
+    {"XYXyxYxy", "XYxYXyxy"},
+    {"XYXyxYxy", "XXXYxyyxY"},
+    {"XYXyxYxy", "XXXyxYYxy"},
+    {"XXXYxyyyxY", "XXYxyXyxY"},
+    {"XXXYxyyyxYXx", "XXYxyXyxY"},
+    {"XXYxyXyxY", "XXXYxyyxY"},
+    {"XXYYxYYXXy", "XyyXyyxxyy"},
+    {"XXYYxYYXXy", "XXyXyyxyyXy"},
+    {"XXYYxYYXXy", "XXYXXyXyyXy"},
+    {"XXXyyXXyXXyy", "XXyyXyyXXyyy"},
+    {"XYXyXyxyXy", "XyxyxYxyxy"},
+    {"XYXyXyxyXy", "XYXYxYXYXy"},
+    {"XXYXYYXYXXy", "XXyXyyxyyXy"}
+};
+
 set<pair<string, string> > vol3_rels = {
     {"XYXYxYXYXy", "yXYxYxyxYxYY"},
     {"XyxyXyXYXy", "XyxyxYxyxy"},
@@ -252,11 +300,32 @@ TestResult TestCollection::evaluate_vol3(Box& box) {
   return result;
 }
 
+TestResult TestCollection::evaluate_sym3(Box& box) {
+  // fprintf(stderr, "Running sym3 eval");
+  TestResult result = {-1, open, word_pair()};
+  Params<AJCC> p = box.cover();
+  for (auto wp : sym3_rels) {  
+    string first = proven_identity(wp.first, p);
+    if (first == wp.first) {
+      string second = proven_identity(wp.second, p);
+      if (second == wp.second) {
+          result.state = proven_sym3; 
+          result.words.first.assign(first);
+          result.words.second.assign(second);
+          return result;
+      }
+    }
+  }
+  return result;
+}
+
 TestResult TestCollection::evaluate_qrs(Box& box) {
   TestResult result = {-1, open, word_pair()};
   Params<AJCC> p = box.cover();
   for (auto word : box.qr.word_classes()) {  
     result.state = open_with_qr;
+    fprintf(stderr,
+        "Testing proven identity for word: %s .\n", word.c_str());
     string proven = proven_identity(word, p);
     if (relator_test->is_good(proven)) {
       if (box.name.length() > relator_depth) {
@@ -276,8 +345,8 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
             } else if (non_cyclic_power(w, box.y_cover())) {
               result.state = killed_y_hits_y;
             }
-            // result.state = proven_relator;
-            // fprintf(stderr, "Proven relator %s\n", proven.c_str());
+            result.state = proven_relator;
+            fprintf(stderr, "Proven relator %s\n", proven.c_str());
             // print_SL2(construct_word(proven, p));
           }
         }
@@ -388,8 +457,21 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         result.state != open_with_qr) {
       return result;
     }
+    // test sym3
+    result = evaluate_sym3(box);
+    if (result.state != open && 
+        result.state != open_with_qr) {
+      return result;
+    }
   } else {
+    // test vol3
     result = evaluate_vol3(box);
+    if (result.state != open && 
+        result.state != open_with_qr) {
+      return result;
+    }
+    // test sym3
+    result = evaluate_sym3(box);
     if (result.state != open && 
         result.state != open_with_qr) {
       return result;

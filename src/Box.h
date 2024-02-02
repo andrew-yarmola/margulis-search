@@ -7,9 +7,9 @@
 #include <unordered_map>
 
 #define DIM 4
-#define SCL 4   
+#define SCL 4
 // Initial box dimensions are therefore
-// 4 * (2, 2^(3/4), 2^(2/4), 2^(1/4))
+// 4 * (2, 2^(3/4), 2^(2/4), 2^(1/4)).
 
 struct Box {
   Box();

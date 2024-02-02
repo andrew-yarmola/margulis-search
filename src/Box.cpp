@@ -59,6 +59,7 @@ std::string Box::desc() {
   AJCC sinhD2 = _cover.sinhD2;
   AJCC coshL2 = _cover.coshL2;
   AJCC coshD2 = _cover.coshD2;
+  AJCC coshmu = _cover.coshmu;
   Complex c_sinhL2 = _center.sinhL2;
   Complex c_sinhD2 = _center.sinhD2;
 
@@ -72,6 +73,8 @@ std::string Box::desc() {
                                   sinhD2.f.re, sinhD2.f.im, sinhD2.size, absLB(sinhD2), absUB(sinhD2));
   sprintf(_desc + strlen(_desc), "cosh(D/2) = %f + i %f with size %f, absLB %f, and absUB %f\n",
                                   coshD2.f.re, coshD2.f.im, coshD2.size, absLB(coshD2), absUB(coshD2));
+  sprintf(_desc + strlen(_desc), "cosh(mu) = %f + i %f with size %f, absLB %f, and absUB %f\n",
+                                  coshmu.f.re, coshmu.f.im, coshmu.size, absLB(coshmu), absUB(coshmu));
 
   sprintf(_desc + strlen(_desc),
       "Center\n    sinh(L/2) %f + i %f | sinh(D/2) %f + i %f\n",
