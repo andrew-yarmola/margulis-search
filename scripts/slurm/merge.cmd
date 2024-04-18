@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1 # node count
-#SBATCH --ntasks-per-node=38
+#SBATCH --ntasks-per-node=1
 #SBATCH -t 239:59:00
 #SBATCH --mem=120GB
 # sends mail when process begins, and 
@@ -9,14 +9,16 @@
 #SBATCH --mail-type=end
 #SBATCH --mail-user=yarmola@princeton.edu
 
-base_dir="/u/yarmola/margsym/margulis-search/"
+base_dir="/u/yarmola/margulis/margulis-search"
 bin_dir="$base_dir/bin"
 merge="$base_dir/scripts/merge_trees.py"
-data_dir="/scratch/network/yarmola/marg_sym_param"
+data_dir="/scratch/network/yarmola/margulis"
+source="output600"
+output="validate600"
 
-src1="$data_dir/output781"
-out="$data_dir/source"
+src1="$data_dir/output600"
+out="$data_dir/clean600"
 
 cd $bin_dir
 
-python3 "$merge" -s 1000000 -d 30 -c 38 "$out" "$src1" > "$data_dir/merge.log" 2>&1
+python3 "$merge" -s 1000000 -d 30 -c 1 "$out" "$src1" > "$data_dir/merge.log" 2>&1

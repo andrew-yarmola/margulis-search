@@ -68,11 +68,11 @@ def run_refine(command, dest_dir) :
 if __name__ == '__main__' :
   try:
     opts, args = getopt.getopt(sys.argv[1:],
-        'w:p:b:c:d:h:r:i:t:s:IM:R:n:',
+        'w:p:b:c:d:h:r:i:t:s:IM:R:n:v',
       ['words=','impossible=', 'child_limit=','depth_limit=',
         'holes=','refine=','invent_depth=',
         'truncate_depth','word_search_depth=', 'improve',
-        'cosh_marg=', 'sinh_rad=', 'name='])
+        'cosh_marg=', 'sinh_rad=', 'name=', 'debug'])
   except getopt.GetoptError as err:
     print(str(err))
     args = []
@@ -113,6 +113,7 @@ if __name__ == '__main__' :
   words_file = 'none'
   bad_relator_file = 'none'
   name = 'none'
+  debug = ''
 
   # Get config
   holes_file = None
@@ -140,6 +141,8 @@ if __name__ == '__main__' :
       word_search_depth = val
     if opt in ('-I', '--improve'):
       improve_tree = ' --improve_tree'
+    if opt in ('-v', '--debug'):
+      debug = ' --debug'
     if opt in ('-M', '--cosh_marg'):
       cosh_mu_upper = val
     if opt in ('-R', '--sinh_rad'):
@@ -301,6 +304,7 @@ if __name__ == '__main__' :
     refine_command = refine + \
         fill_holes + \
         improve_tree + \
+        debug + \
         ' --box ' + best_hole + \
         ' --max_depth ' + max_depth + \
         ' --truncate_depth ' + truncate_depth + \

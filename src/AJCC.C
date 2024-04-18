@@ -9,7 +9,7 @@ z1: %.20f + %.20f I   w1: %.20f + %.20f I\n\
 err: %.40f\n\
 size: %.40f\n\
 absLB: %.20f | hex %s\n\
-abdUB: %.20f | hex %s\n", x.f.re, x.f.im,
+absUB: %.20f | hex %s\n", x.f.re, x.f.im,
 		   x.z0.re, x.z0.im, x.w0.re, x.w0.im,
 		   x.z1.re, x.z1.im, x.w1.re, x.w1.im,
 		   x.e, x.size,
@@ -24,7 +24,7 @@ void print_type<AJCC>(AJCC& x) {
 
 template<>
 void print_center<const AJCC>(const AJCC& x) {
-	printf("f: %f + %f I\nabsLB: %f, abdUB: %f\n", x.f.re, x.f.im, absLB(x), absUB(x));
+	printf("f: %f + %f I\nabsLB: %f, absUB: %f\n", x.f.re, x.f.im, absLB(x), absUB(x));
 }
 
 template<>

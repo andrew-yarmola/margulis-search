@@ -12,7 +12,7 @@ TestCollection g_tests;
 int g_boxes_visited = 0;
 
 #define IMPROVE_MOD 4 
-#define IMPROVE_HIST 7 
+#define IMPROVE_HIST 10
 #define QR_MOD 4
 #define WORD_SEARCH_MOD 6
 #define WORD_SEARCH_DEPTH 50

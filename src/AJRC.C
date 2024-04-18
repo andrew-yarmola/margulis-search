@@ -9,7 +9,7 @@ z2: %.20f + %.20f I   z3: %.20f + %.20f I\n\
 err: %.40f\n\
 size: %.40f\n\
 absLB: %.20f | hex %s\n\
-abdUB: %.20f | hex %s\n", x.f.re, x.f.im,
+absUB: %.20f | hex %s\n", x.f.re, x.f.im,
 		   x.z0.re, x.z0.im, x.z1.re, x.z1.im,
 		   x.z2.re, x.z2.im, x.z3.re, x.z3.im, x.e, x.size,
        absLB(x), double_to_hex(absLB(x)).c_str(),
@@ -23,7 +23,7 @@ void print_type<AJRC>(AJRC& x) {
 
 template<>
 void print_center<const AJRC>(const AJRC& x) {
-	printf("f: %f + %f I\nabsLB: %f, abdUB: %f\n", x.f.re, x.f.im, absLB(x), absUB(x));
+	printf("f: %f + %f I\nabsLB: %f, absUB: %f\n", x.f.re, x.f.im, absLB(x), absUB(x));
 }
 
 template<>

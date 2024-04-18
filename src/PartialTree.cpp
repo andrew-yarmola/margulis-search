@@ -31,7 +31,7 @@ PartialTree read_tree()
       }
     }
     if (g_debug) {
-      fprintf(stderr, "%d\n", t.result.index);
+    //  fprintf(stderr, "%d\n", t.result.index);
     }
   }
   return t;
