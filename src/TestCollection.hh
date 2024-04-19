@@ -162,22 +162,21 @@ inline const bool w_conj_and_g_in_sym_search(const SL2<T>& w,
     T f_ch_2r = four_cosh_dist(f_sh_sq_hf_p);
     if (absUB(f_ch_2r) < 4 * g_cosh_sym_2r) {
       T ch_2r = f_ch_2r / 4;
-      // IMPORTANT: we assume that len(g) < g_sym_mu 
-      // Thus, we only check that the distance to the
-      // possible margulis point is small enough
-      T tr;
+      T coshl, cost;
       if (g == 'x') {
-        tr = p.coshLx2;
+        coshl = p.coshlx;
+        cost = p.costx;
       } else {
-        tr = p.coshLy2;
+        coshl = p.coshly;
+        cost = p.costy;
       }
-      T four_cosh_mu = ch_2r * (tr - 2) * (tr + 2) + abs_sqrd(tr); 
-      if (absUB(four_cosh_mu) < g_cosh_sym_marg * 4) {
+      T two_cosh_mu = ch_2r * (coshl - cost) + (coshl + cost); 
+      if (absUB(two_cosh_mu) < g_cosh_sym_marg * 2) {
         if (g_debug && std::is_same<T, AJ>::value) {
           fprintf(stderr, "********** w_conj_in_sym_search: %c ***********\n", g);
           print_type("sym: four_sinh_sqrd_half_perp_ga_wga", f_sh_sq_hf_p);
           print_type("sym: cosh_dist_ga_wga", ch_2r);
-          print_type("sym: cosh_mu", four_cosh_mu / 4);
+          print_type("sym: cosh_mu", two_cosh_mu / 2);
         }
         return true;
       }
