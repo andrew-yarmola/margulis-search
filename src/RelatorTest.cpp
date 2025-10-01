@@ -5,6 +5,13 @@
 using namespace std;
 
 set<string> sym_manifold_rels = {
+  "XXyyXXYXY",
+  "YXYxYYxYX",
+  "xxyyxxYxY",
+  "yxyyxyXyX"
+};
+
+set<string> sym_manifold_rels_old = {
     "XXYXyXyXY",
     "XXYYXXyXy",
     "XXYYxYxYY",

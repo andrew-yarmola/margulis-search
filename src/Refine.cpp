@@ -191,18 +191,18 @@ void print_tree(PartialTree& t)
         return;
       }
       case killed_impossible_relator : type = 'E'; break; 
-      case killed_x_hits_y : type = 'a'; break;
+      // case killed_x_hits_y : type = 'a'; break;
       case killed_y_hits_x : type = 'A'; break;
-      case killed_x_hits_x : type = 'x'; break;
-      case killed_y_hits_y : type = 'y'; break;
-      case killed_x_not_cyclic : type = 'p'; break;
+      // case killed_x_hits_x : type = 'x'; break;
+      case killed_y_hits_y : type = 'Y'; break;
+      // case killed_x_not_cyclic : type = 'p'; break;
       case killed_y_not_cyclic : type = 'P'; break;
-      case killed_move : type = 'm'; break;
+      case killed_move : type = 'M'; break;
       case killed_marg : type = 'M'; break;
       case killed_nbd_x : type = 'c'; break;
       case killed_nbd_y : type = 'C'; break;
       case killed_nbd : type = 'D'; break;
-      case killed_w_ax_hits_sym_axis: type = 'n'; break;
+      // case killed_w_ax_hits_sym_axis: type = 'n'; break;
       case killed_w_ay_hits_sym_axis: type = 'N'; break;
       case killed_via_sym: type = 'S'; break; 
       case proven_relator: type = 'R'; break; 

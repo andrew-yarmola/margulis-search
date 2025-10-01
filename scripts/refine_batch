@@ -1,9 +1,9 @@
 #!/bin/bash
 
 out_dir="/scratch/network/yarmola/marg_sym_param/batch"
-words="/u/yarmola/margsym/margulis-search/words"
-impossible="/u/yarmola/margsym/margulis-search/impossible"
-bad_relators="/u/yarmola/margsym/margulis-search/bad_relators_clean"
+words="/u/yarmola/marg_sym_cleanup/margulis-search/words"
+impossible="/u/yarmola/marg_sym_cleanup/margulis-search/impossible"
+bad_relators="/u/yarmola/marg_sym_cleanup/margulis-search/bad_relators"
 
 m_bnd="1.38"
 r_bnd="1.999"
@@ -13,5 +13,5 @@ do
   key=$(echo "$t" | cut -d ':' -f1)
   b=$(echo "$t" | cut -d ':' -f2)
   echo $key $b
-  echo $key | /u/yarmola/margsym/margulis-search/bin/refine_marg --debug --fill_holes --box "$b" --max_depth 180 --truncate_depth 6 --invent_depth 4 --max_size 3000000 --words "$words" --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible "$impossible" --bad_relators "$bad_relators" > "$out_dir/${b}.out" 2> "$out_dir/${b}.err"
+  echo $key | /u/yarmola/marg_sym_cleanup/margulis-search/bin/refine_marg --debug --fill_holes --box "$b" --max_depth 180 --truncate_depth 6 --invent_depth 4 --max_size 3000000 --words "$words" --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible "$impossible" --bad_relators "$bad_relators" > "$out_dir/${b}.out" 2> "$out_dir/${b}.err"
 done

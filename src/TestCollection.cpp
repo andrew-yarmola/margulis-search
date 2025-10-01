@@ -6,14 +6,12 @@
 using namespace std;
 
 set<pair<string, string> > vol3_rels = {
+    {"XYXYxYXYXy", "yXYxYxyxYxYY"},
     {"XyxyXyXYXy", "XyxyxYxyxy"},
-    {"XyxyXyXYXy", "XYXyXYXYxY"},
     {"XyxyXyXYXy", "XyXYXYxYXY"},
     {"XyxyXyXYXy", "XYXYxYXYXy"},
     {"XyxyxYxyxy", "XyXyxyXyXY"},
-    {"XyxyxYxyxy", "XYxYxyxYxY"},
     {"XyxyxYxyxy", "XyXYXyXyxy"},
-    {"YYXYxYYxYX", "YYXYxYYxYX"},
     {"XYXYxYXYXy", "yXYxYxyxYxYY"},
     {"XYXYxYXYXy", "yxYXYxYxyxYY"},
     {"XYXYxYXYXy", "yxYxyxYxYXYY"},
@@ -80,9 +78,7 @@ set<pair<string, string> > vol3_rels = {
     {"XyXyxyXyXY", "yyxYxyxyXyxY"},
     {"XyXyxyXyXY", "yyxyXyxyxYxY"},
     {"XyxyXyXYXy", "XYXYxYXYXy"},
-    {"XyxyXyXYXy", "XYXyXYXYxY"},
     {"XyxyXyXYXy", "XYxYXYXyXY"},
-    {"XyxyXyXYXy", "XyXYXYxYXY"},
     {"XyxyXyXYXy", "yXYXyXYXYxYY"},
     {"XyxyXyXYXy", "yXYxYXYXyXYY"},
     {"XyxyXyXYXy", "yXyXYXYxYXYY"},
@@ -91,7 +87,6 @@ set<pair<string, string> > vol3_rels = {
     {"XyxyXyXYXy", "yyxYxyxyXyxY"},
     {"XyxyXyXYXy", "yyxyXyxyxYxY"},
     {"XyxyxYxyxy", "XYXyXyxyXy"},
-    {"XyxyxYxyxy", "XYxYxyxYxY"},
     {"XyxyxYxyxy", "XyXYXyXyxy"},
     {"XyxyxYxyxy", "XyXyxyXyXY"},
     {"XyxyxYxyxy", "XyxyXyXYXy"},
@@ -226,6 +221,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
       }
     }
   } else {
+    return maybe_killed_center;
     SL2<Complex> w1 = construct_word(pair.first, p);
     SL2<Complex> w2 = construct_word(pair.second,p);
     if (margulis_smaller_than_xy(w1, w2, p)) {
@@ -268,18 +264,7 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
           result.state = killed_via_sym;
         } else {
           SL2<AJCC> w = construct_word(proven, p);
-          if (inside_var_nbd_x(w, p)) {
-            if (syllables(proven) < 5) {
-              result.state = killed_impossible_relator;
-            } else if (cant_fix_x_axis(w, p)) {
-              result.state = killed_x_hits_x;
-            } else if (non_cyclic_power(w, box.x_cover())) {
-              result.state = killed_x_not_cyclic;
-            }
-            // result.state = proven_relator;
-            // fprintf(stderr, "Proven relator %s\n", proven.c_str());
-            // print_SL2(construct_word(proven, p));
-          } else if (inside_var_nbd_y(w, p)) {
+          if (inside_var_nbd_y(w, p)) {
             if (syllables(proven) < 5) {
               result.state = killed_impossible_relator;
             } else if (cant_fix_y_axis(w, p)) {
@@ -289,7 +274,7 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
               }
               result.state = killed_y_hits_y;
             } else if (non_cyclic_power(w, box.y_cover())) {
-              result.state = killed_y_not_cyclic;
+              result.state = killed_y_hits_y;
             }
             // result.state = proven_relator;
             // fprintf(stderr, "Proven relator %s\n", proven.c_str());
@@ -332,6 +317,10 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<AJCC> w = construct_word(word, p);
+    if (g_debug) {
+      fprintf(stderr, "Testing word %s\n", word.c_str());
+      print_SL2(w);
+    }
     if (not_identity(w) &&
         move_less_than_marg(w, p) &&
         ((x_power(word) == 0 || y_power(word) == 0) ||
@@ -339,33 +328,13 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
       result.state = killed_move;
       return result;
     }
-    if (wx_hits_sym_axis(w,p)) {
-      result.state = killed_w_ax_hits_sym_axis;
-      return result;
-    }
     if (wy_hits_sym_axis(w,p)) {
       result.state = killed_w_ay_hits_sym_axis;
       return result;
     }
-    if (y_power(word) > 0) {
-      string word_xr = x_rstrip(word);
-      SL2<AJCC> w_xr;
-      if (word_xr != word) {
-        w_xr = construct_word(word_xr, p);
-      } else {
-        w_xr = w;
-      }
-      if (moves_x_axis_too_close_to_y(w_xr,p)) {
-        box.qr.get_name(word_xr);
-        if (moved_x_axis_not_y_axis(w_xr, p)) {
-          result.words.first.assign(word_xr);
-          result.state = killed_x_hits_y;
-          return result;
-        }
-      }
-    }
     if (x_power(word) > 0) {
-      string word_yr = y_rstrip(word);
+      // string word_yr = y_rstrip(word);
+      string word_yr = word;
       SL2<AJCC> w_yr;
       if (word_yr != word) {
         w_yr = construct_word(word_yr, p);
@@ -381,30 +350,9 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         }
       }
     }
-    if (y_power(word) > 0) {
-      string word_x = x_strip(word);
-      SL2<AJCC> w_x;
-      if (word_x != word) {
-        w_x = construct_word(word_x, p);
-      } else {
-        w_x = w;
-      }
-      if (inside_var_nbd_x(w_x, p)) {
-        box.qr.get_name(word_x);
-        if (syllables(word_x) < 4 || cant_fix_x_axis(w_x, p)) {
-          result.words.first.assign(word_x);
-          result.state = killed_x_hits_x;
-          return result;
-        }
-        if (non_cyclic_power(w_x, box.x_cover())) {
-          result.words.first.assign(word_x);
-          result.state = killed_x_not_cyclic;
-          return result;
-        }
-      }
-    }
     if (x_power(word) > 0) {
-      string word_y = y_strip(word);
+      // string word_y = y_strip(word);
+      string word_y = word;
       SL2<AJCC> w_y;
       if (word_y != word) {
         w_y = construct_word(word_y, p);
@@ -424,7 +372,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         }
         if (non_cyclic_power(w_y, box.y_cover())) {
           result.words.first.assign(word_y);
-          result.state = killed_y_not_cyclic;
+          result.state = killed_y_hits_y;
           return result;
         }
       }
@@ -446,12 +394,12 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         result.state != open_with_qr) {
       return result;
     }
-    SL2<AJCC> w1 = construct_word(pair.first, p);
-    SL2<AJCC> w2 = construct_word(pair.second,p);
-    if (margulis_smaller_than_xy(w1, w2, p)) {
-      result.words = pair;
-      return result;
-    }
+//    SL2<AJCC> w1 = construct_word(pair.first, p);
+//    SL2<AJCC> w2 = construct_word(pair.second,p);
+//    if (margulis_smaller_than_xy(w1, w2, p)) {
+//      result.words = pair;
+//      return result;
+//    }
   }
   if (box.qr.word_classes().size() > 0) {
     result.state = open_with_qr;
@@ -531,10 +479,8 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
               // more than rad + marg/2
               SL2<AJCC> x = construct_x(cover);
               SL2<AJCC> y = construct_y(cover);
-              AJCC four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, cover);
               AJCC four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, cover);
-              return check_bounds(meyerhoff_k_test(
-                    cover.coshreL, cover.cosimL, four_cosh_x_tube_UB) ||
+              return check_bounds(
                   meyerhoff_k_test(cover.coshreL, cover.cosimL, four_cosh_y_tube_UB),
                   result);
             }

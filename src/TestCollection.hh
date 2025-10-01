@@ -228,7 +228,8 @@ inline const bool must_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
   // The "must" part is only valid for AJCC tests
   T diff = p.coshreD * 4 - four_cosh_dist_ay_way(w, p);
   if (g_debug && 
-      std::is_same<T, AJCC>::value && strictly_pos(diff)) {
+      //std::is_same<T, AJCC>::value && strictly_pos(diff)) {
+      std::is_same<T, AJCC>::value) {
     fprintf(stderr, "********** MUST FIX Y AXIS ***********\n");
     print_SL2(w);
     print_type("4 cosh 2 dy:", p.coshreD * 4);
@@ -255,7 +256,7 @@ inline const bool inside_var_nbd_x(const SL2<T>& w, const Params<T>& params) {
 template<typename T>
 inline const bool inside_var_nbd_y(const SL2<T>& w, const Params<T>& params) {
   // The second test may only work when y has trace close to +/- 2
-  if (g_debug && (absUB(jorgensen_wy(w, params)) < 1 ||
+  if (g_debug && std::is_same<T, AJCC>::value && (absUB(jorgensen_wy(w, params)) < 1 ||
     absUB(jorgensen_yw(w, params)) < 1 || must_fix_y_axis(w, params))) {
     fprintf(stderr, "UB Jwy %f, UB Jyw %f, must_fix %d\n", absUB(jorgensen_wy(w, params)),
       absUB(jorgensen_yw(w, params)), must_fix_y_axis(w, params));
@@ -441,42 +442,30 @@ template<typename T>
 std::string proven_identity(std::string word, const Params<T>& p) {
   SL2<T> x = construct_x(p);
   SL2<T> y = construct_y(p);
-  if (g_debug) {
+  if (g_debug && std::is_same<T, AJCC>::value) {
     fprintf(stderr, "Testing proven identity for word: %s .\n", word.c_str());
   }
   SL2<T> w = construct_word(word, p);
   std::string new_word;
-  if (y_power(word) > 0 && inside_var_nbd_x(w, p)) {
-    T four_cosh_x_tube_UB = four_cosh_dist_ax_wax(y, p);
-    T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshreL, p.cosimL, four_cosh_x_tube_UB); 
-    for (auto s : {"x", "X"}) {
-      new_word = x_strip(word);
-      for (int i = 0; i < MAX_ID_SHIFT; ++i) {
-        SL2<T> new_w = construct_word(new_word, p); // order matters
-        if (inside_var_nbd_x(new_w, p)) {
-          T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
-          if (strictly_pos(diff)) {
-            if (g_debug) {
-              fprintf(stderr, "Found proven identity: %s .\n", new_word.c_str());
-            }
-            return new_word;
-          }
-        }      
-        new_word = s + new_word;
-      }
-    }
-  }
   if (x_power(word) > 0 && inside_var_nbd_y(w, p)) {
     T four_cosh_y_tube_UB = four_cosh_dist_ay_way(x, p);
     T cosh_prim_re_len = worst_primitive_cosh_re_len(p.coshreL, p.cosimL, four_cosh_y_tube_UB); 
+    if (g_debug && std::is_same<T, AJCC>::value) {
+      print_type("four_cosh_y_tube_UB", four_cosh_y_tube_UB);
+      print_type("cosh_prim_re_len", cosh_prim_re_len);
+    }
     for (auto s : {"y", "Y"}) {
-      new_word = y_strip(word);
+      // new_word = y_strip(word);
+      new_word = word;
       for (int i = 0; i < MAX_ID_SHIFT; ++i) {
+        if (g_debug && std::is_same<T, AJCC>::value) {
+          fprintf(stderr, "Testing new word: %s\n", new_word.c_str());
+        }
         SL2<T> new_w = construct_word(new_word, p); // order matters
         if (inside_var_nbd_y(new_w, p)) {
           T diff = cosh_prim_re_len * 4 - four_cosh_re_length(new_w);
           if (strictly_pos(diff)) {
-            if (g_debug) {
+            if (g_debug && std::is_same<T, AJCC>::value) {
               fprintf(stderr, "Found proven identity: %s .\n", new_word.c_str());
             }
             return new_word;

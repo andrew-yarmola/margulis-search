@@ -9,7 +9,7 @@
 #SBATCH --mail-type=end
 #SBATCH --mail-user=yarmola@princeton.edu
 
-base_dir="/u/yarmola/margsym/margulis-search"
+base_dir="/u/yarmola/marg_sym_cleanup/margulis-search"
 bin_dir="$base_dir/bin"
 words_dir=$base_dir
 
@@ -18,7 +18,7 @@ words="$words_dir/words"
 impossible="$words_dir/impossible"
 bad_relators="$words_dir/bad_relators"
 
-data_dir="/scratch/network/yarmola/marg_sym_param"
+data_dir="/scratch/network/yarmola/verify_marg_sym"
 log_file="refine868.log"
 source="source868"
 output="output868"
