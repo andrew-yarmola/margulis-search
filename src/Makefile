@@ -1,5 +1,6 @@
 REFINEOBJS= MomRefine.o BallSearch.o slopes.o TestCollection.o Box.o ImpossibleRelations.o ACJ.o Params.o SL2C.o SL2ACJ.o Complex.o roundoff.o CanonicalName.o QuasiRelators.o
 TREECATOBJS= treecat.o
+TREESTATOBJS= treestat.o
 STREECATOBJS= simple_treecat.o
 TESTOBJS= test.o BallSearch.o slopes.o TestCollection.o Box.o ImpossibleRelations.o ACJ.o Params.o SL2C.o SL2ACJ.o Complex.o roundoff.o CanonicalName.o QuasiRelators.o
 #CPLUSPLUS= icpc
@@ -44,6 +45,9 @@ simple_treecat: $(STREECATOBJS)
 
 treemerge: treemerge.o 
 	$(CPLUSPLUS) $(COPTS) treemerge.o -o ../bin/treemerge
+
+treestat: $(TREESTATOBJS)
+	$(CPLUSPLUS) $(COPTS) $(TREESTATOBJS) -o ../bin/treestat
 
 roottreemerge: roottreemerge.o 
 	$(CPLUSPLUS) $(COPTS) roottreemerge.o -o ../bin/roottreemerge

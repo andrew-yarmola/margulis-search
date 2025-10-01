@@ -211,7 +211,7 @@ bool refineRecursive(Box box, PartialTree& t, int depth, TestHistory& history, v
       }            
     }
 
-    if (t.testIndex == 9 && area_LB >= 5.65) {
+    if (t.testIndex == 9 && area_LB >= 5.65 && false) {
       t.testIndex = 9;
       t.testResult = killed_e2;
       return true; // TODO SPEEEED HACK!!!

@@ -31,7 +31,7 @@ double g_maximumArea = 6.0;
 double g_minimumArea = 0.0;
 int g_max_g_len = 7;
 int g_num_bnd_tests = 10;
-int g_var_int_depth = 60; // don't look for var_int unles we are this deep
+int g_var_int_depth = 120; // don't look for var_int unles we are this deep
 int g_slope_dist_depth = 6; 
 
 string g_testCollectionFullWord;
@@ -297,9 +297,16 @@ box_state TestCollection::is_var_intersection(Box& box, string& aux_word,
 	for (auto it = qrs.begin(); it != qrs.end(); ++it) {
         // We avoid high g_power relators for optimization.
         // TODO: check that this does not need to be relaxed when pushing for higher powers
-        if (g_power(*it) > min_power + 1) {
+        if (g_power(*it) > min_power + 2) {
             break;
-        } else {
+        } else if (it->compare("GGMgNgMGmGMgNgMG") == 0 ||
+          it->compare("mggmGnGnGmggmGnMG") ||
+          it->compare("mgMGmgMgmGMgmGnG") ||
+          it->compare("mGMgmGMnGmgMGmGGG") ||
+          it->compare("mnGGMgMGGmnGmgmG") ||
+          it->compare("MGMgMGGnGGMgMG") ||
+          it->compare("mmnGMgmGGmGGmgMG") ||
+          it->compare("mnGMgmGMggMGmgMG")){
             SL2ACJ w = construct_word(*it, params, para_cache, words_cache);
             if (inside_var_nbd(w)) {
                 var_words.push_back(*it);
@@ -628,6 +635,7 @@ box_state TestCollection::evaluateBox(int index, Box& box, string& aux_word, vec
       return check_bounds(area_lb > g_maximumArea || area_ub < g_minimumArea );
 		}
 		case 7: {
+      return open;
       if (box.name.length() < g_slope_dist_depth) {
         return open;
       }
@@ -635,6 +643,7 @@ box_state TestCollection::evaluateBox(int index, Box& box, string& aux_word, vec
       return check_bounds(max_dist > 0 && max_dist < 6);
 		}
 		case 8: {
+      return open;
       if (box.qr.words().size() < 2 || box.name.length() < g_var_int_depth) {
         if (box.qr.words().size() == 0) { return open; } 
         else { return open_with_qr; }

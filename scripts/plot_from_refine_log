@@ -1,11 +1,14 @@
 #!/bin/bash
 
 data=`mktemp`
-grep Open "$1" | cut -d ' ' -f 4 > $data
 
-max=`cat $data | sort -n | tail -1`
-min=`cat $data | sort -n -r | tail -1`
+grep -a Open "$1" | awk '{print NR,$4}'> $data
+
+max=`cat $data | cut -d ' ' -f 1 | sort -n | tail -1`
+min=`cat $data | cut -d ' ' -f 1 | sort -n | head -1`
 num=`cat $data| wc -l`
+
+echo $num $min $max
 
 ratio=`echo "scale=4;($max-$min)/$num" | bc`
 
