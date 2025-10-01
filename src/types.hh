@@ -98,7 +98,7 @@ inline T min_local(const T& x, const T& y) {
  *    from the oriented axis(x) to axis(y)
  *    Note: we can assume 0 <= phi <= pi/2 by using
  *        a reflection symmtery and swapping y and Y
- * sintx2 = sin(theta_x/2) where -pi <= theta_x <= pi is
+ * costx2 = cos(theta_x/2) where 0 <= theta_x <= 2pi is
  *    the loxodromic rotation angle of x
  * sinty2 = sin(theta_y/2) where -pi <= theta_y <= pi is
  *    the loxodromic rotation angle of y
@@ -107,10 +107,10 @@ inline T min_local(const T& x, const T& y) {
  * coshdx = sqrt(1+sinh(d_x)^2)
  * coshdx = sqrt(1+sinh(d_y)^2)
  * sinf = sqrt(1-cos(phi)^2)
- * costx2 = sqrt(1-sin(t_x/2)^2)
+ * sintx2 = sqrt(1-sin(t_x/2)^2)
  * costy2 = sqrt(1-sin(t_y/2)^2)
  *
- * costx = 1 - 2*sin(t_x/2)^2
+ * costx = 2*cos(t_x/2)^2 - 1
  * costy = 1 - 2*sin(t_y/2)^2
  *
  * coshlx = (cosh(mu) + cos(tx)*sinh(dx)^2)/cosh(d2)^2
@@ -145,7 +145,7 @@ template<typename T> struct Params {
   T sinhdx;
   T sinhdy;
   T cosf;
-  T sintx2;
+  T costx2;
   T sinty2;
 //  T sinhsdx; // derived parameter
 //  T sinhsdy; // derived parameter
@@ -154,7 +154,7 @@ template<typename T> struct Params {
   T coshdx; // derived parameter
   T coshdy; // derived parameter
   T sinf; // derived parameter
-  T costx2; // derived parameter
+  T sintx2; // derived parameter
   T costy2; // derived parameter
   T costx; // derived parameter
   T costy; // derived parameter
@@ -211,10 +211,10 @@ void fill_derived(Params<T>& p) {
 
   p.sinf = sqrt(one - p.cosf * p.cosf);
 
-  p.costx2 = sqrt(one - p.sintx2 * p.sintx2); 
+  p.sintx2 = sqrt(one - p.costx2 * p.costx2); 
   p.costy2 = sqrt(one - p.sinty2 * p.sinty2); 
 
-  p.costx = one - (p.sintx2 * p.sintx2) * 2; 
+  p.costx = (p.costx2 * p.costx2) * 2 - one; 
   p.costy = one - (p.sinty2 * p.sinty2) * 2;
 
   // main formula relating margulis, real length, twist, and distance to axis

@@ -113,6 +113,9 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
                 new_pair.second.c_str(), search_place.name.c_str());
         t.result = g_tests.evaluate_box(new_index, box);
         if (t.result.state != open && t.result.state != open_with_qr) {
+          fprintf(stderr, "new word (%s,%s) at (%s)\n",
+                  search_place.qr.desc(box.cover()).c_str(), new_pair.first.c_str(),
+                  new_pair.second.c_str(), search_place.name.c_str());
           return true;
         }
       }

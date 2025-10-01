@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #data_dir="single"
-data_dir="/scratch/network/yarmola/margulis/single"
+data_dir="/scratch/network/yarmola/data/margulis/single"
 name="box"
 
 if [ ! -d "$data_dir" ]; then
@@ -22,8 +22,8 @@ test="0"
 m_bnd="1.185465218"
 r_bnd="1.292712575"
 
-cmd="echo $test | ../bin/refine_marg --debug --box $box --max_depth 90 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
-cmd="echo $test | ../bin/refine_marg --box $box --max_depth 90 --truncate_depth 6 --invent_depth 12 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
+cmd="echo $test | ../bin/refine_marg --debug --box $box --max_depth 190 --truncate_depth 24 --invent_depth 70 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
+cmd="echo $test | ../bin/refine_marg --debug --box $box --max_depth 190 --truncate_depth 6 --invent_depth 50 --max_size 3000000 --words ../words --word_search_depth 6 -m $m_bnd -r $r_bnd --impossible ../impossible > $data_dir/$name.out 2> $data_dir/$name.err"
 
 echo "$cmd"
 

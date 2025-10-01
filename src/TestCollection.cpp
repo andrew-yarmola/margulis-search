@@ -305,8 +305,8 @@ box_state TestCollection::evaluate_center(int index, Box& box)
             }
     case 1: {
               return check_bounds_center(
-                  absLB(center.sintx2) > 1 ||
-                  absLB(center.sinty2) > 1 ||
+                  absLB(center.costx2) > 0.707107 ||
+                  absLB(center.sinty2) > 0.707107 ||
                   absLB(center.sinhdx) > g_sinh_r ||
                   absLB(center.sinhdy) > g_sinh_r ||
                   strictly_pos(-center.sinhdy) ||
@@ -360,10 +360,10 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
             }
     case 1: {
               if (g_debug) {
-                  if(absLB(cover.sintx2) > 1) {
+                  if(absLB(cover.sintx2) > 0.707107) {
                      print_type("cover.sintx2", cover.sintx2);
                   }
-                  if (absLB(cover.sinty2) > 1 ) {
+                  if (absLB(cover.sinty2) > 0.707107) {
                      print_type("cover.sinty2", cover.sinty2);
                   }
                   if (absLB(cover.sinhdx) > g_sinh_r ) {
@@ -398,8 +398,8 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   }
               }
               return check_bounds(
-                  absLB(cover.sintx2) > 1 ||
-                  absLB(cover.sinty2) > 1 ||
+                  absLB(cover.costx2) > 0.707107 ||
+                  absLB(cover.sinty2) > 0.707107 ||
                   absLB(cover.sinhdx) > g_sinh_r ||
                   absLB(cover.sinhdy) > g_sinh_r ||
                   strictly_pos(-cover.sinhdx) ||
