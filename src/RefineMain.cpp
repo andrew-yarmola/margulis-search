@@ -127,8 +127,8 @@ int main(int argc, char** argv)
     case 'I': g_options.improve_tree = true; break;
     case 't': g_options.truncate_depth = atoi(optarg); break;
     case 's': g_options.max_size = atoi(optarg); break;
-    case 'B': g_options.word_search_depth = 120; break;
-    // case 'B': g_options.word_search_depth = atoi(optarg); break;
+    // case 'B': g_options.word_search_depth = 120; break;
+    case 'B': g_options.word_search_depth = atoi(optarg); break;
     case 'f': g_options.fill_holes = true; break;
     case 'm': g_cosh_marg_upper = atof(optarg); break;
     case 'r': g_sinh_r = atof(optarg); break;
