@@ -305,8 +305,8 @@ box_state TestCollection::evaluate_center(int index, Box& box)
             }
     case 1: {
               return check_bounds_center(
-                  absLB(center.sintx2) > 1 ||
-                  absLB(center.sinty2) > 1 ||
+                  absLB(center.sintx2) > 0.707107 ||
+                  absLB(center.costy2) > 0.707107 ||
                   absLB(center.sinhdx) > g_sinh_r ||
                   absLB(center.sinhdy) > g_sinh_r ||
                   strictly_pos(-center.sinhdy) ||
@@ -398,8 +398,8 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   }
               }
               return check_bounds(
-                  absLB(cover.sintx2) > 1 ||
-                  absLB(cover.sinty2) > 1 ||
+                  absLB(cover.sintx2) > 0.707107 ||
+                  absLB(cover.costy2) > 0.707107 ||
                   absLB(cover.sinhdx) > g_sinh_r ||
                   absLB(cover.sinhdy) > g_sinh_r ||
                   strictly_pos(-cover.sinhdx) ||

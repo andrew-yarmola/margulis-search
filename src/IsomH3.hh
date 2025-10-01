@@ -53,18 +53,22 @@ const T norm(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(tr1 + sh1) < 2) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign (norm): ");
+      fprintf(stderr, "Flipping sqrt sign (norm):\n");
       T t = tr1 + sh1;
-      print_type(t);
+      print_type("tr", tr1);
+      print_type("sqrt(tr^2-4)", sh1);
+      print_type("tr + sqrt(tr^2-4)", t);
     }
     sh1 = -sh1;
   }
   // TODO this might not be reliable
   if (absUB(tr2 + sh2) < 2) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign (norm): ");
+      fprintf(stderr, "Flipping sqrt sign (norm):\n");
       T t = tr2 + sh2;
-      print_type(t);
+      print_type("tr", tr2);
+      print_type("sqrt(tr^2-4)", sh2);
+      print_type("tr + sqrt(tr^2-4)", t);
     }
     sh2 = -sh2;
   }
@@ -119,9 +123,12 @@ const T sinh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(ch + sh) < absUB(norm(w1,w2))) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign (sinh_perp_normed): ");
+      fprintf(stderr, "Flipping sqrt sign (sinh_perp_normed):\n");
       T t = ch + sh;
-      print_type(t);
+      print_type("n", norm(w1,w2));
+      print_type("nch", ch);
+      print_type("sqrt(nch^2 - n^2)", sh);
+      print_type("nch + sqrt(nch^2 - n^2)", t);
     }
     sh = -sh;
   }
@@ -135,9 +142,11 @@ const T sinh_perp(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(ch + sh) < 1) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign (sinh_perp): ");
+      fprintf(stderr, "Flipping sqrt sign (sinh_perp):\n");
       T t = ch + sh;
-      print_type(t);
+      print_type("ch", ch);
+      print_type("sqrt(ch^2-1)", sh);
+      print_type("ch + sqrt(ch^2-1))", t);
     }
     sh = -sh;
   }
@@ -177,9 +186,11 @@ const T sinh_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(ch + sh) < 1) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign (sinh_2_re_perp): ");
+      fprintf(stderr, "Flipping sqrt sign (sinh_2_re_perp):\n");
       T t = ch + sh;
-      print_type(t);
+      print_type("ch", ch);
+      print_type("sqrt(ch^2-1)", sh);
+      print_type("ch + sqrt(ch^2-1)", t);
     } 
     sh = -sh;
   }
@@ -195,9 +206,12 @@ const T sinh_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   // TODO this might not be reliable
   if (absUB(ch + sh) < absUB(n)) {
     if (g_debug) {
-      fprintf(stderr, "Flipping sqrt sign (sinh_2_re_perp_normed): ");
+      fprintf(stderr, "Flipping sqrt sign (sinh_2_re_perp_normed):\n");
       T t = ch + sh;
-      print_type(t);
+      print_type("n", n);
+      print_type("nch", ch);
+      print_type("sqrt(nch^2 - n^2)", sh);
+      print_type("nch + sqrt(nch^2 - n^2)", t);
     } 
     sh = -sh;
   }

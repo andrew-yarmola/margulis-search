@@ -15,7 +15,7 @@ double g_cosh_marg_lower = 1.0054;
 double g_sinh_r = 1.3426; 
 double g_cosh_r = 1e11; 
 
-double g_cosh_sym_marg = 1.55;
+double g_cosh_sym_marg = 1.454;
 double g_sinh_sym_r = 2.8554;
 double g_cosh_sym_r = 1e11; 
 double g_cosh_sym_2r = 1e11; 
@@ -124,11 +124,12 @@ int main(int argc, char** argv)
     case 'R': g_options.bad_relator_file = optarg; break;
     case 'd': g_options.max_depth = atoi(optarg); break;
     case 'i': g_options.invent_depth = atoi(optarg); break;
+    // case 'i': g_options.invent_depth = 12; break;
     case 'I': g_options.improve_tree = true; break;
     case 't': g_options.truncate_depth = atoi(optarg); break;
     case 's': g_options.max_size = atoi(optarg); break;
-    case 'B': g_options.word_search_depth = 120; break;
-    // case 'B': g_options.word_search_depth = atoi(optarg); break;
+    // case 'B': g_options.word_search_depth = 70; break;
+    case 'B': g_options.word_search_depth = atoi(optarg); break;
     case 'f': g_options.fill_holes = true; break;
     case 'm': g_cosh_marg_upper = atof(optarg); break;
     case 'r': g_sinh_r = atof(optarg); break;
