@@ -173,7 +173,7 @@ inline const bool w_conj_and_g_in_sym_search(const SL2<T>& w,
       T two_cosh_mu = ch_2r * (coshl - cost) + (coshl + cost); 
       if (absUB(two_cosh_mu) < g_cosh_sym_marg * 2) {
         if (g_debug && std::is_same<T, AJ>::value) {
-          fprintf(stderr, "********** w_conj_in_sym_search: %c ***********\n", g);
+          fprintf(stderr, "********** w_conj_and_g_in_sym_search: %c ***********\n", g);
           print_type("sym: four_sinh_sqrd_half_perp_ga_wga", f_sh_sq_hf_p);
           print_type("sym: cosh_dist_ga_wga", ch_2r);
           print_type("sym: cosh_mu", two_cosh_mu / 2);

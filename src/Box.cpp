@@ -67,8 +67,8 @@ std::string Box::desc() {
   AJ sinf   = _cover.sinf;
   AJ expif  = _cover.expif;
   AJ expmif = _cover.expmif;
-  AJ sintx2 = _cover.sintx2;
-  AJ sinty2 = _cover.sinty2; 
+  AJ costx2 = _cover.costx2;
+  AJ costy2 = _cover.costy2; 
   AJ coshlx = _cover.coshlx;
   AJ coshly = _cover.coshly;
   AJ coshLx2 = _cover.coshLx2;
@@ -79,8 +79,8 @@ std::string Box::desc() {
   Complex c_sinhdy = _center.sinhdy;
   Complex c_coshmu = _center.coshmu; 
   Complex c_cosf   = _center.cosf;
-  Complex c_sintx2 = _center.sintx2;
-  Complex c_sinty2 = _center.sinty2; 
+  Complex c_costx2 = _center.costx2;
+  Complex c_costy2 = _center.costy2; 
 
   char _desc[10000];
   sprintf(_desc, "%s\n", name.c_str());
@@ -115,11 +115,11 @@ std::string Box::desc() {
       "cos(phi) = %f with size %f, absLB %f, and absUB %f\n",
       cosf.f.re, cosf.size, absLB(cosf), absUB(cosf));
   sprintf(_desc + strlen(_desc),
-      "sin(t_x/2) = %f with size %f, absLB %f, and absUB %f\n",
-      sintx2.f.re, sintx2.size, absLB(sintx2), absUB(sintx2));
+      "cos(t_x/2) = %f with size %f, absLB %f, and absUB %f\n",
+      costx2.f.re, costx2.size, absLB(costx2), absUB(costx2));
   sprintf(_desc + strlen(_desc),
-      "sin(t_y/2) = %f with size %f, absLB %f, and absUB %f\n",
-      sinty2.f.re, sinty2.size, absLB(sinty2), absUB(sinty2));
+      "cos(t_y/2) = %f with size %f, absLB %f, and absUB %f\n",
+      costy2.f.re, costy2.size, absLB(costy2), absUB(costy2));
   sprintf(_desc + strlen(_desc),
       "sin(phi) = %f with size %f, absLB %f, and absUB %f\n",
       sinf.f.re, sinf.size, absLB(sinf), absUB(sinf));
@@ -152,9 +152,9 @@ std::string Box::desc() {
   "Center\n"
 "    sinh(d_x) %f | sinh(d_y) %f\n"
 "    cosh(mu) %f | cos(phi) % f\n"
-"    sin(t_x/2) %f | sin(t_y/2) %f\n",
+"    cos(t_x/2) %f | cos(t_y/2) %f\n",
   c_sinhdx.real(), c_sinhdy.real(), c_coshmu.real(),
-  c_cosf.real(), c_sintx2.real(), c_sinty2.real() );
+  c_cosf.real(), c_costx2.real(), c_costy2.real() );
 
   std::string s(_desc);
   return s;
@@ -176,8 +176,8 @@ void Box::compute_center_and_size()
   _center.sinhdy = Complex(box_center[1], 0);
   _center.coshmu = Complex(box_center[2], 0);
   _center.cosf = Complex(box_center[3], 0);
-  _center.sintx2 = Complex(box_center[4], 0);
-  _center.sinty2 = Complex(box_center[5], 0);
+  _center.costx2 = Complex(box_center[4], 0);
+  _center.costy2 = Complex(box_center[5], 0);
 
   fill_derived(_center);
 
@@ -193,8 +193,8 @@ void Box::compute_cover()
   // sinh(d_y) = s[1]im(z0) + c[1]
   // cosh(mu) = s[2]re[z1] + c[2]
   // cos(phi) = s[3]im[z1] + c[3]
-  // sin(t_x/2) = s[4]re[z2] + c[4]
-  // sin(t_y/2) = s[5]im[z2] + c[5]
+  // cos(t_x/2) = s[4]re[z2] + c[4]
+  // cos(t_y/2) = s[5]im[z2] + c[5]
 
   // Here, we have sinhdx(z0,z1,z2) = size * re(z0) + center and
   // sinhdy(z0,z1,z2) = size * im(z0) + center
@@ -216,11 +216,11 @@ void Box::compute_cover()
       0, XComplex(0, -box_size[3] / 2), 0,
       0, XComplex(0,  box_size[3] / 2), 0);
 
-  _cover.sintx2 = AJ(XComplex(box_center[4], 0),
+  _cover.costx2 = AJ(XComplex(box_center[4], 0),
       0, 0, XComplex(box_size[4] / 2, 0),
       0, 0, XComplex(box_size[4] / 2, 0));
 
-  _cover.sinty2 = AJ(XComplex(box_center[5], 0),
+  _cover.costy2 = AJ(XComplex(box_center[5], 0),
       0, 0, XComplex(0, -box_size[5] / 2),
       0, 0, XComplex(0,  box_size[5] / 2));
 

@@ -17,6 +17,12 @@ int TestCollection::size()
 
 box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
 {
+  /*
+  if (absLB(box.cover().coshlx) < 1 ||
+      absLB(box.cover().coshly) < 1) {
+    return open;
+  }*/
+
   Params<Complex> p = box.center();
   if (pair.second.length() == 0) {
     string word = pair.first;
@@ -127,6 +133,10 @@ TestResult TestCollection::evaluate_AJ(word_pair& pair, Box& box)
 {
   TestResult result = {-1, open, pair};
   Params<AJ> p = box.cover();
+  /*if (absLB(p.coshlx) < 1 ||
+      absLB(p.coshly) < 1) {
+    return result;
+  }*/
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<AJ> w = construct_word(word, p);
@@ -305,8 +315,8 @@ box_state TestCollection::evaluate_center(int index, Box& box)
             }
     case 1: {
               return check_bounds_center(
-                  absLB(center.sintx2) > 1 ||
-                  absLB(center.sinty2) > 1 ||
+                  absLB(center.costx2) > 0.707107 ||
+                  absLB(center.costy2) > 0.707107 ||
                   absLB(center.sinhdx) > g_sinh_r ||
                   absLB(center.sinhdy) > g_sinh_r ||
                   strictly_pos(-center.sinhdy) ||
@@ -360,11 +370,11 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
             }
     case 1: {
               if (g_debug) {
-                  if(absLB(cover.sintx2) > 1) {
-                     print_type("cover.sintx2", cover.sintx2);
+                  if(absLB(cover.sintx2) > 0.707107) {
+                     print_type("cover.costx2", cover.sintx2);
                   }
-                  if (absLB(cover.sinty2) > 1 ) {
-                     print_type("cover.sinty2", cover.sinty2);
+                  if (absLB(cover.sinty2) > 0.707107) {
+                     print_type("cover.costy2", cover.sinty2);
                   }
                   if (absLB(cover.sinhdx) > g_sinh_r ) {
                      print_type("cover.sinhdx", cover.sinhdx);
@@ -398,8 +408,8 @@ TestResult TestCollection::evaluate_box(int index, Box& box)
                   }
               }
               return check_bounds(
-                  absLB(cover.sintx2) > 1 ||
-                  absLB(cover.sinty2) > 1 ||
+                  absLB(cover.costx2) > 0.707107 ||
+                  absLB(cover.costy2) > 0.707107 ||
                   absLB(cover.sinhdx) > g_sinh_r ||
                   absLB(cover.sinhdy) > g_sinh_r ||
                   strictly_pos(-cover.sinhdx) ||
