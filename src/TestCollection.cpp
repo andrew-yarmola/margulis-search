@@ -211,7 +211,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
   if (pair.second.length() == 0) {
     string word = pair.first;
     SL2<Complex> w = construct_word(word, p);
-    if (not_identity(w)) {
+    // if (not_identity(w)) {
       if (move_less_than_marg(w, p)) {
         return maybe_killed_center;
       }
@@ -226,7 +226,7 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
       }
       if (wy_hits_sym_axis(w,p)) {
         return maybe_killed_center;
-      }
+     // }
     }
     if (y_power(word) > 0) {
       string word_x = x_strip(word);
@@ -390,59 +390,64 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
       fprintf(stderr, "Testing word %s\n", word.c_str());
       print_SL2(w);
     }
-    if (not_identity(w) &&
-        move_less_than_marg(w, p) &&
-        ((x_power(word) == 0 || y_power(word) == 0) ||
-          does_not_fix_sym_axis(w))) {
-      result.state = killed_move;
-      return result;
-    }
-    if (wy_hits_sym_axis(w,p)) {
-      result.state = killed_w_ay_hits_sym_axis;
-      return result;
-    }
-    if (x_power(word) > 0) {
-      // string word_yr = y_rstrip(word);
-      string word_yr = word;
-      SL2<AJCC> w_yr;
-      if (word_yr != word) {
-        w_yr = construct_word(word_yr, p);
+    if (move_less_than_marg(w, p)) {
+      if (not_identity(w) &&
+          ((x_power(word) == 0 || y_power(word) == 0) ||
+            does_not_fix_sym_axis(w))) {
+        result.state = killed_move;
+        return result;
       } else {
-        w_yr = w;
+        box.qr.get_name(word);
       }
-      if (moves_y_axis_too_close_to_x(w_yr,p)) {
-        box.qr.get_name(word_yr);
-        if (moved_y_axis_not_x_axis(w_yr, p)) {
-          result.words.first.assign(word_yr);
-          result.state = killed_y_hits_x;
-          return result;
+    }
+    if (absLB(p.twosinhreD2) > 0.01) {
+      if (wy_hits_sym_axis(w,p)) {
+        result.state = killed_w_ay_hits_sym_axis;
+        return result;
+      }
+      if (x_power(word) > 0) {
+        // string word_yr = y_rstrip(word);
+        string word_yr = word;
+        SL2<AJCC> w_yr;
+        if (word_yr != word) {
+          w_yr = construct_word(word_yr, p);
+        } else {
+          w_yr = w;
         }
-      }
-    }
-    if (x_power(word) > 0) {
-      // string word_y = y_strip(word);
-      string word_y = word;
-      SL2<AJCC> w_y;
-      if (word_y != word) {
-        w_y = construct_word(word_y, p);
-      } else {
-        w_y = w;
-      }
-      if (inside_var_nbd_y(w_y, p)) {
-        box.qr.get_name(word_y);
-        if (syllables(word_y) < 4 || cant_fix_y_axis(w_y, p)) {
-          result.words.first.assign(word_y);
-          if (g_debug) {
-            fprintf(stderr, "Word %s is\n", word_y.c_str());
-            print_SL2(w_y);
+        if (moves_y_axis_too_close_to_x(w_yr,p)) {
+          box.qr.get_name(word_yr);
+          if (moved_y_axis_not_x_axis(w_yr, p)) {
+            result.words.first.assign(word_yr);
+            result.state = killed_y_hits_x;
+            return result;
           }
-          result.state = killed_y_hits_y;
-          return result;
         }
-        if (non_cyclic_power(w_y, box.y_cover())) {
-          result.words.first.assign(word_y);
-          result.state = killed_y_hits_y;
-          return result;
+      }
+      if (x_power(word) > 0) {
+        // string word_y = y_strip(word);
+        string word_y = word;
+        SL2<AJCC> w_y;
+        if (word_y != word) {
+          w_y = construct_word(word_y, p);
+        } else {
+          w_y = w;
+        }
+        if (inside_var_nbd_y(w_y, p)) {
+          box.qr.get_name(word_y);
+          if (syllables(word_y) < 4 || cant_fix_y_axis(w_y, p)) {
+            result.words.first.assign(word_y);
+            if (g_debug) {
+              fprintf(stderr, "Word %s is\n", word_y.c_str());
+              print_SL2(w_y);
+            }
+            result.state = killed_y_hits_y;
+            return result;
+          }
+          if (non_cyclic_power(w_y, box.y_cover())) {
+            result.words.first.assign(word_y);
+            result.state = killed_y_hits_y;
+            return result;
+          }
         }
       }
     }

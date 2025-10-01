@@ -131,6 +131,10 @@ int main(int argc, char** argv)
     case 'v': g_debug = true; break;
     }
   }
+
+  g_options.word_search_depth = -1;
+  g_options.invent_depth = 12;
+
   // Set the cosh_r_bound
   XComplex shr(g_sinh_r_bound, 0);
   XComplex chrsq(absUB(shr * shr + 1), 0);
