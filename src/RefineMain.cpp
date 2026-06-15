@@ -132,8 +132,8 @@ int main(int argc, char** argv)
     }
   }
 
-  g_options.word_search_depth = -1;
-  g_options.invent_depth = 12;
+  g_options.word_search_depth = 78;
+  g_options.invent_depth = 16;
 
   // Set the cosh_r_bound
   XComplex shr(g_sinh_r_bound, 0);

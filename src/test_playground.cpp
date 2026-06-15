@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "SL2.hh"
+#include "AJCC.h"
 #include "Box.h"
 #include "IsomH3.hh"
-#include "AJ.h"
 #include "types.hh"
 #include "TubeSearch.hh"
 #include "TestCollection.hh"
@@ -47,15 +47,15 @@ int main(int argc,char**argv)
   printf("y rstrip yYyxxXyyYx : %s\n", y_rstrip("yYyxxXyyYx").c_str());
   printf("Box: %s", box.desc().c_str());
 
-//  SL2<AJ> x = box.x_cover(); 
-//  SL2<AJ> y = box.y_cover();
-//  printf("x is :\n");
-//  print_SL2(x);
-//  printf("y is :\n");
-//  print_SL2(y);
-//
-//  pair<AJ, AJ> marg_pair = four_cosh_margulis_simple(x,y);  
-//
+  SL2<AJCC> x = box.x_cover(); 
+  SL2<AJCC> y = box.y_cover();
+  printf("x is :\n");
+  print_SL2(x);
+  printf("y is :\n");
+  print_SL2(y);
+
+//  pair<AJCC, AJCC> marg_pair = four_cosh_margulis_simple(x,y);  
+
 //  printf("4 cosh(margulis) between %f and %f\n", absLB(marg_pair.first), absUB(marg_pair.first));
 //  printf("exp(2t) between %f and %f\n", absLB(marg_pair.second), absUB(marg_pair.second));  
 

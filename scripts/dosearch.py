@@ -212,13 +212,13 @@ if __name__ == '__main__' :
           add_holes(holes, treeholes, dest_dir, done_hole)
 
           num_patched = command_output(
-              'grep -c Patched {0}/{1}.err; exit 0'.format(
+              'grep -c Patched {0}_err/{1}.err; exit 0'.format(
                 dest_dir, done_hole)).rstrip()
           num_unpatched = command_output(
-              'grep -c Unpatched {0}/{1}.err; exit 0'.format(
+              'grep -c Unpatched {0}_err/{1}.err; exit 0'.format(
                 dest_dir, done_hole)).rstrip()
           hum_holes = command_output(
-              'grep -c HOLE {0}/{1}.err; exit 0'.format(
+              'grep -c HOLE {0}_err/{1}.err; exit 0'.format(
                 dest_dir, done_hole)).rstrip()
 
           print('Holes: {0} patched, {1} unpatched, {2} open holes\n'.format(
@@ -230,7 +230,7 @@ if __name__ == '__main__' :
           seen_words |= new_words
 
           bad_holes = command_output(
-              'grep HOLE {0}/{1}.err | cut -d " " -f 2; exit 0'.format(
+              'grep HOLE {0}_err/{1}.err | cut -d " " -f 2; exit 0'.format(
                 dest_dir, done_hole)).rstrip().split('\n')
           failed_holes.update(bad_holes)
 
@@ -280,7 +280,7 @@ if __name__ == '__main__' :
       print('Deepest failed hole: None\n')
 
     out = dest_dir + '/' + best_hole + '.out'
-    err = dest_dir + '/' + best_hole + '.err'
+    err = dest_dir + '_err/' + best_hole + '.err'
 
     if best_hole == 'root':
       pid_word_search_depth = '-1'

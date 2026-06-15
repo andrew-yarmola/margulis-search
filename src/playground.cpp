@@ -11,6 +11,9 @@
 
 using namespace std;
 
+extern bool g_debug;
+bool g_debug = false;
+
 void test_AJCC() {
   AJCC one =  AJCC(1,0,0,0,0,0);
   AJCC zero = AJCC(0,0,0,0,0,0);
@@ -48,7 +51,7 @@ int main(int argc,char**argv)
         depth++;
     }
     where[depth] = '\0';
-  test_AJCC();
+  /*test_AJCC();
   SL2<Complex> M = SL2<Complex>(1,Complex(7,5),0,1);
   printf("%f + i %f\n", (M*M).b.real(), (M*M).b.imag());
   printf("%f + i %f\n", inverse(M).b.real(), inverse(M).b.imag());
@@ -62,7 +65,7 @@ int main(int argc,char**argv)
   Params<AJCC> p;
   p.sinhD2 = AJCC(1,1,0,1,0,0);
   printf("%f + i %f\n", p.sinhD2.f.re, p.sinhD2.e);
-
+*/
   /*char code[] = "";
   char code[] = "0110111001001001000111001001001001001010110111000110"; 
   char code[] = "011011100100100100011100100100100100101011011100011001"; 
@@ -71,7 +74,7 @@ int main(int argc,char**argv)
  char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000000101000111110001110001000100010000001100100010";
   char code[] = "011011100100100100011100100100100100101011011100011001111010001011001000000101000111";
  char code[] = "01101110010010010001110010010010010101100010101011001011010001010111100010100110101100101010011011011000101101010010001001011";*/
-  char code[] = "011111100000100100100000011100000110110001000111111101001111101101001011000101010011";
+  //char code[] = "011111100000100100100000011100000110110001000111111101001111101101001011000101010011";
 
 	Box box;
 	for (char* dir = (char *) &where; *dir; ++dir) {
@@ -87,14 +90,17 @@ int main(int argc,char**argv)
   AJCC sinhD2 = params.sinhD2;
   AJCC coshD2 = params.coshD2;
 
-  printf("Box: %s", box.desc().c_str());
+  fprintf(stderr, "Box: %s", box.desc().c_str());
+  
+  print_type(params.sinhL2);
+  print_type(params.coshL2);
 
   SL2<AJCC> x = construct_x(params);
   SL2<AJCC> y = construct_y(params);
   SL2<Complex> c_x = construct_x(box.center());
   SL2<Complex> c_y = construct_y(box.center());
 
-  pair<Complex, Complex> c_fcm = four_cosh_margulis_simple(c_x,c_y);
+ /* pair<Complex, Complex> c_fcm = four_cosh_margulis_simple(c_x,c_y);
   pair<AJCC, AJCC> fcm = four_cosh_margulis_simple(x,y);
 
   printf("x.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", x.a.f.re, x.a.f.im, x.a.size, absLB(x.a), absUB(x.a));
@@ -108,12 +114,30 @@ int main(int argc,char**argv)
   printf("Exp(2t) xy between %f and %f\n", absLB(fcm.second), absUB(fcm.second));
 
   printf("%s\n",repeat("abc",5).c_str());
-  SL2<Complex> f = construct_word("YxYYxxyy", box.center());
-  SL2<AJCC> g = construct_word("YxYYxxyy", box.cover());
+*/
+
+  //char word[] = "YxYYxxyy";
+  //char word[] = "YYYxxYxxxxyyyyyX";
+  char word[] = "XXXXX";
+
+  SL2<AJCC> g = construct_word(word, box.cover());
+  SL2<AJCC> g_old = construct_word_old(word, box.cover());
+
+  fprintf(stderr, "New XXXXX\n");
+
+  print_SL2(g);
+
+  fprintf(stderr, "Old XXXXX\n");
+
+  print_SL2(g_old);
+
+  /* SL2<Complex> f = construct_word("YxYYxxyy", box.center());
   SL2<AJCC> x1 = construct_word("x", box.cover());
   SL2<AJCC> y1 = construct_word("y", box.cover());
   SL2<AJCC> xy = construct_word("xy", box.cover());
   SL2<AJCC> xxxxx = construct_word("xxxxx", box.cover());
+
+
   printf("f.a is  %f + %f I\n", f.a.real(), f.a.imag());
   printf("g.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", g.a.f.re, g.a.f.im, g.a.size, absLB(g.a), absUB(g.a));
   printf("x1.a is  %f + %f I with size %f, absLB %f, and absUB %f\n", x1.a.f.re, x1.a.f.im, x1.a.size, absLB(x1.a), absUB(x1.a));
@@ -130,5 +154,5 @@ int main(int argc,char**argv)
   vector<word_pair>::iterator it;
   for (it = pairs.begin(); it != pairs.end(); ++it) {
     printf("(%s, %s)\n", (*it).first.c_str(), (*it).second.c_str());
-  }  
+  }  */
 }

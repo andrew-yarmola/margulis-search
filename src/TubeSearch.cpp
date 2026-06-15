@@ -446,8 +446,8 @@ inline void move(axis& a, const string& word, const SL2<Complex>& gamma) {
   a.gamma = gamma * a.gamma;
 }  
 
-#define MAX_SEEN_AGAIN 128
-#define MAX_SHIFT 7
+#define MAX_SEEN_AGAIN 256
+#define MAX_SHIFT 10
 #define MAX_TOTAL 1000000
 
 vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
@@ -511,10 +511,10 @@ vector<string> find_words_tubes(const axis &to_move, bool x_is_shifter,
         Complex trace = h_moved.gamma.a + h_moved.gamma.d;
         double f_cosh_re_len = absUB(four_cosh_re_length(h_moved.gamma));
 
-        if (c_move_j < absLB(0.98 * params.coshmu) ||
-            (absUB(trace - 2) < 0.1 || absUB(trace + 2) < 0.1) || 
-            c_re_orth < 0.98 * cosh_ortho_bound ||
-            f_cosh_re_len < absLB(params.coshreL * 3.99)) {
+        if (c_move_j < absLB(0.999 * params.coshmu) ||
+            (absUB(trace - 2.0) < 0.001 || absUB(trace + 2.0) < 0.001) || 
+            c_re_orth < 0.999 * cosh_ortho_bound ||
+            f_cosh_re_len < absLB(params.coshreL * 3.999)) {
           if (find(relators.begin(), relators.end(), h_moved.word) == relators.end()) {
             if (seen.find(h_moved.word) == seen.end()) {
               /*if (c_re_orth < 0.98 * cosh_ortho_bound) {

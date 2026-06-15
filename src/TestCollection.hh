@@ -193,10 +193,12 @@ template<typename T>
 inline const bool must_fix_x_axis(const SL2<T>& w, const Params<T>& p) {
   T diff = p.coshreD * 4 - four_cosh_dist_ax_wax(w, p);
   if (g_debug && 
-      std::is_same<T, AJCC>::value && strictly_pos(diff)) {
+      //std::is_same<T, AJCC>::value && strictly_pos(diff)) {
+      std::is_same<T, AJCC>::value) {
     fprintf(stderr, "********** MUST FIX X AXIS ***********\n");
     print_SL2(w);
     print_type("4 cosh 2 dx:", p.coshreD * 4);
+    print_type("four_sinh_perp2_sq_ax_wax:", four_sinh_perp2_sq_ax_wax(w, p));
     print_type("4 cosh dist ax wax:", four_cosh_dist_ax_wax(w, p));
     print_type("diff:", diff);
     fprintf(stderr, "*******************************\n");
@@ -237,11 +239,12 @@ inline const bool must_fix_y_axis(const SL2<T>& w, const Params<T>& p) {
   // The "must" part is only valid for AJCC tests
   T diff = p.coshreD * 4 - four_cosh_dist_ay_way(w, p);
   if (g_debug && 
-      std::is_same<T, AJCC>::value && strictly_pos(diff)) {
-      // std::is_same<T, AJCC>::value) {
+      //std::is_same<T, AJCC>::value && strictly_pos(diff)) {
+      std::is_same<T, AJCC>::value) {
     fprintf(stderr, "********** MUST FIX Y AXIS ***********\n");
     print_SL2(w);
     print_type("4 cosh 2 dy:", p.coshreD * 4);
+    print_type("four_sinh_perp2_sq_ay_way:", four_sinh_perp2_sq_ay_way(w, p));
     print_type("4 cosh dist ay way:", four_cosh_dist_ay_way(w, p));
     print_type("diff:", diff);
     fprintf(stderr, "*******************************\n");

@@ -339,8 +339,8 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
   Params<AJCC> p = box.cover();
   for (auto word : box.qr.word_classes()) {
     result.state = open_with_qr;
-    fprintf(stderr,
-        "Testing proven identity for word: %s .\n", word.c_str());
+    //fprintf(stderr,
+    //    "Testing proven identity for word: %s .\n", word.c_str());
     string proven = proven_identity(word, p);
     if (relator_test->is_good(proven)) {
       if (box.name.length() > relator_depth) {
@@ -413,6 +413,11 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         return result;
       } else {
         box.qr.get_name(word);
+        if (g_debug) {
+          fprintf(stderr, "Move less than marg %s is\n", word.c_str());
+          fprintf(stderr, "Box %s is\n", box.desc());
+          print_SL2(w);
+        }
       }
     }
     if (absLB(p.twosinhreD2) > 0.01) {
@@ -431,6 +436,11 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         }
         if (moves_y_axis_too_close_to_x(w_yr,p)) {
           box.qr.get_name(word_yr);
+          if (g_debug) {
+            fprintf(stderr, "Move y too close to x %s is\n", word.c_str());
+            fprintf(stderr, "Box %s is\n", box.desc());
+            print_SL2(w);
+          }
           if (moved_y_axis_not_x_axis(w_yr, p)) {
             result.words.first.assign(word_yr);
             result.state = killed_y_hits_x;
@@ -449,6 +459,11 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         }
         if (inside_var_nbd_y(w_y, p)) {
           box.qr.get_name(word_y);
+          if (g_debug) {
+            fprintf(stderr, "Inside var bnb y %s is\n", word.c_str());
+            fprintf(stderr, "Box %s is\n", box.desc());
+            print_SL2(w);
+          }
           if (syllables(word_y) < 4 || cant_fix_y_axis(w_y, p)) {
             result.words.first.assign(word_y);
             if (g_debug) {
@@ -466,7 +481,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         }
       }
     }
-    result = evaluate_qrs(box);
+    // result = evaluate_qrs(box);
     if (result.state != open && 
         result.state != open_with_qr) {
       return result;
