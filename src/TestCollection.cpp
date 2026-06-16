@@ -199,6 +199,11 @@ extern bool g_symmetric;
 int num_bound_tests = 4;
 int relator_depth= 12;
 
+// Diagnostics for the per-box vol3/sym3 memoization. A "hit" is a full relator sweep
+// avoided because the box's result was already cached. Printed under --debug by RefineMain.
+long g_vol3_calls = 0, g_vol3_hits = 0;
+long g_sym3_calls = 0, g_sym3_hits = 0;
+
 int TestCollection::size()
 {
   return num_bound_tests + pair_vector.size();
@@ -282,47 +287,57 @@ box_state TestCollection::evaluate_approx(word_pair pair, const Box& box)
   return open;
 }
 
+// vol3/sym3 depend only on box.cover(), not on the word being evaluated, so the full
+// relator sweep is computed once per box and cached (see Box::vol3_done/sym3_done).
 TestResult TestCollection::evaluate_vol3(Box& box) {
+  ++g_vol3_calls;
+  if (box.vol3_done) { ++g_vol3_hits; return box.vol3_cached; }
   TestResult result = {-1, open, word_pair()};
   Params<AJCC> p = box.cover();
-  for (auto wp : vol3_rels) {  
+  for (const auto& wp : vol3_rels) {
     string first = proven_identity(wp.first, p);
     if (first == wp.first) {
       string second = proven_identity(wp.second, p);
       if (second == wp.second) {
-          result.state = proven_vol3; 
+          result.state = proven_vol3;
           result.words.first.assign(first);
           result.words.second.assign(second);
-          return result;
+          break;
       }
     }
   }
+  box.vol3_cached = result;
+  box.vol3_done = true;
   return result;
 }
 
 TestResult TestCollection::evaluate_sym3(Box& box) {
+  ++g_sym3_calls;
+  if (box.sym3_done) { ++g_sym3_hits; return box.sym3_cached; }
   // fprintf(stderr, "Running sym3 eval");
   TestResult result = {-1, open, word_pair()};
   Params<AJCC> p = box.cover();
-  for (auto wp : sym3_rels) {  
+  for (const auto& wp : sym3_rels) {
     string first = proven_identity(wp.first, p);
     if (first == wp.first) {
       string second = proven_identity(wp.second, p);
       if (second == wp.second) {
-          result.state = proven_sym3; 
+          result.state = proven_sym3;
           result.words.first.assign(first);
           result.words.second.assign(second);
-          return result;
+          break;
       }
     }
   }
+  box.sym3_cached = result;
+  box.sym3_done = true;
   return result;
 }
 
 TestResult TestCollection::evaluate_qrs(Box& box) {
   TestResult result = {-1, open, word_pair()};
   Params<AJCC> p = box.cover();
-  for (auto word : box.qr.word_classes()) {  
+  for (auto word : box.qr.word_classes()) {
     result.state = open_with_qr;
     fprintf(stderr,
         "Testing proven identity for word: %s .\n", word.c_str());
@@ -332,7 +347,7 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
         if (relator_test->is_sym(proven)) {
           result.state = killed_via_sym;
         } else {
-          SL2<AJCC> w = construct_word(proven, p);
+          SL2<AJCC> w = construct_word(proven, p, box.short_words_cache);
           if (inside_var_nbd_y(w, p)) {
             if (syllables(proven) < 5) {
               result.state = killed_impossible_relator;
@@ -347,7 +362,6 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
             }
             result.state = proven_relator;
             fprintf(stderr, "Proven relator %s\n", proven.c_str());
-            // print_SL2(construct_word(proven, p));
           }
         }
       }
@@ -359,10 +373,10 @@ TestResult TestCollection::evaluate_qrs(Box& box) {
         result.state = killed_impossible_relator;
         fprintf(stderr, "Impossible with %s\n", proven.c_str());
         fprintf(stderr, "Impossible relator:\n");
-        print_SL2(construct_word(proven, p));
+        print_SL2(construct_word(proven, p, box.short_words_cache));
       } else {
         for (auto req : required) {
-          SL2<AJCC> w_req = construct_word(req, p);
+          SL2<AJCC> w_req = construct_word(req, p, box.short_words_cache);
           if (not_identity(w_req)) {
             result.state = killed_impossible_relator;
             break;
@@ -383,9 +397,10 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
 {
   TestResult result = {-1, open, pair};
   Params<AJCC> p = box.cover();
+  bool recede = false; // word provably cannot kill anywhere in this box's subtree
   if (pair.second.length() == 0) {
     string word = pair.first;
-    SL2<AJCC> w = construct_word(word, p);
+    SL2<AJCC> w = construct_word(word, p, box.short_words_cache);
     if (g_debug) {
       fprintf(stderr, "Testing word %s\n", word.c_str());
       print_SL2(w);
@@ -464,10 +479,14 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
     }
     // test sym3
     result = evaluate_sym3(box);
-    if (result.state != open && 
+    if (result.state != open &&
         result.state != open_with_qr) {
       return result;
     }
+    // The word survived every kill test for this box. If all of its word-specific kill
+    // conditions are provably negative over the whole box, it cannot kill any descendant
+    // either, so flag it for subtree pruning (see refine_recursive).
+    recede = word_provably_receding(w, word, p);
   } else {
     // test vol3
     result = evaluate_vol3(box);
@@ -493,6 +512,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
   } else {
     result.state = open;
   }
+  result.recede = recede;
   return result;
 }
 

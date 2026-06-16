@@ -10,27 +10,37 @@
 
 extern bool g_debug;
 
+// Standard Möbius action of w ∈ SL2(ℂ) on ℂ∪{∞}: w·p = (ap+b)/(cp+d).
 template<typename T>
 inline const T mobius(const SL2<T> &x, const T &p) {
   return ((x.a * p) + x.b) / ((x.c * p) + x.d);
 }
 
+// 4·cosh(re L) for a loxodromic w with trace tr(w).
+// Uses the identity: 4·cosh(re L) = |tr(w)|² + |tr(w)²−4|,
+// derived from tr(w) = 2·cosh(L/2), so |tr|² = 4cosh²(re L/2) and
+// |tr²−4| = 4|sinh(L/2)|² = 4sinh²(re L/2)·... (standard computation).
 template<typename T>
 const T four_cosh_re_length(const SL2<T>& w) {
   T tr = w.a + w.d;
   return abs_sqrd(tr) + abs(tr*tr - 4);
 }
 
+// 2·cosh(d) from 2·sinh²(d/2): uses cosh(d) = 2sinh²(d/2)+1.
+// Input is 2·sinh²(d/2); result is 2·cosh(d) = |2s²+2| + |2s²| (rigorous).
 template<typename T>
 const T two_cosh_dist(T& two_sinh_sq_perp2) {
   return abs(two_sinh_sq_perp2 + 2) + abs(two_sinh_sq_perp2);
 }
 
+// 4·cosh(d) from 4·sinh²(d/2): analogous to two_cosh_dist with factor 4.
 template<typename T>
 const T four_cosh_dist(T& four_sinh_sq_perp2) {
   return abs(four_sinh_sq_perp2 + 4) + abs(four_sinh_sq_perp2);
 }
 
+// (tr(w1)²−4)·(tr(w2)²−4) = sinh(L1)²·sinh(L2)² (unnormalized).
+// Used as the denominator when computing cosh_perp / sinh_perp.
 template<typename T>
 const T norm_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
   T tr1 = w1.a + w1.d;
@@ -38,6 +48,8 @@ const T norm_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
   return (tr1 * tr1 - 4) * (tr2 * tr2 - 4);
 }
 
+// sinh(L1)·sinh(L2) (the "norm" for the perpendicular-distance formula).
+// sqrt(norm_sqrd) with sign chosen so that tr + sh → e^L in the positive real direction.
 // TODO: Check that we do need the product of the square roots and
 // not the square root of the product.
 template<typename T>
@@ -67,6 +79,10 @@ const T norm(const SL2<T>& w1, const SL2<T>& w2) {
   return sh1 * sh2;
 }
 
+// cosh(P)·norm(w1,w2), where P is the complex distance between axis(w1) and axis(w2).
+// Formula: (tr(w1)a−d + (a−d)tr(w2) + 2(bc+cb))·... rewritten as
+//   (w1.a−w1.d)·(w2.a−w2.d) + 2·(w1.b·w2.c + w1.c·w2.b).
+// The "normed" suffix means this is cosh(P) multiplied by sinh(L1)·sinh(L2).
 template<typename T>
 const T cosh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T td1 = w1.a - w1.d;
@@ -74,42 +90,49 @@ const T cosh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   return td1 * td2 + (w1.b * w2.c + w1.c * w2.b) * 2;
 }
 
+// cosh of the complex perpendicular distance between axis(w1) and axis(w2).
 template<typename T>
 const T cosh_perp(const SL2<T>& w1, const SL2<T>& w2) {
   return cosh_perp_normed(w1,w2)/norm(w1,w2);
 }
 
+// cosh(P)²·norm_sqrd (avoids sqrt).
 template<typename T>
 const T cosh_perp_sqrd_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  T z = cosh_perp_normed(w1,w2); 
-  return z*z; 
+  T z = cosh_perp_normed(w1,w2);
+  return z*z;
 }
 
+// cosh(P)² (normalized).
 template<typename T>
 const T cosh_perp_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
   return cosh_perp_sqrd_normed(w1,w2)/norm_sqrd(w1,w2);
 }
 
+// |cosh(P)|²·norm_sqrd (used for real bounds from complex perpendicular distance).
 template<typename T>
 const T abs_cosh_perp_sqrd_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  T z = cosh_perp_normed(w1,w2); 
-  return abs_sqrd(z); 
+  T z = cosh_perp_normed(w1,w2);
+  return abs_sqrd(z);
 }
 
+// |cosh(P)|² (normalized). TODO: check if this gives best error (both sqrt and division blow up error).
 template<typename T>
 const T abs_cosh_perp_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
-  return abs_cosh_perp_sqrd_normed(w1,w2)/abs(norm_sqrd(w1,w2)); // TODO: check if this gives best error as both sqrt and division make error blow up
+  return abs_cosh_perp_sqrd_normed(w1,w2)/abs(norm_sqrd(w1,w2));
 }
 
+// sinh(P)²·norm_sqrd, via cosh²−norm² = sinh²·norm².
 template<typename T>
 const T sinh_perp_sqrd_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  T ch = cosh_perp_normed(w1,w2); 
+  T ch = cosh_perp_normed(w1,w2);
   return ch * ch - norm_sqrd(w1,w2);
 }
 
+// sinh(P)·norm(w1,w2) with sign chosen consistently with norm().
 template<typename T>
 const T sinh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
-  T ch = cosh_perp_normed(w1,w2); 
+  T ch = cosh_perp_normed(w1,w2);
   T n_sqrd = norm_sqrd(w1,w2);
   T sh = sqrt(ch * ch - n_sqrd);
   // TODO this might not be reliable
@@ -124,6 +147,7 @@ const T sinh_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   return sh;
 }
 
+// sinh of the complex perpendicular distance between axis(w1) and axis(w2).
 template<typename T>
 const T sinh_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T ch = cosh_perp(w1,w2);
@@ -140,16 +164,19 @@ const T sinh_perp(const SL2<T>& w1, const SL2<T>& w2) {
   return sh;
 }
 
+// |sinh(P)|²·norm_sqrd.
 template<typename T>
 const T abs_sinh_perp_sqrd_normed(const SL2<T>& w1, const SL2<T>& w2) {
   return abs(sinh_perp_sqrd_normed(w1,w2));
 }
 
+// |sinh(P)|² (normalized). TODO: check if this gives best error.
 template<typename T>
 const T abs_sinh_perp_sqrd(const SL2<T>& w1, const SL2<T>& w2) {
-  return abs_sinh_perp_sqrd_normed(w1,w2)/abs(norm_sqrd(w1,w2)); // TODO: check if this gives best error
+  return abs_sinh_perp_sqrd_normed(w1,w2)/abs(norm_sqrd(w1,w2));
 }
 
+// cosh(2·re P) = |cosh P|² + |sinh P|² (real part of the double-distance formula).
 template<typename T>
 const T cosh_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T abs_cp_sqrd = abs_cosh_perp_sqrd(w1,w2);
@@ -157,6 +184,7 @@ const T cosh_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
   return abs_cp_sqrd + abs_sp_sqrd;
 }
 
+// cosh(2·re P)·norm_sqrd (unnormalized version to avoid division).
 template<typename T>
 const T cosh_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T abs_cp_sqrd_normed = abs_cosh_perp_sqrd_normed(w1,w2);
@@ -164,6 +192,7 @@ const T cosh_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   return abs_cp_sqrd_normed + abs_sp_sqrd_normed;
 }
 
+// sinh(2·re P) via sqrt(cosh²(2 re P) − 1).
 template<typename T>
 const T sinh_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T ch = cosh_2_re_perp(w1,w2);
@@ -174,12 +203,13 @@ const T sinh_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
       fprintf(stderr, "Flipping sqrt sign");
       T t = ch + sh;
       print_type(t);
-    } 
+    }
     sh = -sh;
   }
   return sh;
 }
 
+// sinh(2·re P)·norm_sqrd (unnormalized).
 template<typename T>
 const T sinh_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T ch = cosh_2_re_perp_normed(w1,w2);
@@ -192,12 +222,13 @@ const T sinh_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
       fprintf(stderr, "Flipping sqrt sign");
       T t = ch + sh;
       print_type(t);
-    } 
+    }
     sh = -sh;
   }
   return sh;
 }
 
+// e^P = cosh(P) + sinh(P): the exponential of the complex perpendicular distance.
 template<typename T>
 const T e_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T cp = cosh_perp(w1,w2);
@@ -205,11 +236,13 @@ const T e_perp(const SL2<T>& w1, const SL2<T>& w2) {
   return cp + sp;
 }
 
+// |e^P|² = e^{2 re P} (real exponential of twice the real perpendicular distance).
 template<typename T>
 const T e_2_re_perp(const SL2<T>& w1, const SL2<T>& w2) {
   return abs_sqrd(e_perp(w1,w2));
 }
 
+// |e^P|²·norm_sqrd (unnormalized version of e_2_re_perp).
 template<typename T>
 const T e_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T cp = cosh_perp_normed(w1,w2);
@@ -217,6 +250,7 @@ const T e_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   return abs_sqrd(cp + sp);
 }
 
+// e^{-P} = cosh(P) − sinh(P).
 template<typename T>
 const T e_m_perp(const SL2<T>& w1, const SL2<T>& w2) {
   T cp = cosh_perp(w1,w2);
@@ -224,6 +258,7 @@ const T e_m_perp(const SL2<T>& w1, const SL2<T>& w2) {
   return cp - sp;
 }
 
+// |e^{-P}|²·norm_sqrd = e^{-2 re P}·norm_sqrd.
 template<typename T>
 const T e_m_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   T cp = cosh_perp_normed(w1,w2);
@@ -231,16 +266,29 @@ const T e_m_2_re_perp_normed(const SL2<T>& w1, const SL2<T>& w2) {
   return abs_sqrd(cp - sp);
 }
 
+// Rigorous upper bound on e^{re P}.
 template<typename T>
 const double e_re_perp_UB(const SL2<T>& w1, const SL2<T>& w2) {
   return absUB(e_perp(w1,w2));
 }
 
+// Rigorous lower bound on e^{re P}.
 template<typename T>
 const double e_re_perp_LB(const SL2<T>& w1, const SL2<T>& w2) {
   return absLB(e_perp(w1,w2));
 }
 
+// Computes (4·cosh(μ), e^{2t}) where μ is the Margulis number for a geodesic
+// pair w1, w2 with common perpendicular of complex length P and the optimal
+// basepoint at signed arc-length parameter t along w1's axis.
+//
+// The formula minimizes 4·cosh(d(p, w1·p)) + 4·cosh(d(p, w2·p)) − 4 over
+// basepoints p on the common perpendicular, reducing to a 1-variable optimization
+// in e^{2t}. Four algebraically equivalent formulas are tried; the one with
+// smallest absUB is returned to minimize interval arithmetic error.
+//
+// If the optimal t is outside [0, re P] (perpendicular segment endpoints),
+// the minimum is attained at an endpoint and the result is clamped accordingly.
 template<typename T>
 const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w2) {
   /*
@@ -377,37 +425,43 @@ const std::pair<T,T> four_cosh_margulis_simple(const SL2<T>& w1, const SL2<T>& w
   return result;
 }
 
-// We compute |tr(w1)^2 - 4| + |tr(w1 w2 W1 W2) - 2|
-// with optimzation for x and y specifically
+// Jørgensen's inequality LHS: |tr(w1)²−4| + |tr([w1,w2])−2|.
+// For any non-elementary discrete subgroup, this quantity is ≥ 1 (Jørgensen 1976).
+// Returning a value < 1 (i.e., absUB < 1) certifies discreteness is violated,
+// killing the box. The commutator [w1,w2] = w1·w2·w1⁻¹·w2⁻¹.
 template<typename T>
 const T jorgensen(const SL2<T>& w1, const SL2<T>& w2) {
-  SL2<T> W1 = inverse(w1); 
+  SL2<T> W1 = inverse(w1);
   SL2<T> W2 = inverse(w2);
   SL2<T> C = w1*w2*W1*W2;
-  T tr1 = w1.a + w1.d; 
-  T tr2 = C.a + C.d; 
+  T tr1 = w1.a + w1.d;
+  T tr2 = C.a + C.d;
   return abs(tr1*tr1 - 4) + abs(tr2 - 2);
 }
 
-// Complex distance between {zm, zp} and {0, infty} 
+// sinh²(P/2) for the complex perpendicular distance P between the geodesic
+// with endpoints {zm, zp} and the geodesic {0, ∞} (the imaginary axis in ℍ³).
+// Formula: sinh²(P/2) = zm / (zp − zm).
 template<typename T>
 const T sinh_perp2_sq_zero_inf(T& zm, T& zp) {
-  return zm / (zp - zm); 
+  return zm / (zp - zm);
 }
 
-// Complex distance between {zm, zp} and {-1, 1} 
+// sinh²(P/2) for the perpendicular distance between {zm, zp} and {−1, 1}.
+// Formula: sinh²(P/2) = ((zm+1)(zp−1)/2) / (zm−zp).
 template<typename T>
 const T sinh_perp2_sq_mp_one(T& zm, T& zp) {
   T one = T(1);
-  return (((zm + one) * (zp - one)) * 0.5) / (zm - zp) ; 
+  return (((zm + one) * (zp - one)) * 0.5) / (zm - zp);
 }
 
-// Complex distance between {zm, zp} and {-1, 1} 
+// sinh²(P/2) for the perpendicular distance between {zm, zp} and {−i, i}.
+// Formula: sinh²(P/2) = ((1−i·zm)(zp−i)/2) / (zm−zp).
 template<typename T>
 const T sinh_perp2_sq_mp_eye(T& zm, T& zp) {
   T one = T(1);
   T eye = eye(one);
-  return (((one - eye * zm) * (zp - eye)) * 0.5) / (zm - zp) ; 
+  return (((one - eye * zm) * (zp - eye)) * 0.5) / (zm - zp);
 }
 
 #endif // __IsomH3_h

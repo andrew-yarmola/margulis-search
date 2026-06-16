@@ -170,4 +170,16 @@ int main(int argc, char** argv)
   refine_tree(box, t);
   print_tree(t);
   fprintf(stderr, "%d nodes added\n", g_boxes_visited);
+  if (g_debug) {
+    extern long g_vol3_calls, g_vol3_hits, g_sym3_calls, g_sym3_hits, g_prune_count;
+    fprintf(stderr,
+        "vol3 sweeps: %ld of %ld calls served from cache (%.1f%% avoided)\n",
+        g_vol3_hits, g_vol3_calls,
+        g_vol3_calls ? 100.0 * g_vol3_hits / g_vol3_calls : 0.0);
+    fprintf(stderr,
+        "sym3 sweeps: %ld of %ld calls served from cache (%.1f%% avoided)\n",
+        g_sym3_hits, g_sym3_calls,
+        g_sym3_calls ? 100.0 * g_sym3_hits / g_sym3_calls : 0.0);
+    fprintf(stderr, "subtree word prunes: %ld\n", g_prune_count);
+  }
 }

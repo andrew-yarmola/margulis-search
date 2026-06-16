@@ -34,6 +34,8 @@ Box Box::child(int dir) const
 
   child.qr = qr;
   child.short_words_cache.clear();
+  child.vol3_done = false;
+  child.sym3_done = false;
 
   child.compute_center_and_size();
   child.compute_nearer();

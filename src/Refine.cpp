@@ -2,14 +2,20 @@
 #include "TestCollection.hh"
 #include "TubeSearch.hh"
 #include "QuasiRelators.h"
+#include <climits>
 
 using namespace std;
 
 typedef vector< vector< box_state > > TestHistory;
+// For each test, the depth at which it was proven to recede (no kill possible anywhere in
+// that box's subtree). A test is skipped while the current depth is strictly below... see
+// refine_recursive. INT_MAX means "not pruned on the current path".
+typedef vector< int > PruneDepths;
 
 Options g_options;
 TestCollection g_tests;
 int g_boxes_visited = 0;
+long g_prune_count = 0; // diagnostic: number of subtree prunes performed (printed under --debug)
 
 #define IMPROVE_MOD 4 
 #define IMPROVE_HIST 7 
@@ -19,7 +25,6 @@ int g_boxes_visited = 0;
 
 extern double g_cosh_marg_upper_bound;
 extern double g_cosh_marg_lower_bound;
-extern double g_sinh_d_bound; 
 
 extern int num_bound_tests;
 
@@ -29,7 +34,7 @@ unordered_map<string, SL2<AJCC> > short_words_cache;
 
 bool refine_recursive(Box box, PartialTree& t, int depth,
     TestHistory& history, vector< Box >& place,
-    int new_depth, int& searched_depth)
+    int new_depth, int& searched_depth, PruneDepths& pruned)
 {
   place.push_back(box);
 
@@ -66,7 +71,13 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
       // only do boundary tests on a regular basis
       if (i >= num_bound_tests && depth % IMPROVE_MOD == 0) {
         break;
-      } 
+      }
+      // Skip tests proven to recede at an ancestor box on this path: they cannot kill
+      // anywhere in this subtree, so we drop both their center and box evaluations. This
+      // is the rigorous strengthening of the do_eval history heuristic below.
+      if (pruned[i] < depth) {
+        continue;
+      }
       vector<box_state>& th = history[i];
       while (th.size() <= depth) {
         box_state result = g_tests.evaluate_center(i, place[th.size()]);
@@ -81,6 +92,13 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
         t.result = g_tests.evaluate_box(i, box);
         if (t.result.state != open && t.result.state != open_with_qr) {
           return true;
+        }
+        // The test ran fully and did not kill. If its every kill condition is provably
+        // negative over this whole box, mark it pruned for the box's subtree (children
+        // at depth+1 and below skip it; cleared on backtrack above this depth).
+        if (i >= num_bound_tests && t.result.recede) {
+          pruned[i] = depth;
+          ++g_prune_count;
         }
       }
     }
@@ -105,6 +123,7 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
       int old_size = g_tests.size();
       int new_index = g_tests.add(new_pair);
       history.resize(g_tests.size());
+      pruned.resize(g_tests.size(), INT_MAX);
       search_pairs.pop_back();
       if (old_size < g_tests.size()) {
         fprintf(stderr, "search (%s) found (%s,%s) at (%s)\n",
@@ -139,18 +158,22 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
   bool is_complete = true;
 
   is_complete = refine_recursive(box.child(0), *t.l_child, depth + 1, history,
-      place, new_depth, searched_depth) && is_complete;
+      place, new_depth, searched_depth, pruned) && is_complete;
   if (place.size() > depth + 1)
     place.resize(depth + 1);
   for (int i = 0; i < g_tests.size(); ++i) {
     if (history[i].size() > depth)
       history[i].resize(depth);
+    // Drop prunes proven inside the left child's subtree (depth' > depth); prunes from
+    // this box (== depth) and its ancestors (< depth) stay valid for the right child.
+    if (pruned[i] > depth)
+      pruned[i] = INT_MAX;
   }
   if (searched_depth > depth)
     searched_depth = depth;
   if (is_complete || depth < g_options.truncate_depth)
     is_complete = refine_recursive(box.child(1), *t.r_child, depth + 1, history,
-        place, new_depth, searched_depth) && is_complete;
+        place, new_depth, searched_depth, pruned) && is_complete;
   if (old_result_index >= 0 && t.result.index != old_result_index) {
     fprintf(stderr, "invalid box %s(%s) %d %s\n",
         g_tests.get_name(old_result_index).c_str(), box.name.c_str(),
@@ -165,9 +188,10 @@ bool refine_recursive(Box box, PartialTree& t, int depth,
 void refine_tree(Box box, PartialTree& t)
 {
   TestHistory history(g_tests.size());
+  PruneDepths pruned(g_tests.size(), INT_MAX);
   vector<Box> place;
   int searched_depth = 0;
-  refine_recursive(box, t, 0, history, place, 0, searched_depth);
+  refine_recursive(box, t, 0, history, place, 0, searched_depth, pruned);
 }
 
 void print_tree(PartialTree& t)
