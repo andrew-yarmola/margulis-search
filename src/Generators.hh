@@ -51,6 +51,7 @@ SL2<T> construct_word(std::string word, const Params<T>& params)
   SL2<T> w; // identity
   SL2<T> x = construct_x(params);
   SL2<T> y = construct_y(params);
+  T t = params.coshL2 * 2;
 
   char h;
   int x_pow = 0;
@@ -67,17 +68,17 @@ SL2<T> construct_word(std::string word, const Params<T>& params)
     // Flush accumulated power of the opposite generator when we switch.
     if (y_pow != 0 && x_pow != 0) {
       if (h == 'y' || h == 'Y') {
-        w = pow(x, x_pow) * w;
+ 	w = pow_sl2(t, x, x_pow) * w;
         x_pow = 0;
       } else {
-        w = pow(y, y_pow) * w;
+ 	w = pow_sl2(t, y, y_pow) * w;
         y_pow = 0;
       }
     }
   }
   // Flush any remaining leading run (only one of these can be nonzero).
-  if (x_pow != 0) { w = pow(x, x_pow) * w; }
-  if (y_pow != 0) { w = pow(y, y_pow) * w; }
+  if (x_pow != 0) { w = pow_sl2(t, x, x_pow) * w; }
+  if (y_pow != 0) { w = pow_sl2(t, y, y_pow) * w; }
   return w;
 };
 
