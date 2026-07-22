@@ -415,7 +415,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
         box.qr.get_name(word);
         if (g_debug) {
           fprintf(stderr, "Move less than marg %s is\n", word.c_str());
-          fprintf(stderr, "Box %s is\n", box.desc());
+          fprintf(stderr, "Box %s is\n", box.desc().c_str());
           print_SL2(w);
         }
       }
@@ -438,7 +438,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
           box.qr.get_name(word_yr);
           if (g_debug) {
             fprintf(stderr, "Move y too close to x %s is\n", word.c_str());
-            fprintf(stderr, "Box %s is\n", box.desc());
+            fprintf(stderr, "Box %s is\n", box.desc().c_str());
             print_SL2(w);
           }
           if (moved_y_axis_not_x_axis(w_yr, p)) {
@@ -461,7 +461,7 @@ TestResult TestCollection::evaluate_AJCC(word_pair& pair, Box& box)
           box.qr.get_name(word_y);
           if (g_debug) {
             fprintf(stderr, "Inside var bnb y %s is\n", word.c_str());
-            fprintf(stderr, "Box %s is\n", box.desc());
+            fprintf(stderr, "Box %s is\n", box.desc().c_str());
             print_SL2(w);
           }
           if (syllables(word_y) < 4 || cant_fix_y_axis(w_y, p)) {
