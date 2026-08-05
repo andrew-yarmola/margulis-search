@@ -55,7 +55,9 @@ def run_refine(command, dest_dir) :
   pid_file = dest_dir + '/' + str(pid) + '.pid'
   with open(pid_file,'a') as fp : 
     fp.write(command + '\n')
-  return_code = subprocess.call(command, shell=True)
+  return_code = subprocess.call(command, shell=True, env=os.environ, executable="/bin/bash")
+  with open(pid_file,'a') as fp :
+    fp.write('\nReturn code: {}'.format(return_code))
   if return_code == 0:
     with open(pid_file,'a') as fp :
       fp.write('\ncompleted')
@@ -68,9 +70,9 @@ def run_refine(command, dest_dir) :
 if __name__ == '__main__' :
   try:
     opts, args = getopt.getopt(sys.argv[1:],
-        'w:p:b:c:d:h:r:i:t:s:IM:R:',
-      ['words=','impossible=', 'child_limit=','depth_limit=',
-        'holes=','refine=','invent_depth=',
+        'w:p:b:c:d:h:r:T:i:t:s:IM:R:',
+      ['words=','impossible=', 'bad_relators=', 'child_limit=','depth_limit=',
+        'holes=','refine=', 'treecat=', 'invent_depth=',
         'truncate_depth','word_search_depth=', 'improve',
         'cosh_marg=', 'sinh_rad='])
   except getopt.GetoptError as err:
@@ -88,8 +90,6 @@ if __name__ == '__main__' :
 
   # Executables
   treecat = './treecat'
-  treeholes = './treecat --open_holes'
-  treecheck = './treecat --mark -s'
   refine = './refine_marg'
 
   # Set up the rest of the arguments
@@ -130,6 +130,8 @@ if __name__ == '__main__' :
       holes_file = val
     if opt in ('-r', '--refine'):
       refine = val
+    if opt in ('-T', '--treecat'):
+      treecat = val
     if opt in ('-i', '--invent_depth'):
       invent_depth = val
     if opt in ('-t', '--truncate_depth'):
@@ -143,6 +145,9 @@ if __name__ == '__main__' :
     if opt in ('-R', '--sinh_rad'):
       sinh_tube_upper = val
 
+  treeholes = '{0} --open_holes'.format(treecat)
+  treecheck = '{0} --mark -s'.format(treecat)
+  
   add_words(seen_words, words_file)
 
   # Check for incomplete trees
@@ -255,7 +260,7 @@ if __name__ == '__main__' :
           done.remove(done_hole)
           child_count -= 1
           del active_pid_to_hole[done_pid]
-          os.remove(pid_file)
+          # os.remove(pid_file)
           continue
         else :
           continue
